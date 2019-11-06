@@ -285,6 +285,7 @@ def check_args(infile = in_gff, out_dir = out_dir, mmseq = ms, dbtype = db):
 
 
    
+ 
         
 # probleme: ambigious symbols, 1/3 IDs not found
 def get_names(table):   # table should be an input 
