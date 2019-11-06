@@ -1,32 +1,66 @@
 #!/usr/bin/env python3
 
-import re, os, sys, subprocess
+####### PACKAGES ##########
+import re, os, sys, subprocess, argparse
 # import mygene
 # from biothings_client import get_client
 import pandas as pd
-from Bio import SeqIO
-
-# import wget
+# from Bio import SeqIO
 from collections import OrderedDict
-db = 'uniprotkb'          # shall be paramtric to choose between different databases...
+#######################################################
 
+###### ############GLOBAL VAR #######################
 gff_content = {}        # gff content per row number
 hyprot_loc = {}         # recognizes the line of each hyprot via prokka feature ID
 hyprot_content = {}            # recognizes prokka features of 'hypothetical proteins' via prokka feature ID
+valid_db = ['uniprotkb']        # to be extended for novel db-types
+################## ARGPARSE #####################
+parser = argparse.ArgumentParser()
+#Input-GFF
+parser.add_argument('-i', '--input', dest='input', action='store', metavar='PATH', nargs=1, required=True, help="Path to input gff to be extended")
+# Output_dir
+parser.add_argument('-o', '--output', dest='output', action='store', metavar='PATH', nargs=1, required=False, default='..', help="Path to input gff to be extended")
+# DB-Type
+parser.add_argument('-d', '--database', dest='db', action='store', metavar='STR', nargs=1, default='uniprotkb', help="Specifiy target db to use for extension. Available options: 'uniprotkb'")
+# location of mmseq2.sh:
+parser.add_argument('-m', '--mmseq2', dest='mmseq', action='store', metavar='PATH', nargs=1, required=True, help="Specify the path to the mmseqs2.sh. Obligatory for extension.")
+# ALL or just BLANKS ?
+#parser.add_argument('-m', '--modus', dest='modus', action='store', metavar='STR', nargs=1, default='blanks', help="Search all hypothetical proteins or just the blanks. default: blanks")
 
-def load_gff(input="/data/mahlzeitlocal/projects/ma_neander_assembly/hiwi/prokkaX/test/prokka/chlamydia_test.gff"):
+args = parser.parse_args()
+
+in_gff = args.input[0]
+out_dir = args.output[0]
+db = args.db[0]
+ms = args.mmseq[0]
+DIR = ''
+BN = ''
+EXT = ''
+count = 0
+################# FUNCTIONS ########################
+
+def load_gff(input=in_gff):
+    # is_outdir()
+    # is_gff()
     row = 0
+    hyprot_count = 0
     with open(input, 'r') as gff:
         for line in gff:
             line = line.rstrip('\n')
             attr = line.split('\t')
             gff_content.update({row:attr})      # ggf content with line ID as identifier
             if is_hyprot(attr, 'hypothetical protein'):
+                hyprot_count += 1
                 save_hyprot(attr, row)
             else:
                 pass
             row += 1             # next line
+    print("loading gff file finished.")
+    print(f"Total Features:\t{row} ")
+    print(f"Hyprot count:\t{hyprot_count}")
+    # print(f"Hyprot_content:\t{len(hyprot_content.keys())}")
     # print(gff_content[len(gff_content)-1])
+    print(f"Saved hyprots:\t{len(hyprot_content.keys())}")
     return gff_content, hyprot_content   # DEPRECATED
 
 def is_hyprot(attr, regex = ''):
@@ -42,25 +76,32 @@ def is_hyprot(attr, regex = ''):
 
 def save_hyprot(attr, row):
     '''get hyprot IDs, their attributes, and where in gff_content they can be found'''
-    global hyprot_loc, hyprot_content
+    global hyprot_loc, hyprot_content, count
     fields = attr[8].split(';')
     ID = fields[0][3:]
     content = []
-    if len(fields) == 4:            # only hypothetical proteins with no information at all! 
+    if len(fields) == 4:            # only hypothetical proteins with no information at all! Can be extended to all hyprots
         for i in range(1, len(fields)):
             content.append(fields[i])
+        # count += 1
         hyprot_content.update({ID:content})
         hyprot_loc.update({ID:row})
     else:
         pass 
     assert  len(hyprot_content.keys()) == len(hyprot_loc.keys())
+    # print(f"save_hyprots:\t{count}")
     return hyprot_content, hyprot_loc   # DEPRECATED
 
-def query_fasta(input= "/data/mahlzeitlocal/projects/ma_neander_assembly/hiwi/prokkaX/test/prokka/", output='/data/mahlzeitlocal/projects/ma_neander_assembly/hiwi/prokkaX/test/x/query.fasta'):
-    global hyprot_content
+def query_fasta(infile = in_gff, output = out_dir):
+    global hyprot_content, DIR, BN
+    print("Build output directory 'prokkaX' in specified output location, if not existing.")
+    output = output.rstrip('/') + "/prokkaX"
+    os.system(f"mkdir -p {output}")  
+    print("Try to build query fasta...")
+    ffn_file = DIR + '/' + BN + '.ffn'      # feature sequences
     if bool(hyprot_content):
-        fasta = load_fasta(input + '/chlamydia.ffn')
-        with open(output, 'w') as query:
+        fasta = load_fasta(ffn_file)
+        with open(output + "/query.fasta", 'w') as query:
             for ID in fasta.keys():
                 # print(ID)
                 if ID in hyprot_content.keys():
@@ -72,9 +113,11 @@ def query_fasta(input= "/data/mahlzeitlocal/projects/ma_neander_assembly/hiwi/pr
                     # print('other')
             query.close()
     else:
-        print("No query seq to write to fasta. Exiting extension pipeline...")      
+        print("No query seq saved from input gff. Maybe file is corrupted. Exiting extension pipeline...")      
         exit()   
-    num =  int(subprocess.check_output("grep -c '>' " + output, shell=True))
+    num =  int(subprocess.check_output("grep -c '>' " + output +  "/query.fasta", shell=True))
+    print(f"Extracted {num} sequences to {output}/query.fasta")
+    # print(len(hyprot_content.keys()))
     assert num == len(hyprot_content.keys()) 
 
 def load_fasta(file):
@@ -92,42 +135,57 @@ def load_fasta(file):
             elif re.match("[ACGT]",line):           # nt seq of hypothetical protein
                 seq = seq + str(line).rstrip('\n')
     fasta.update({header:seq})
-    print(len(fasta.keys()))
+    # print(len(fasta.keys()))
     return fasta
     # print(fasta)        
             # if header in hyprots_names: # if the last fasta seq is hypothetical protein, too
             #     elem = line.split(' ')
             #     print(header)
 
-
-
 # download a particular db
-def download_db(dir = "/data/mahlzeitlocal/projects/ma_neander_assembly/hiwi/prokkaX/test/x"):
-    path = dir + '/db/uniprotkb'
-    # print(path)
-    os.system('mkdir -p' + " " + path) # uniprotkb - make parametric
-    os.chdir(path)
-    os.system("wget ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz")    
-    os.system('gunzip ' + path + "/uniprot_sprot.fasta.gz")
+def download_db(output = out_dir, dbtype = db): #--------------------------TO BE EXTENDED -----------------------------------
+    global valid_db
+    weblink = ''
+    if dbtype == valid_db[0]:    # if clause to decide which db to download 
+        weblink = "ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz"
+        file = "uniprot_sprot.fasta.gz"
+        path = out_dir.rstrip('/') + "/prokkaX/db/" + valid_db[0]
+        db_fasta = path + "/uniprot_sprot.fasta"
+        db_target = path + "/target_db"
+        # print(path)
+        os.system('mkdir -p' + " " + path) 
+        pwd = os.getcwd()
+        os.chdir(path)
+        # print(os.getcwd())
+        # print(f"Download database to {path}")
+        os.system(f"wget {weblink}")    
+        os.system(f"gunzip ./{file}")
+    else:
+        print("Error. Exit from download_db function...")
+        exit()
+    os.chdir(pwd)
+    return path, db_fasta, db_target    #-----------------------------------------------------------------------------------------
 
-
-def mmseq(path='/data/mahlzeitlocal/projects/ma_neander_assembly/hiwi/prokkaX/test/x'):
-    global hyprot_content, db
+def mmseq(db, dbfasta, dbtarget, output=out_dir, mmseq = ms):
+    global hyprot_content
+    output = output.rstrip('/') + '/prokkaX/mmseq_output'
+    os.system('mkdir -p' + " " + output) # uniprotkb - make parametric
     # execute mmseq2
-    os.system('/data/mahlzeitlocal/projects/ma_neander_assembly/hiwi/prokkaX/scripts/mmseq2.sh /data/mahlzeitlocal/projects/ma_neander_assembly/hiwi/prokkaX/test/x')
+    os.system(f"{mmseq}  {output}  {dbfasta}  {dbtarget}")
     
     # fraction identified
-    hit_nums = str(subprocess.check_output('cut -f1 /data/mahlzeitlocal/projects/ma_neander_assembly/hiwi/prokkaX/test/x/mmseq2_out_unique.tsv | wc -l',shell=True))
+    hit_nums = str(subprocess.check_output("cut -f1 " + output + "/mmseq2_out_unique.tsv" + "| wc -l", shell=True))
     print(f"Found hits for {int(hit_nums[2:-3])-1} / {len(hyprot_content.keys())} hypothetical proteins")
-    
-    
-    # create ID:annotation dictionary
-    mmseqs_out = pd.read_csv('/data/mahlzeitlocal/projects/ma_neander_assembly/hiwi/prokkaX/test/x/mmseq2_out_unique.tsv', sep='\t')
 
+    # create ID:annotation dictionary
+    mmseqs_out = pd.read_csv(output + '/mmseq2_out_unique.tsv', sep='\t')
+
+    #create dict from pandas df
     out_dict = mmseqs_out.to_dict('index')  # dict of dicts; {index:{row}}; row = {col-X:row-entry}
     # print(prots_dict.keys())
     
-    for index in out_dict.keys():           # aln
+    # save findings in hyprot_content 
+    for index in out_dict.keys():           
         # print(out_dict[index]['query'])
         hyprot = out_dict[index]['query']
         if hyprot in hyprot_content.keys():
@@ -145,15 +203,17 @@ def mmseq(path='/data/mahlzeitlocal/projects/ma_neander_assembly/hiwi/prokkaX/te
             # print(hyprot_content[out_dict[index]['query']])
             # print(out_dict[index]['query'])
             
-def update_gff(output="/data/mahlzeitlocal/projects/ma_neander_assembly/hiwi/prokkaX/test/prokka/chlamydia_test_extend.gff", delimiter = '\t'):
-    global hyprot_content, hyprot_loc, gff_content        
-    for hyprot in hyprot_content.keys():        # keine
+def update_gff(output=out_dir, delimiter = '\t'):
+    global hyprot_content, hyprot_loc, gff_content, BN   
+    output = output.rstrip('/') + "/prokkaX/output/"
+    os.system(f"mkdir -p {output}")
+    for hyprot in hyprot_content.keys():        
         data = 'ID='
         data = f'{data}{hyprot}'
         # print(hyprot)
         # print(hyprot_content[hyprot])
         for elem in hyprot_content[hyprot]:
-            data = f'{data};{elem}'
+            data = f"{data};{elem}"
             # print(data)
         # data = data + '\''
         # print(data)
@@ -162,7 +222,8 @@ def update_gff(output="/data/mahlzeitlocal/projects/ma_neander_assembly/hiwi/pro
         gff_content[loc][8] = data
         # print(gff_content[loc])
     # write to gff
-    with open(output, 'w') as gff_up:
+    with open(output + "/" + BN + "_extended.gff", 'w') as gff_up:
+        print(f"Write extended gff:\t{output}/{BN}_extended.gff")
         for key in gff_content:
             line = ''
             # print(gff_content[key])
@@ -174,12 +235,57 @@ def update_gff(output="/data/mahlzeitlocal/projects/ma_neander_assembly/hiwi/pro
             gff_up.write(str(line.rstrip('\t')) + '\n')
 
 
-            
-   
+def get_input_info(input = in_gff):
+    ''' Store information about specified input '''
+    DIR = os.path.dirname(input)
+    NAME = os.path.basename(input)
+    file_split = NAME.split('.')
+    BN = file_split[0] 
+    EXT = file_split[1]
+    return DIR, BN, EXT
+    
+def check_args(infile = in_gff, out_dir = out_dir, mmseq = ms, dbtype = db):
+    '''Control all given paths and files to exist; before running anything!'''
+    global DIR, BN, EXT
+    print(f"Current working directory: {os.getcwd()}")
+    # check input gff file is valid - does not really test gf format!
+    DIR, BN, EXT = get_input_info(infile)
+    mmseq_name = os.path.basename(mmseq)
+    if os.path.isfile(infile) and EXT == 'gff':
+        print("Specified input is a file with 'gff' extension. Trying to load content...")
+    else:
+        print("Invalid input file. Please enter '--help' flag for information on script usage.")
+        exit()  
+    # check output directory path
+    if os.path.isdir(out_dir):
+        print(f"Specified output directory is valid.")
+    else:
+        print("Invalid output directory. Please enter '--help' for information on script usage.")
+        exit()
+    if dbtype in valid_db:                               # db is allowed entry?
+        print(f"Extension will be performed on {db}")
+    else:
+        print("Unknown dbtype chosen. please check '--help' to choose a valid database for mmseqs2.")
+        exit()
+     # check, if ffn file is present
+    ffn_file = DIR + '/' + BN + '.ffn'      # feature sequences
+    if os.path.isfile(ffn_file):
+        print("Feature Fasta file found.")
+    else:
+        print(f"{filename} does not exist. To generate mmseqs2 input query, a 'ffn'-file is required. Make sure, your prokka output is not corrupted.")
+        exit()
+
+    # check, if mmseq2.sh is valid
+    if os.path.isfile(mmseq) and mmseq_name == "mmseqs2.sh":
+        print("Found mmseqs2.sh.")
+    else:
+        print("mmseqs2.sh path specification is corrupted. Check the specified path and the file you referenced.")
+        exit()
     
 
 
-
+   
+        
 # probleme: ambigious symbols, 1/3 IDs not found
 def get_names(table):   # table should be an input 
     gene_ids = []
@@ -196,13 +302,14 @@ def get_names(table):   # table should be an input
     # ret.to_csv('/data/mahlzeitlocal/projects/ma_neander_assembly/hiwi/prokkaX/test/x/notfound.csv')
     # print(ret)
 
+############# MAIN ######################
 
 
-
+check_args()
 load_gff()
 query_fasta()
-download_db()
-mmseq()
+db_dir, dbfasta, dbtarget = download_db()
+mmseq(db_dir, dbfasta, dbtarget)
 update_gff()
 # get_names('/data/mahlzeitlocal/projects/ma_neander_assembly/hiwi/prokkaX/test/x/mmseq2_out_unique.tsv')
 
@@ -211,10 +318,9 @@ update_gff()
 
 # TO DO:
     # object oriented - > atrributes: ID eC_number Name db_xref gene inference locus_tag product
-    # argparse
     # design for different db
     # ALL or only the hard cases
-    # 
+    # mmseq() - parametric input of target db info
 
 
 # Requirements
@@ -291,3 +397,20 @@ def get_hyprot_seqs(input="/data/mahlzeitlocal/projects/ma_neander_assembly/hiwi
     # os.system("grep -c '>'" + path + "/query.fasta")
     # assert int(os.system('grep -c '>'' + path + '/query.fasta')) == len(hyprots.keys())
 
+# DEPRECATED
+def is_gff(infile=in_gff):
+    ''' Checks wether the file exists and extension is .gff'''
+    EXT = get_input_info(infile)[2]
+    if os.path.isfile(infile) and EXT == 'gff':
+        print("Specified input is a file with 'gff' extension. Trying to load content...")
+    else:
+        print("Invalid input file. Please enter '--help' flag for information on script usage.")
+        exit()
+
+# DEPRECATED
+def is_outdir(out=out_dir):
+    if os.path.isdir(out):
+        print(f"Specified output directory is valid.")
+    else:
+        print("Invalid output directory. Please enter '--help' flag for information on script usage.")
+        exit()
