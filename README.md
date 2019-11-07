@@ -50,7 +50,7 @@ prokkaX loads all necessary data for the extension automatically. For that, it s
 
 In here, it will create the following subdirectories: 
 
-**db** - stores the database of choice in here
+**db** - stores the databases you have chosen, each in an own directory
 
 **mmseqs2_output** - to store mmseqs2 output
 
