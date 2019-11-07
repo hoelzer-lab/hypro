@@ -19,7 +19,7 @@ The tool has been tested in an anaconda environment (v. 4.7.11).
 ProkkaX requires the provided list of software to function properly. It is recommended to use a conda environment for prokkaX.
 
 |Program/Package|Version|Note|
-|---------------|-------||
+|---------------|-------|------|
 |python|3.7|Might also work for other python3 versions|
 |pandas|||
 |mmseqs2|10.6d92c||
