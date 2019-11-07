@@ -31,7 +31,7 @@ ProkkaX requires the provided list of software to function properly. It is recom
 
 ```gff_content.py -i PATH -o PATH [-d STR] -m PATH```
 
-**optional arguments:**            
+**optional arguments:**           
 |Short|Long|Description|
 |:-----|:----|:-----------|
 |**[-h]**|**[--help]** |show this help message and exit|
