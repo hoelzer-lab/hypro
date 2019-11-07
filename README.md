@@ -1,7 +1,7 @@
 # ProkkaX
 Protein-coding annotation extension using additional homology searches against larger databases.
 
----------------------
+
 
 ## Summary
 
@@ -9,14 +9,14 @@ The prokkaX tool extends common protein-coding anotations made with Prokka using
 
 The tool has been tested in an conda environment (v. 4.7.11). 
 
------------
+
 ## Tool Composition:
 
 - **gff_extend.py** main script to be called by the user
 - **mmseqs2.sh**     bash script comprising all required mmseqs2 commands (createdb, createindex, search) and output formatting
 
 
-----
+
 ## Requirements
 ProkkaX requires the provided list of software to function properly. It is recommended to use a conda environment for prokkaX.
 
@@ -26,7 +26,7 @@ ProkkaX requires the provided list of software to function properly. It is recom
 |pandas|0.25.2|Might also work for ower versions.|
 |mmseqs2|10.6d92c|Install in conda environment|
 |prokka (recommended)|1.14.0|used for de-novo annotation of test data of chlamydia|
-----
+
 
 ## Script Usage
 
