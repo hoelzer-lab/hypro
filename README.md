@@ -48,7 +48,10 @@ prokkaX loads all necessary data for the extension automatically. For that, it s
 
 **prokkaX** - main directory, all files needed by prokkaX stored in here
 
-In here, it will create the following subdirectories: \n
-**db** - stores the database of choice in here \n
+In here, it will create the following subdirectories: 
+
+**db** - stores the database of choice in here
+
 **mmseqs2_output** - to store mmseqs2 output
+
 **output** - all extended files from prokka will be stored here (currently: only gff file)
