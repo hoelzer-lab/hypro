@@ -32,12 +32,12 @@ ProkkaX requires the provided list of software to function properly. It is recom
 ```gff_content.py -i PATH -o PATH [-d STR] -m PATH```
 
 **optional arguments:**            
-  |Short|Long|Description|
-  |:-----|:----|:-----------|
-  |**[-h]**|**[--help]** |show this help message and exit|
-  |**-i**|**--input**|Path to input gff that shall be extended|   
-  |**-o**|**--output**|Specify PATH to a directory. prokkaX will generate the output files to PATH.|
-  |**[-d]**|**[--database]**|Specifiy the target db to search in for annotation extension. Current available options: 'uniprotkb'|
+|Short|Long|Description|
+|:-----|:----|:-----------|
+|**[-h]**|**[--help]** |show this help message and exit|
+|**-i**|**--input**|Path to input gff that shall be extended|   
+|**-o**|**--output**|Specify PATH to a directory. prokkaX will generate the output files to PATH.|
+|**[-d]**|**[--database]**|Specifiy the target db to search in for annotation extension. Current available options: 'uniprotkb'|
 |**-m**|**--mmseq2**|Specify the path to the mmseqs2.sh. Obligatory for extension.|
 
 ## Output
