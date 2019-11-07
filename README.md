@@ -1,13 +1,17 @@
+<!--[![Build Status](https://travis-ci.org/hoelzer/ribap.svg?branch=master)](https://travis-ci.org/hoelzer/ribap)-->
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+![Python](https://img.shields.io/badge/Language-Python3.7-green.svg)
+[![Coded by: CoffeeMA2go](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://github.com/hoelzer-lab/prokkaX/commits?author=CoffeeMA2go)
+[![Supervised by](https://img.shields.io/twitter/url/https/twitter.com/martinhoelzer?label=%40martinhoelzer&style=social)](https://twitter.com/martinhoelzer)
+
 # ProkkaX
 Protein-coding annotation extension using additional homology searches against larger databases.
-
-
 
 ## Summary
 
 The prokkaX tool extends common protein-coding anotations made with Prokka using additional homology searches. The approach currently takes a gff input file, extracts the sequences of hypothetical proteins and searches against a selected database (currently available: only uniprotkb) to find homologs. For searching, mmseqs2 is utilized which currently offers a fast as well as accurate sequence comparison, to the best of our knowledge.
 
-The tool has been tested in an conda environment (v. 4.7.11). 
+The tool has been tested in a conda environment (v. 4.7.11). 
 
 
 ## Tool Composition:
