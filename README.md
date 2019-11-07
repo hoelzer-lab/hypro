@@ -33,7 +33,7 @@ ProkkaX requires the provided list of software to function properly. It is recom
 
 **optional arguments:**           
 |Short|Long|Description|
-|:-----|:----|:-----------|
+|-----|----|-----------|
 |**[-h]**|**[--help]** |show this help message and exit|
 |**-i**|**--input**|Path to input gff that shall be extended|   
 |**-o**|**--output**|Specify PATH to a directory. prokkaX will generate the output files to PATH.|
