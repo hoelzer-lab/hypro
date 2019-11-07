@@ -23,7 +23,7 @@ ProkkaX requires the provided list of software to function properly. It is recom
 |Program/Package|Version|Note|
 |---------------|-------|------|
 |python|3.7|Might also work for other python3 versions|
-|pandas|0.25.2|Might also work for ower versions.|
+|pandas|0.25.2|Might also work for other versions.|
 |mmseqs2|10.6d92c|Install in conda environment|
 |prokka (recommended)|1.14.0|used for de-novo annotation of test data of chlamydia|
 
