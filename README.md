@@ -27,6 +27,7 @@ ProkkaX requires the provided list of software to function properly. It is recom
 |mmseqs2|10.6d92c|Install in conda environment|
 |prokka (recommended)|1.14.0|used for de-novo annotation of test data of chlamydia|
 ----
+
 ## Script Usage
 
 ```gff_content.py -i PATH -o PATH [-d STR] -m PATH```
