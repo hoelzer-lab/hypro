@@ -1,7 +1,22 @@
-# prokkaX
-Extend common protein-coding annotations made w/ Prokka using additional homology searches against larger databases
+## prokkaX
+Protein-coding annotation extension using additional homology searches against larger databases.
 
-# Main script
+# Summary
+
+The prokkaX tool extends common protein-coding anotations made with Prokka using additional homology searches. The approach currently takes a gff input file, extracts the sequences of hypothetical proteins and searches against a selected database (currently available: only uniprotkb) to find homologs. For searching, mmseqs2 is utilized which currently offers a fast as well as accurate sequence comparison, to the best of our knowledge.
+
+The tool has been tested in an anaconda environment (v. 4.7.11). 
+
+-----------
+# Tool Composition:
+
+*gff_extend.py* -  _main script - to be called by the user_
+*mseqs2.sh*     - _bash script comprising all required mmseqs2 commands (createdb, createindex, search) and output formatting_
+
+-----------
+
+# Requirements
+
 
 gff_content.py -i PATH -o PATH -d STR -m PATH
 
