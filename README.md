@@ -1,7 +1,7 @@
 <!--[![Build Status](https://travis-ci.org/hoelzer/ribap.svg?branch=master)](https://travis-ci.org/hoelzer/ribap)-->
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 ![Python](https://img.shields.io/badge/Language-Python3.7-green.svg)
-[![Coded by: CoffeeMA2go](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://github.com/hoelzer-lab/prokkaX/commits?author=CoffeeMA2go)
+[![Coded by: CoffeeMA2go](https://img.shields.io/badge/Coded.by-CoffeeMA2go-blue.svg)](https://github.com/hoelzer-lab/prokkaX/commits?author=CoffeeMA2go)
 [![Supervised by](https://img.shields.io/twitter/url/https/twitter.com/martinhoelzer?label=%40martinhoelzer&style=social)](https://twitter.com/martinhoelzer)
 
 # ProkkaX
