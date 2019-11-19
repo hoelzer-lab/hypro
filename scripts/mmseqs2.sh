@@ -88,9 +88,6 @@ function created_resultsdb(){
 
 }
 
-
-
-
 path="$1"
 QFASTA="${path}/../query.fasta"
 TFASTA="$2"						#"${path}/db/uniprotkb/uniprot_sprot.fasta"
