@@ -6,7 +6,7 @@ import re, os, sys, subprocess, argparse
 # from biothings_client import get_client
 import pandas as pd
 # from Bio import SeqIO
-from collections import OrderedDict
+# from collections import OrderedDict
 #######################################################
 
 ###### ############GLOBAL VAR #######################
@@ -17,21 +17,31 @@ valid_db = ['uniprotkb']        # to be extended for novel db-types
 ################## ARGPARSE #####################
 parser = argparse.ArgumentParser()
 #Input-GFF
-parser.add_argument('-i', '--input', dest='input', action='store', metavar='PATH', nargs=1, required=True, help="Path to input gff to be extended")
+parser.add_argument('-i', '--input', dest='input', action='store', metavar='PATH', nargs=1, required=True, help="Specify PATH to the gff file, that shall be extended.")
 # Output_dir
-parser.add_argument('-o', '--output', dest='output', action='store', metavar='PATH', nargs=1, required=False, default='..', help="Path to input gff to be extended")
+parser.add_argument('-o', '--output', dest='output', action='store', metavar='PATH', nargs=1, required=True, default='..', help="Specify PATH to a directory. prokkaX will generate all output to this.")
 # DB-Type
-parser.add_argument('-d', '--database', dest='db', action='store', metavar='STR', nargs=1, default='uniprotkb', help="Specifiy target db to use for extension. Available options: 'uniprotkb'")
+parser.add_argument('-d', '--database', dest='db', action='store', metavar='STR', nargs=1, required=False, default='uniprotkb', help="Specifiy the target db to search in for annotation extension. Available options: 'uniprotkb'")
 # location of mmseq2.sh:
-parser.add_argument('-m', '--mmseq2', dest='mmseq', action='store', metavar='PATH', nargs=1, required=True, help="Specify the path to the mmseqs2.sh. Obligatory for extension.")
+parser.add_argument('-m', '--mmseqs2', dest='mmseq', action='store', metavar='PATH', nargs=1, required=True, help="Specify the path to the mmseqs2.sh. Obligatory for extension.")
 # ALL or just BLANKS ?
 #parser.add_argument('-m', '--modus', dest='modus', action='store', metavar='STR', nargs=1, default='blanks', help="Search all hypothetical proteins or just the blanks. default: blanks")
+
+
 
 args = parser.parse_args()
 
 in_gff = args.input[0]
 out_dir = args.output[0]
-db = args.db[0]
+if isinstance(args.db, list):
+    db = args.db[0]
+elif isinstance(args.db, str):
+    db = args.db
+
+print(args.db)
+print(db)
+print(type(args.db))
+
 ms = args.mmseq[0]
 DIR = ''
 BN = ''
@@ -95,8 +105,6 @@ def save_hyprot(attr, row):
 def query_fasta(infile = in_gff, output = out_dir):
     global hyprot_content, DIR, BN
     print("Build output directory 'prokkaX' in specified output location, if not existing.")
-    output = output.rstrip('/') + "/prokkaX"
-    os.system(f"mkdir -p {output}")  
     print("Try to build query fasta...")
     ffn_file = DIR + '/' + BN + '.ffn'      # feature sequences
     if bool(hyprot_content):
@@ -147,31 +155,33 @@ def download_db(output = out_dir, dbtype = db): #--------------------------TO BE
     global valid_db
     weblink = ''
     if dbtype == valid_db[0]:    # if clause to decide which db to download 
-        weblink = "ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz"
-        file = "uniprot_sprot.fasta.gz"
-        path = out_dir.rstrip('/') + "/prokkaX/db/" + valid_db[0]
+        path = out_dir.rstrip('/') + "/db/" + dbtype
         db_fasta = path + "/uniprot_sprot.fasta"
         db_target = path + "/target_db"
-        # print(path)
-        os.system('mkdir -p' + " " + path) 
-        pwd = os.getcwd()
-        os.chdir(path)
-        # print(os.getcwd())
-        # print(f"Download database to {path}")
-        os.system(f"wget {weblink}")    
-        os.system(f"gunzip ./{file}")
+        if loaded(db_fasta, dbtype):
+            print("uniprotkb fasta exists already. Skip download.")
+        else:
+            print("No db found. Download and index...")
+            weblink = "ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz"
+            file = "uniprot_sprot.fasta.gz"
+            # print(path)
+            pwd = os.getcwd()
+            os.chdir(path)
+            # print(os.getcwd())
+            # print(f"Download database to {path}")
+            os.system(f"wget {weblink}")    
+            os.system(f"gunzip ./{file}")
+            os.chdir(pwd)
     else:
         print("Error. Exit from download_db function...")
         exit()
-    os.chdir(pwd)
     return path, db_fasta, db_target    #-----------------------------------------------------------------------------------------
 
-def mmseq(db, dbfasta, dbtarget, output=out_dir, mmseq = ms):
-    global hyprot_content
-    output = output.rstrip('/') + '/prokkaX/mmseq_output'
-    os.system('mkdir -p' + " " + output) # uniprotkb - make parametric
+def mmseq(dbfasta, dbtarget, output=out_dir, mmseq = ms):
+    global hyprot_content, db 
+    output = output.rstrip('/') + '/mmseq_output'
     # execute mmseq2
-    os.system(f"{mmseq}  {output}  {dbfasta}  {dbtarget}")
+    os.system(f"{mmseq}  {output}  {dbfasta}  {dbtarget} {db}")
     
     # fraction identified
     hit_nums = str(subprocess.check_output("cut -f1 " + output + "/mmseq2_out_unique.tsv" + "| wc -l", shell=True))
@@ -202,11 +212,10 @@ def mmseq(db, dbfasta, dbtarget, output=out_dir, mmseq = ms):
             # print(hyprot_content[hyprot]) 
             # print(hyprot_content[out_dict[index]['query']])
             # print(out_dict[index]['query'])
-            
+      
 def update_gff(output=out_dir, delimiter = '\t'):
     global hyprot_content, hyprot_loc, gff_content, BN   
-    output = output.rstrip('/') + "/prokkaX/output/"
-    os.system(f"mkdir -p {output}")
+    output = output.rstrip('/') + "/output"
     for hyprot in hyprot_content.keys():        
         data = 'ID='
         data = f'{data}{hyprot}'
@@ -282,11 +291,25 @@ def check_args(infile = in_gff, out_dir = out_dir, mmseq = ms, dbtype = db):
         print("mmseqs2.sh path specification is corrupted. Check the specified path and the file you referenced.")
         exit()
     
+def loaded(dbfasta, db):
+    global valid_db
+    if db == valid_db[0]:
+        if os.path.isfile(dbfasta):
+            return True
+        else:
+            return False
+    else:
+        print("Unknown db type to be checked for loading status. (Message from 'loaded' method)")
 
-
+def create_outdir(out_dir):
+    '''create the output path structure'''
+    os.system(f'mkdir -p {out_dir}')
+    os.system(f'mkdir -p {out_dir}/db')
+    os.system(f'mkdir -p {out_dir}/mmseq_output/tmp')
+    os.system(f'mkdir -p {out_dir}/output')
    
- 
-        
+
+
 # probleme: ambigious symbols, 1/3 IDs not found
 def get_names(table):   # table should be an input 
     gene_ids = []
@@ -305,12 +328,12 @@ def get_names(table):   # table should be an input
 
 ############# MAIN ######################
 
-
 check_args()
+create_outdir(out_dir)
 load_gff()
 query_fasta()
 db_dir, dbfasta, dbtarget = download_db()
-mmseq(db_dir, dbfasta, dbtarget)
+mmseq(dbfasta, dbtarget)
 update_gff()
 # get_names('/data/mahlzeitlocal/projects/ma_neander_assembly/hiwi/prokkaX/test/x/mmseq2_out_unique.tsv')
 
