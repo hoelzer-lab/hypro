@@ -2,11 +2,10 @@
 
 ####### PACKAGES ##########
 import re, os, sys, subprocess, argparse
-# import mygene
+import mygene
 # from biothings_client import get_client
 import pandas as pd
 # from Bio import SeqIO
-# from collections import OrderedDict
 #######################################################
 
 ###### ############GLOBAL VAR #######################
@@ -14,8 +13,11 @@ gff_content = {}        # gff content per row number
 hyprot_loc = {}         # recognizes the line of each hyprot via prokka feature ID
 hyprot_content = {}            # recognizes prokka features of 'hypothetical proteins' via prokka feature ID
 valid_db = ['uniprotkb']        # to be extended for novel db-types
+id_scinames = {}               # feature IDs and target scientific name
 ################## ARGPARSE #####################
 parser = argparse.ArgumentParser()
+# Mode - positional argument
+parser.add_argument('modus', metavar='MODE', choices=['restricted','full'], help="Modus of prokkaX to decide either full hyprot annotation or restricted (only full blanks). Valid arguments: 'full'and 'restricted'")
 #Input-GFF
 parser.add_argument('-i', '--input', dest='input', action='store', metavar='PATH', nargs=1, required=True, help="Specify PATH to the gff file, that shall be extended.")
 # Output_dir
@@ -30,7 +32,8 @@ parser.add_argument('-m', '--mmseqs2', dest='mmseq', action='store', metavar='PA
 
 
 args = parser.parse_args()
-
+mode = args.modus
+print(mode)
 in_gff = args.input[0]
 out_dir = args.output[0]
 if isinstance(args.db, list):
@@ -43,12 +46,77 @@ print(db)
 print(type(args.db))
 
 ms = args.mmseq[0]
-DIR = ''
-BN = ''
-EXT = ''
+DIR = ''            # input directory, all prokka files should reside at
+BN = ''             # basename of prokka output files
+EXT = ''            # extension found in input
 count = 0
-################# FUNCTIONS ########################
 
+################# FUNCTIONS ########################
+def update_faa(in_gff, output):
+    global DIR, BN, id_scinames
+    faa_list = []
+    infile = f'{DIR}/{BN}.faa'  # input faa
+    # print(id_scinames)
+    with open(infile, 'r') as faa:
+        for line in faa:
+            if line.startswith('>'):
+                elem = line.split(' ')
+                if elem[0][1:] in id_scinames.keys():
+                    # print(elem[0][1:])
+                    # print(id_scinames[elem[0][1:]])
+                    header = f'{elem[0]} {id_scinames[elem[0][1:]]}\n'          # new header 
+                    faa_list.append(header)                                     # update header
+                    # print(f'{elem[0]} \t {line} \t {header}')
+                else:
+                    faa_list.append(line)
+            else:
+                faa_list.append(line)
+    # print(faa_list)
+
+    #write the updated faa file
+    with open(output + '/output/' + BN + "_extended.faa", 'w') as faa:
+        for entry in faa_list:
+            faa.write(entry)
+
+def update_ffn(in_gff, output):
+    global DIR, BN, id_scinames
+    ffn_list = []
+    infile = f'{DIR}/{BN}.ffn'  # input faa
+    # print(id_scinames)
+    with open(infile, 'r') as ffn:
+        for line in ffn:
+            if line.startswith('>'):
+                elem = line.split(' ')
+                if elem[0][1:] in id_scinames.keys():
+                    # print(elem[0][1:])
+                    # print(id_scinames[elem[0][1:]])
+                    header = f'{elem[0]} {id_scinames[elem[0][1:]]}\n'          # new header 
+                    ffn_list.append(header)                                     # update header
+                    # print(f'{elem[0]} \t {line} \t {header}')
+                else:
+                    ffn_list.append(line)
+            else:
+                ffn_list.append(line)
+    # print(faa_list)
+
+    #write the updated faa file
+    with open(output + '/output/' + BN + "_extended.ffn", 'w') as faa:
+        for entry in ffn_list:
+            faa.write(entry)
+
+                
+    
+
+
+# def update_fsa():
+# def update_gbk():
+# #and more:
+# def update_sqn():
+# def update_tbl():
+# def update_tsv():
+# def update_txt():
+
+############ update_gff
 def load_gff(input=in_gff):
     # is_outdir()
     # is_gff()
@@ -86,19 +154,31 @@ def is_hyprot(attr, regex = ''):
 
 def save_hyprot(attr, row):
     '''get hyprot IDs, their attributes, and where in gff_content they can be found'''
-    global hyprot_loc, hyprot_content, count
+    global hyprot_loc, hyprot_content, count, mode
     fields = attr[8].split(';')
     ID = fields[0][3:]
     content = []
-    if len(fields) == 4:            # only hypothetical proteins with no information at all! Can be extended to all hyprots
-        for i in range(1, len(fields)):
-            content.append(fields[i])
-        # count += 1
-        hyprot_content.update({ID:content})
-        hyprot_loc.update({ID:row})
-    else:
-        pass 
-    assert  len(hyprot_content.keys()) == len(hyprot_loc.keys())
+    # print(f'{ID} {len(fields)} {fields[len(fields)-1]}')
+    if mode == 'restricted':
+        if len(fields) == 4:            # hypothetical proteins with no information at all
+            for i in range(1, len(fields)):
+                content.append(fields[i])
+            # count += 1
+            hyprot_content.update({ID:content})
+            hyprot_loc.update({ID:row})
+        else:
+            pass 
+        assert  len(hyprot_content.keys()) == len(hyprot_loc.keys())
+    elif mode == 'full':
+        if len(fields) == 4 or len(fields) == 5:            # hyprots with no info and partial info
+            for i in range(1, len(fields)):
+                content.append(fields[i])
+            # count += 1
+            hyprot_content.update({ID:content})
+            hyprot_loc.update({ID:row})
+        else:
+            pass 
+        assert  len(hyprot_content.keys()) == len(hyprot_loc.keys())
     # print(f"save_hyprots:\t{count}")
     return hyprot_content, hyprot_loc   # DEPRECATED
 
@@ -178,30 +258,39 @@ def download_db(output = out_dir, dbtype = db): #--------------------------TO BE
     return path, db_fasta, db_target    #-----------------------------------------------------------------------------------------
 
 def mmseq(dbfasta, dbtarget, output=out_dir, mmseq = ms):
-    global hyprot_content, db 
+    global hyprot_content, db, id_scinames 
     output = output.rstrip('/') + '/mmseq_output'
-    # execute mmseq2
-    os.system(f"{mmseq}  {output}  {dbfasta}  {dbtarget} {db}")
+    # # execute mmseq2
+    # os.system(f"{mmseq}  {output}  {dbfasta}  {dbtarget} {db}")
     
-    # fraction identified
-    hit_nums = str(subprocess.check_output("cut -f1 " + output + "/mmseq2_out_unique.tsv" + "| wc -l", shell=True))
-    print(f"Found hits for {int(hit_nums[2:-3])-1} / {len(hyprot_content.keys())} hypothetical proteins")
+    # # fraction identified
+    # hit_nums = str(subprocess.check_output("cut -f1 " + output + "/mmseq2_out_unique.tsv" + "| wc -l", shell=True))
+    # print(f"Found hits for {int(hit_nums[2:-3])-1} / {len(hyprot_content.keys())} hypothetical proteins")
 
-    # create ID:annotation dictionary
+    # # create ID:annotation dictionary
     mmseqs_out = pd.read_csv(output + '/mmseq2_out_unique.tsv', sep='\t')
 
     #create dict from pandas df
     out_dict = mmseqs_out.to_dict('index')  # dict of dicts; {index:{row}}; row = {col-X:row-entry}
     # print(prots_dict.keys())
-    
-    # save findings in hyprot_content 
+
+    # lookup sci_names and symbols of target IDs
+    dict_scinames = get_names(output + '/mmseq2_out_unique.tsv')
+    # print(dict_scinames)
+
+    # save findings in hyprot_content (target info + scinames/symbols of target IDs)
+    # print(hyprot_content)
     for index in out_dict.keys():           
         # print(out_dict[index]['query'])
         hyprot = out_dict[index]['query']
+        db_ID = out_dict[index]['target']
+        id_scinames.update({hyprot:dict_scinames[db_ID][1]})
         if hyprot in hyprot_content.keys():
             info = ''
             for attr in out_dict[index].keys():
                 info = f"{info}aln_info_{attr}={out_dict[index][attr]};"
+            info = f"{info}aln_info_symbol={dict_scinames[db_ID][0]};"      # add target symbol to info
+            info = f"{info}aln_info_sciname={dict_scinames[db_ID][1]};"     # add target sci name to info
                 # print(info)
                 # print(out_dict[index][attr])
             # print(info)
@@ -243,7 +332,6 @@ def update_gff(output=out_dir, delimiter = '\t'):
             #     print(line)
             gff_up.write(str(line.rstrip('\t')) + '\n')
 
-
 def get_input_info(input = in_gff):
     ''' Store information about specified input '''
     DIR = os.path.dirname(input)
@@ -271,7 +359,7 @@ def check_args(infile = in_gff, out_dir = out_dir, mmseq = ms, dbtype = db):
     else:
         print("Invalid output directory. Please enter '--help' for information on script usage.")
         exit()
-    if dbtype in valid_db:                               # db is allowed entry?
+    if dbtype in valid_db:                               # db is allowed entry
         print(f"Extension will be performed on {db}")
     else:
         print("Unknown dbtype chosen. please check '--help' to choose a valid database for mmseqs2.")
@@ -308,23 +396,35 @@ def create_outdir(out_dir):
     os.system(f'mkdir -p {out_dir}/mmseq_output/tmp')
     os.system(f'mkdir -p {out_dir}/output')
    
-
-
-# probleme: ambigious symbols, 1/3 IDs not found
 def get_names(table):   # table should be an input 
     gene_ids = []
     translate = {}
     ids = []
     with open(table,'r') as csv:
+        csv.readline()
         for line in csv:
             elem = line.split('\t')
             gene = mygene.MyGeneInfo()
             ids.append(elem[1])
             # print(gene.getgene('uniport:P24941','name,symbol'))
-    ret = gene.querymany(ids, scopes='uniprot', fields='name,symbol', as_dataframe=True)
-    ret['query','name','symbol']
-    # ret.to_csv('/data/mahlzeitlocal/projects/ma_neander_assembly/hiwi/prokkaX/test/x/notfound.csv')
+    # print(f'{len(ids)} {sorted(ids)}')
+    ret = gene.querymany(ids, scopes='uniprot', fields='name,symbol', verbose= False)           # set verbose 'True' to get info about duplicates/missing values of name parsing
+    sciname_dict = collect_scinames(ret)
+    # print(sciname_dict)
+    return sciname_dict
+    # ret['query','name','symbol']
+    # ret.to_csv('/mnt/mahlzeitlocal/projects/ma_neander_assembly/hiwi/prokkaX/test/prokkaX/mmseq_output/mmseq2_out_unique_names.tsv')
     # print(ret)
+def collect_scinames(name_list):
+    sciname_dict = {}               # {ID:[symbol, sciname]}
+    for entry in name_list:
+        try:
+            sciname_dict.update({entry['query']:[entry['symbol'],entry['name']]})
+        except: 
+            sciname_dict.update({entry['query']:['hyprot','hypothetical protein']})
+        # print(entry['query'])
+    return sciname_dict
+
 
 ############# MAIN ######################
 
@@ -335,9 +435,9 @@ query_fasta()
 db_dir, dbfasta, dbtarget = download_db()
 mmseq(dbfasta, dbtarget)
 update_gff()
-# get_names('/data/mahlzeitlocal/projects/ma_neander_assembly/hiwi/prokkaX/test/x/mmseq2_out_unique.tsv')
-
-
+update_faa(in_gff, out_dir)
+update_ffn(in_gff, out_dir)
+# get_names('/mnt/mahlzeitlocal/projects/ma_neander_assembly/hiwi/prokkaX/test/prokkaX/mmseq_output/mmseq2_out_unique.tsv')
 
 
 # TO DO:
