@@ -16,8 +16,8 @@ valid_db = ['uniprotkb']        # to be extended for novel db-types
 id_scinames = {}               # feature IDs and target scientific name
 ################## ARGPARSE #####################
 parser = argparse.ArgumentParser()
-# Mode - positional argument
-parser.add_argument('modus', metavar='MODE', choices=['restricted','full'], help="Modus of prokkaX to decide either full hyprot annotation or restricted (only full blanks). Valid arguments: 'full'and 'restricted'")
+# Mode
+parser.add_argument('-m', '--modus', dest='modus', metavar='[restricted, full]', choices=['restricted','full'], default = 'full', required = False, help="Modus of prokkaX to decide either full hyprot annotation or restricted (only full blanks). Valid arguments: 'full' and 'restricted'")
 #Input-GFF
 parser.add_argument('-i', '--input', dest='input', action='store', metavar='PATH', nargs=1, required=True, help="Specify PATH to the gff file, that shall be extended.")
 # Output_dir
@@ -25,15 +25,20 @@ parser.add_argument('-o', '--output', dest='output', action='store', metavar='PA
 # DB-Type
 parser.add_argument('-d', '--database', dest='db', action='store', metavar='STR', nargs=1, required=False, default='uniprotkb', help="Specifiy the target db to search in for annotation extension. Available options: 'uniprotkb'")
 # location of mmseq2.sh:
-parser.add_argument('-m', '--mmseqs2', dest='mmseq', action='store', metavar='PATH', nargs=1, required=True, help="Specify the path to the mmseqs2.sh. Obligatory for extension.")
+parser.add_argument('-t', '--mmseqs2', dest='mmseq', action='store', metavar='PATH', nargs=1, required=True, help="Specify the path to the mmseqs2.sh. Obligatory for extension.")
 # ALL or just BLANKS ?
 #parser.add_argument('-m', '--modus', dest='modus', action='store', metavar='STR', nargs=1, default='blanks', help="Search all hypothetical proteins or just the blanks. default: blanks")
 
 
 
 args = parser.parse_args()
-mode = args.modus
-print(mode)
+
+if isinstance(args.modus, list):
+    mode = args.modus[0]
+elif isinstance(args.modus, str):
+    mode = args.modus
+
+print(f'Start prokkaX in {mode} mode')
 in_gff = args.input[0]
 out_dir = args.output[0]
 if isinstance(args.db, list):
@@ -41,11 +46,13 @@ if isinstance(args.db, list):
 elif isinstance(args.db, str):
     db = args.db
 
-print(args.db)
-print(db)
-print(type(args.db))
+# print(args.db)
+# print(db)
+# print(type(args.db))
 
 ms = args.mmseq[0]
+
+
 DIR = ''            # input directory, all prokka files should reside at
 BN = ''             # basename of prokka output files
 EXT = ''            # extension found in input
@@ -235,7 +242,7 @@ def download_db(output = out_dir, dbtype = db): #--------------------------TO BE
     global valid_db
     weblink = ''
     if dbtype == valid_db[0]:    # if clause to decide which db to download 
-        path = out_dir.rstrip('/') + "/db/" + dbtype
+        path = output.rstrip('/') + "/db/" + dbtype
         db_fasta = path + "/uniprot_sprot.fasta"
         db_target = path + "/target_db"
         if loaded(db_fasta, dbtype):
@@ -244,14 +251,16 @@ def download_db(output = out_dir, dbtype = db): #--------------------------TO BE
             print("No db found. Download and index...")
             weblink = "ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz"
             file = "uniprot_sprot.fasta.gz"
-            # print(path)
+            print(path)
             pwd = os.getcwd()
+            # print(pwd)
             os.chdir(path)
             # print(os.getcwd())
-            # print(f"Download database to {path}")
+            print(f"Download database to {path}")
             os.system(f"wget {weblink}")    
             os.system(f"gunzip ./{file}")
             os.chdir(pwd)
+            # print(os.getcwd)
     else:
         print("Error. Exit from download_db function...")
         exit()
@@ -341,20 +350,22 @@ def get_input_info(input = in_gff):
     EXT = file_split[1]
     return DIR, BN, EXT
     
-def check_args(infile = in_gff, out_dir = out_dir, mmseq = ms, dbtype = db):
-    '''Control all given paths and files to exist; before running anything!'''
+def check_args(infile = in_gff, output = out_dir, mmseq = ms, dbtype = db):
+    '''Control all given paths and files first, before running anything!'''
     global DIR, BN, EXT
+    print("CHECK ARGUMENTS")
     print(f"Current working directory: {os.getcwd()}")
-    # check input gff file is valid - does not really test gf format!
+    # check input gff file is valid - does not really test gff format!
     DIR, BN, EXT = get_input_info(infile)
     mmseq_name = os.path.basename(mmseq)
     if os.path.isfile(infile) and EXT == 'gff':
-        print("Specified input is a file with 'gff' extension. Trying to load content...")
+        print("Specified input is a file with 'gff' extension.")
     else:
         print("Invalid input file. Please enter '--help' flag for information on script usage.")
         exit()  
     # check output directory path
-    if os.path.isdir(out_dir):
+    print(f'Check args: outdir is: {output}')
+    if os.path.isdir(output):
         print(f"Specified output directory is valid.")
     else:
         print("Invalid output directory. Please enter '--help' for information on script usage.")
@@ -389,10 +400,11 @@ def loaded(dbfasta, db):
     else:
         print("Unknown db type to be checked for loading status. (Message from 'loaded' method)")
 
-def create_outdir(out_dir):
+def create_outdir(out_dir, dbtype):
     '''create the output path structure'''
     os.system(f'mkdir -p {out_dir}')
     os.system(f'mkdir -p {out_dir}/db')
+    os.system(f'mkdir -p {out_dir}/db/{dbtype}')
     os.system(f'mkdir -p {out_dir}/mmseq_output/tmp')
     os.system(f'mkdir -p {out_dir}/output')
    
@@ -429,7 +441,7 @@ def collect_scinames(name_list):
 ############# MAIN ######################
 
 check_args()
-create_outdir(out_dir)
+create_outdir(out_dir, db)
 load_gff()
 query_fasta()
 db_dir, dbfasta, dbtarget = download_db()
@@ -443,7 +455,6 @@ update_ffn(in_gff, out_dir)
 # TO DO:
     # object oriented - > atrributes: ID eC_number Name db_xref gene inference locus_tag product
     # design for different db
-    # ALL or only the hard cases
     # mmseq() - parametric input of target db info
 
 
@@ -451,6 +462,7 @@ update_ffn(in_gff, out_dir)
 
 # - prokka 1.14.0
 # - mmseqs2 10.6d92c
+# mygene module
 
 
 
