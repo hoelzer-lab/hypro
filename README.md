@@ -3,9 +3,7 @@
 ![Python](https://img.shields.io/badge/Language-Python3.7-green.svg)
 [![Twitter](https://img.shields.io/twitter/url/https/twitter.com/martinhoelzer?label=%40martinhoelzer&style=social)](https://twitter.com/martinhoelzer)
 
-Authors:
-Martin H&ouml;lzer
-Maximilian Arlt
+Authors: Martin H&ouml;lzer, Maximilian Arlt
 
 # ProkkaX
 Protein-coding annotation extension using additional homology searches against larger databases.
@@ -22,14 +20,20 @@ The tool has been tested in a conda environment (v. 4.7.11).
 - **gff_extend.py** main script to be called by the user
 - **mmseqs2.sh**     bash script comprising all required mmseqs2 commands (createdb, createindex, search) and output formatting
 
-
-
 ## Requirements
-ProkkaX requires the provided list of software to function properly. It is recommended to use a conda environment for prokkaX.
+ProkkaX requires the provided list of software to function properly. It is recommended to clone this repository and use a conda environment for prokkaX.
+
+```bash
+git clone https://github.com/hoelzer-lab/prokkaX.git
+cd prokkaX
+conda create -n prokkax python=3.7 pandas=0.25.2 mmseqs2=10.6d92c prokka=1.14.0 mygene=3.1.0
+conda activate prokkax
+```
 
 |Program/Package|Version|Note|
 |---------------|-------|------|
 |python|3.7|Might also work for other python3 versions|
+|mygene|3.1.0|Might also work for other versions|
 |pandas|0.25.2|Might also work for other versions.|
 |mmseqs2|10.6d92c|Install in conda environment|
 |prokka (recommended)|1.14.0|used for de-novo annotation of test data of chlamydia|
@@ -37,9 +41,19 @@ ProkkaX requires the provided list of software to function properly. It is recom
 
 ## Script Usage
 
-```gff_content.py -i PATH -o PATH [-d STR] -m PATH```
+After installing all dependencies (see conda comand above) and cloning this repository we simply use Prokka on a test genome: 
 
-**optional arguments:**  
+```bash
+prokka --prefix testrun --outdir run/prokka test/data/GCF_000471025.2_ASM47102v2_genomic.fna
+```
+
+followed by
+
+```bash
+scripts/gff_extend.py -i run/prokka/testrun.gff -o run/prokkax -d uniprotkb -m scripts/mmseqs2.sh full
+```
+
+**Arguments:**  
 
 |Short|Long|Description|
 |-----|----|-----------|
@@ -47,7 +61,7 @@ ProkkaX requires the provided list of software to function properly. It is recom
 |**-i**|**--input**|Path to input gff that shall be extended|   
 |**-o**|**--output**|Specify PATH to a directory. prokkaX will generate the output files to PATH.|
 |**-d**|**--database**|Specifiy the target db to search for annotation extension. Current available options: 'uniprotkb'|
-|**-m**|**--mmseq2**|Specify the path to the mmseqs2.sh. Obligatory for extension.|
+|**-m**|**--mmseq2**|Specify the path to the mmseqs2.sh. Obligatory for execution.|
 
 ## Output
 
