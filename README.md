@@ -50,7 +50,7 @@ prokka --prefix testrun --outdir run/prokka test/data/GCF_000471025.2_ASM47102v2
 followed by
 
 ```bash
-scripts/gff_extend.py -i run/prokka/testrun.gff -o run/prokkax -d uniprotkb -m scripts/mmseqs2.sh full
+/pathtoscript/gff_extend.py -i run/prokka/testrun.gff -o run/prokkax -d uniprotkb -t /pathtoscript/mmseqs2.sh -m full
 ```
 
 **Arguments:**  
