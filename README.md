@@ -50,7 +50,7 @@ prokka --prefix testrun --outdir run/prokka test/data/GCF_000471025.2_ASM47102v2
 followed by
 
 ```bash
-scripts/gff_extend.py -i run/prokka/testrun.gff -o run/prokkax -d uniprotkb -m scripts/mmseqs2.sh full
+/pathtoscript/gff_extend.py -i run/prokka/testrun.gff -o run/prokkax -d uniprotkb -t /pathtoscript/mmseqs2.sh -m full
 ```
 
 **Arguments:**  
@@ -60,19 +60,15 @@ scripts/gff_extend.py -i run/prokka/testrun.gff -o run/prokkax -d uniprotkb -m s
 |**-h**|**--help** |show this help message and exit|
 |**-i**|**--input**|Path to input gff that shall be extended|   
 |**-o**|**--output**|Specify PATH to a directory. prokkaX will generate the output files to PATH.|
-|**-d**|**--database**|Specifiy the target db to search for annotation extension. Current available options: 'uniprotkb'|
-|**-m**|**--mmseq2**|Specify the path to the mmseqs2.sh. Obligatory for execution.|
-
+|**-d**|**--database**|Specifiy the target db to search for annotation extension. Current available options: [uniprotkb]|
+|**-t**|**--mmseq2**|Specify the path to the mmseqs2.sh. Obligatory for execution.|
+|**-m**|**--modus**|Choose the modus of prokkaX to search all hypothetical proteins (full) or leave those out which gained partial information (restricted). The dinstinction of fully un-annotated and partial annotated hypothetical proteins was observed for uniprot hits. Options: [full, restricted]|
 ## Output
 
-prokkaX loads all necessary data for the extension automatically. For that, it stores all needed information in the **-o/--output** PATH. Here it creates a directory called
-
-**prokkaX** - main directory, all files needed by prokkaX stored in here
-
-In here, it will create the following subdirectories: 
+prokkaX loads all necessary data for the extension automatically. For that, it stores all needed information in the **-o/--output** PATH. in PATH, it creates the following directories:
 
 **db** - stores the databases you have chosen, each in an own directory
 
 **mmseqs2_output** - to store mmseqs2 output
 
-**output** - all extended files from prokka will be stored here (currently: only gff file)
+**output** - all extended files from prokka will be stored here (currently: gff, ffn, faa)
