@@ -61,8 +61,8 @@ scripts/gff_extend.py -i run/prokka/testrun.gff -o run/prokkax -d uniprotkb -m s
 |**-i**|**--input**|Path to input gff that shall be extended|   
 |**-o**|**--output**|Specify PATH to a directory. prokkaX will generate the output files to PATH.|
 |**-d**|**--database**|Specifiy the target db to search for annotation extension. Current available options: 'uniprotkb'|
-|**-m**|**--mmseq2**|Specify the path to the mmseqs2.sh. Obligatory for execution.|
-
+|**-t**|**--mmseq2**|Specify the path to the mmseqs2.sh. Obligatory for execution.|
+|**-m**|**--modus**|Choose the modus of prokkaX to search all hypothetical proteins (full) or leave those out which gained partial information (restricted). The dinstinction of fully un-annotated and partial annotated hypothetical proteins was observed for uniprot hits. Options: [full, restricted]|
 ## Output
 
 prokkaX loads all necessary data for the extension automatically. For that, it stores all needed information in the **-o/--output** PATH. Here it creates a directory called
