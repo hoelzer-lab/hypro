@@ -17,7 +17,7 @@ id_scinames = {}               # feature IDs and target scientific name
 ################## ARGPARSE #####################
 parser = argparse.ArgumentParser()
 # Mode
-parser.add_argument('-m', '--modus', dest='modus', metavar='[restricted, full]', choices=['restricted','full'], default = 'full', required = False, help="Modus of prokkaX to decide either full hyprot annotation or restricted (only full blanks). Valid arguments: 'full' and 'restricted'")
+parser.add_argument('-m', '--modus', dest='modus', metavar='[restricted, full]', choices=['restricted','full'], default = 'full', required = False, help="Modus of prokkaX to decide either for full hyprot annotation or restricted (only full blanks). Valid arguments: 'full' and 'restricted'")
 #Input-GFF
 parser.add_argument('-i', '--input', dest='input', action='store', metavar='PATH', nargs=1, required=True, help="Specify PATH to the gff file, that shall be extended.")
 # Output_dir
@@ -46,6 +46,7 @@ if isinstance(args.db, list):
 elif isinstance(args.db, str):
     db = args.db
 
+print(out_dir)
 # print(args.db)
 # print(db)
 # print(type(args.db))
@@ -59,6 +60,8 @@ EXT = ''            # extension found in input
 count = 0
 
 ################# FUNCTIONS ########################
+
+
 def update_faa(in_gff, output):
     global DIR, BN, id_scinames
     faa_list = []
@@ -115,13 +118,13 @@ def update_ffn(in_gff, output):
     
 
 
-# def update_fsa():
-# def update_gbk():
+# def update_fsa(): not necessary, just genomes
+# def update_gbk(): tricky
 # #and more:
-# def update_sqn():
-# def update_tbl():
-# def update_tsv():
-# def update_txt():
+# def update_sqn(): what is this? and what is the meaning? features saved in nested dict??
+# def update_tbl(): just update product
+# def update_tsv(): table format - just names or also ftype nad length_bp, gene, COG?
+# def update_txt(): statistics
 
 ############ update_gff
 def load_gff(input=in_gff):
@@ -191,7 +194,7 @@ def save_hyprot(attr, row):
 
 def query_fasta(infile = in_gff, output = out_dir):
     global hyprot_content, DIR, BN
-    print("Build output directory 'prokkaX' in specified output location, if not existing.")
+    # print("Build output directory 'prokkaX' in specified output location, if not existing.")
     print("Try to build query fasta...")
     ffn_file = DIR + '/' + BN + '.ffn'      # feature sequences
     if bool(hyprot_content):
@@ -270,11 +273,11 @@ def mmseq(dbfasta, dbtarget, output=out_dir, mmseq = ms):
     global hyprot_content, db, id_scinames 
     output = output.rstrip('/') + '/mmseq_output'
     # # execute mmseq2
-    # os.system(f"{mmseq}  {output}  {dbfasta}  {dbtarget} {db}")
+    os.system(f"{mmseq}  {output}  {dbfasta}  {dbtarget} {db}")
     
     # # fraction identified
-    # hit_nums = str(subprocess.check_output("cut -f1 " + output + "/mmseq2_out_unique.tsv" + "| wc -l", shell=True))
-    # print(f"Found hits for {int(hit_nums[2:-3])-1} / {len(hyprot_content.keys())} hypothetical proteins")
+    hit_nums = str(subprocess.check_output("cut -f1 " + output + "/mmseq2_out_unique.tsv" + "| wc -l", shell=True))
+    print(f"Found hits for {int(hit_nums[2:-3])-1} / {len(hyprot_content.keys())} hypothetical proteins")
 
     # # create ID:annotation dictionary
     mmseqs_out = pd.read_csv(output + '/mmseq2_out_unique.tsv', sep='\t')
@@ -365,11 +368,10 @@ def check_args(infile = in_gff, output = out_dir, mmseq = ms, dbtype = db):
         exit()  
     # check output directory path
     print(f'Check args: outdir is: {output}')
-    if os.path.isdir(output):
-        print(f"Specified output directory is valid.")
-    else:
-        print("Invalid output directory. Please enter '--help' for information on script usage.")
-        exit()
+    print("Building the output structure...")
+    create_outdir(output, dbtype)
+    print("Done.")
+
     if dbtype in valid_db:                               # db is allowed entry
         print(f"Extension will be performed on {db}")
     else:
@@ -441,7 +443,7 @@ def collect_scinames(name_list):
 ############# MAIN ######################
 
 check_args()
-create_outdir(out_dir, db)
+# create_outdir(out_dir, db)
 load_gff()
 query_fasta()
 db_dir, dbfasta, dbtarget = download_db()
@@ -460,9 +462,9 @@ update_ffn(in_gff, out_dir)
 
 # Requirements
 
-# - prokka 1.14.0
-# - mmseqs2 10.6d92c
-# mygene module
+# prokka 1.14.0
+# mmseqs2 10.6d92c
+# mygene module 3.1.0
 
 
 
