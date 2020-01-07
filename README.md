@@ -71,4 +71,4 @@ prokkaX loads all necessary data for the extension automatically. For that, it s
 
 **mmseqs2_output** - to store mmseqs2 output
 
-**output** - all extended files from prokka will be stored here (currently: only gff file)
+**output** - all extended files from prokka will be stored here (currently: gff, ffn, faa)
