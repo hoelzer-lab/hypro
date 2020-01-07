@@ -60,7 +60,7 @@ followed by
 |**-h**|**--help** |show this help message and exit|
 |**-i**|**--input**|Path to input gff that shall be extended|   
 |**-o**|**--output**|Specify PATH to a directory. prokkaX will generate the output files to PATH.|
-|**-d**|**--database**|Specifiy the target db to search for annotation extension. Current available options: 'uniprotkb'|
+|**-d**|**--database**|Specifiy the target db to search for annotation extension. Current available options: [uniprotkb]|
 |**-t**|**--mmseq2**|Specify the path to the mmseqs2.sh. Obligatory for execution.|
 |**-m**|**--modus**|Choose the modus of prokkaX to search all hypothetical proteins (full) or leave those out which gained partial information (restricted). The dinstinction of fully un-annotated and partial annotated hypothetical proteins was observed for uniprot hits. Options: [full, restricted]|
 ## Output
