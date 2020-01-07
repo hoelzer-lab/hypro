@@ -50,8 +50,10 @@ prokka --prefix testrun --outdir run/prokka test/data/GCF_000471025.2_ASM47102v2
 followed by
 
 ```bash
-/pathtoscript/gff_extend.py -i run/prokka/testrun.gff -o run/prokkax -d uniprotkb -t /pathtoscript/mmseqs2.sh -m full
+scripts/gff_extend.py -i run/prokka/testrun.gff -o run/prokkax -d uniprotkb -t scripts/mmseqs2.sh -m full
 ```
+
+assuming that your current working directory is the previously downloaded git repository of prokkaX. Otherwise, please adjust ``scripts/`` accordingly. 
 
 **Arguments:**  
 
@@ -65,10 +67,8 @@ followed by
 |**-m**|**--modus**|Choose the modus of prokkaX to search all hypothetical proteins (full) or leave those out which gained partial information (restricted). The dinstinction of fully un-annotated and partial annotated hypothetical proteins was observed for uniprot hits. Options: [full, restricted]|
 ## Output
 
-prokkaX loads all necessary data for the extension automatically. For that, it stores all needed information in the **-o/--output** PATH. in PATH, it creates the following directories:
+prokkaX loads all necessary data for the extension process automatically. It stores all needed information in the ``-o/--output PATH``. In ``PATH``, it creates the following directories:
 
-**db** - stores the databases you have chosen, each in an own directory
-
-**mmseqs2_output** - to store mmseqs2 output
-
-**output** - all extended files from prokka will be stored here (currently: gff, ffn, faa)
+* ``db`` - stores the databases you have chosen, each in an own directory
+* ``mmseqs2_output`` - to store mmseqs2 output
+* ``output` - all extended files from prokka will be stored here (currently: gff, ffn, faa)
