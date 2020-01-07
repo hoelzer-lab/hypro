@@ -65,11 +65,7 @@ scripts/gff_extend.py -i run/prokka/testrun.gff -o run/prokkax -d uniprotkb -m s
 |**-m**|**--modus**|Choose the modus of prokkaX to search all hypothetical proteins (full) or leave those out which gained partial information (restricted). The dinstinction of fully un-annotated and partial annotated hypothetical proteins was observed for uniprot hits. Options: [full, restricted]|
 ## Output
 
-prokkaX loads all necessary data for the extension automatically. For that, it stores all needed information in the **-o/--output** PATH. Here it creates a directory called
-
-**prokkaX** - main directory, all files needed by prokkaX stored in here
-
-In here, it will create the following subdirectories: 
+prokkaX loads all necessary data for the extension automatically. For that, it stores all needed information in the **-o/--output** PATH. in PATH, it creates the following directories:
 
 **db** - stores the databases you have chosen, each in an own directory
 
