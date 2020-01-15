@@ -62,7 +62,7 @@ count = 0
 ################# FUNCTIONS ########################
 
 
-def update_faa(in_gff, output):
+def update_faa(output): #former 2nd arg: in_gff
     global DIR, BN, id_scinames
     faa_list = []
     infile = f'{DIR}/{BN}.faa'  # input faa
@@ -88,7 +88,7 @@ def update_faa(in_gff, output):
         for entry in faa_list:
             faa.write(entry)
 
-def update_ffn(in_gff, output):
+def update_ffn(output): #former 2nd arg: in_gff
     global DIR, BN, id_scinames
     ffn_list = []
     infile = f'{DIR}/{BN}.ffn'  # input faa
@@ -114,16 +114,169 @@ def update_ffn(in_gff, output):
         for entry in ffn_list:
             faa.write(entry)
 
+# extend gbk
+def extend_gbk(output, id_alninfo):
+    '''extend the information in prokka output gbk with mmseq2 homology findings - based on the description of genbank file structure of NCBI'''
+    global DIR, BN, id_scinames
+    infile = f'{DIR}/{BN}.gbk'          #create the genbank file name from loaded DIR path and file basename
+    updated = 0                         # assert to check all hyprots had been matched
+    with open (infile, 'r') as file:
+        line = "\n"                     # initialize non-empty string to pass the first while statement
+        content = []
+        while bool(line):               # as long as line is not empty = reading file is not finished
+            comment = []                            # comment section content
+            features = []                           # the feature section content
+            end_info = []                           # the ORIGIN part; after feature, not changed
+            while "COMMENT" not in line:
+                content.append(line)
+                # ahead_info.append(line)
+                line = file.readline()   
+            # print(line)
+            while "FEATURES" not in line:
+                comment.append(line)
+                line = file.readline()    
+            comment = update_comment(comment)  
+            content.extend(comment)
+            while "ORIGIN" not in line:
+                if line[5] != ' ':              # acc. to def. of genbank file format in NCBI: feature starts in 6th column
+                    # feature = []          # one complete feature found by prokka
+                    global lspaces          # global to use in format_notes(), too
+                    descriptors = {}        # key: descriptor, value: content (e.g. "/product":"hypothetical protein")
+                    translation_ext = []        # from 2nd line of translation descriptor, until the end: first line parsed to dict
+                    features.append(line)
+                    line = file.readline()
+                    lclean_line = line.lstrip()         # clip the leading whitespaces of the line
+                    lspaces = len(line) - len(lclean_line)    # get the number of white spaces
+                    while line[5] == ' ':               # as long as descriptors of the same feature parsed
+                        # print(line)                    
+                        if lclean_line.startswith('/'):                        
+                            elem = lclean_line.split('=')       # split the feature content line
+                            if elem[0] in descriptors:
+                                descriptors[elem[0]].append(f'{elem[0]}={elem[1]}')
+                            else:
+                                descriptors[elem[0]] = [f'{elem[0]}={elem[1]}']
+                            # if elem[0][1:] not in descriptors:
+                            #     descriptors[elem[0]] = []
+                            # descriptors[elem[0]].append(elem[1])
+                            # print(elem)
+                        else:                   # only 2nd-to-last translation lines shall be parsed in here
+                            descriptors[elem[0]].append(lclean_line)        # when feature is complete, check for update in mmseq hit dictionary; update if found
+                        line = file.readline()      
+                        lclean_line = line.lstrip(' ')  # clip whitespaces
+                # Add info of the feature, if it was build:
+                if bool(descriptors):
+                    try:
+                        ID = descriptors['/locus_tag'][0][11:]
+                        ID = ID.strip()
+                        ID = ID.strip('\"')
+                        if ID in id_scinames.keys():       # look for mmseq2 extension
+                            # print("Updating a match!")
+                            updated += 1                    # count number of updated features
+                            descriptors = insert_mmseq_info(descriptors, id_alninfo)
+                            id_scinames.pop(ID)
+                    except KeyError:                    # if no descriptor '/locus tag' was found, the loaded info is not a real feature (source or anythin else...)
+                        pass
+                    # print(descriptors)
+                    features.append(descriptors)                
+                if bool(translation_ext):
+                    features.append(translation_ext)
                 
-    
+                    # features.append(feature)
+                    # keys = list(descriptors.keys())
+                    # print(keys[0])
+                    # print(descriptors['/product'])   
+                    # print(id_scinames)   
+            # assert len(id_scinames.keys()) == updated  
+            content.extend(features)
+            while "//" not in line:
+                end_info.append(line)
+                line = file.readline()
+            # print(features)
+            end_info.append(line)  
+            content.extend(end_info)   
+            # write_gbk(output, ahead_info, comment, features, end_info, lspaces)
+            line = file.readline()
+            # if bool(line) == False:
+            #     emptyfile = True
+        # write_gbk(output, ahead_info, comment, features, end_info, lspaces)
+        write_gbk(output, content, lspaces)
+        print(f'Updated {updated} features in the genbank file.')
+        
+def format_notes(string, delimiter):
+    '''Format a to lines of 80 characters which corresponds to gbk convention'''
+    global lspaces
+    elem = string.split(delimiter)      # split the string into its meaningful units
+    l_string = ""
+    lines = 0
+    # len_del = len(delimiter)            # if sth else than a single sign is used to delimit
+    for qual in elem:
+        if lines == 0:                          # add the qualifier after the first leading spaces
+            l_string += '/notes=\"'   
+        else:
+            l_string += (lspaces * ' ')
+        lines += 1
+        l_string += qual + '\n'
+    l_string = l_string.rstrip('\n')
+    l_string += '\"\n'
+    return l_string
+
+def insert_mmseq_info(descriptors, id_alninfo):
+    global id_scinames, db
+    ID = descriptors['/locus_tag'][0].strip()
+    ID = ID[11:]
+    ID = ID.strip('\"')
+    descriptors['/product'][0] = f'/product="{id_scinames[ID]}"\n'
+    descriptors['/gene'] = [f'/gene="{id_alninfo[ID][1]}"\n']
+    descriptors['/inference'].append(f'/inference="mmseqs2 {db}"\n')
+    alninfo = id_alninfo[ID][0].replace("=",':')                    # change the separator from "=" (used in gff) to ":", since "=" is the separator for the descriptor lines
+    alninfo = alninfo.rstrip(';')
+    alninfo = format_notes(alninfo, ';')
+
+    descriptors['/notes'] = [alninfo]               # save the alignment info with separator ':'
+    # print(descriptors['/notes'])
+    return descriptors
+
+def update_comment(in_list):
+    add_string = ''
+    w_spaces = len(in_list[1]) - len(in_list[1].lstrip(' '))
+    add_string = (w_spaces * " ") + "extended by homology searches with prokkaX v1.0 (based on mmseq2)\n"
+    in_list.append(add_string)    
+    return in_list
+
+def write_gbk(output, content, wspaces):
+    global DIR, BN   
+    with open(output + "/output/" + BN + "_extended.gbk", 'w') as gbk_out:
+        for elem in content[1:]:
+            # if elem == content[0]:
+            #     pass
+            if isinstance(elem, dict):  # write the updated features
+                for key in elem.keys(): 
+                    if "translation" not in key:                                # write translation the last
+                        for val in elem[key]:
+                            gbk_out.write(wspaces * ' ' + str(val))             # write the key array values one by one
+                    else:
+                        pass
+                try:
+                    for val in elem['/translation']:
+                        gbk_out.write(wspaces * ' ' + str(val))   # ensures to write the first line of the translated protein the last!
+                except KeyError:
+                    pass
+            elif isinstance(elem, list):
+                for place in elem:
+                    gbk_out.write(place)
+            else:
+                gbk_out.write(elem)
+                    
+                  
+###############
+
 
 
 # def update_fsa(): not necessary, just genomes
-# def update_gbk(): tricky
 # #and more:
 # def update_sqn(): what is this? and what is the meaning? features saved in nested dict??
 # def update_tbl(): just update product
-# def update_tsv(): table format - just names or also ftype nad length_bp, gene, COG?
+# def update_tsv(): table format - just names or also ftype and length_bp, gene, COG?
 # def update_txt(): statistics
 
 ############ update_gff
@@ -271,6 +424,7 @@ def download_db(output = out_dir, dbtype = db): #--------------------------TO BE
 
 def mmseq(dbfasta, dbtarget, output=out_dir, mmseq = ms):
     global hyprot_content, db, id_scinames 
+    id_infos = {}                                           # additional information found  with mmseq; saved with ID as key
     output = output.rstrip('/') + '/mmseq_output'
     # # execute mmseq2
     os.system(f"{mmseq}  {output}  {dbfasta}  {dbtarget} {db}")
@@ -279,30 +433,32 @@ def mmseq(dbfasta, dbtarget, output=out_dir, mmseq = ms):
     hit_nums = str(subprocess.check_output("cut -f1 " + output + "/mmseq2_out_unique.tsv" + "| wc -l", shell=True))
     print(f"Found hits for {int(hit_nums[2:-3])-1} / {len(hyprot_content.keys())} hypothetical proteins")
 
-    # # create ID:annotation dictionary
+    # load annotation pandas dataframe 
     mmseqs_out = pd.read_csv(output + '/mmseq2_out_unique.tsv', sep='\t')
 
-    #create dict from pandas df
+    #create dict from pandas df - ID:annotation dictionary
     out_dict = mmseqs_out.to_dict('index')  # dict of dicts; {index:{row}}; row = {col-X:row-entry}
     # print(prots_dict.keys())
 
     # lookup sci_names and symbols of target IDs
     dict_scinames = get_names(output + '/mmseq2_out_unique.tsv')
     # print(dict_scinames)
-
     # save findings in hyprot_content (target info + scinames/symbols of target IDs)
     # print(hyprot_content)
     for index in out_dict.keys():           
         # print(out_dict[index]['query'])
         hyprot = out_dict[index]['query']
         db_ID = out_dict[index]['target']
+        # print(dict_scinames[db_ID][1])
         id_scinames.update({hyprot:dict_scinames[db_ID][1]})
         if hyprot in hyprot_content.keys():
             info = ''
             for attr in out_dict[index].keys():
-                info = f"{info}aln_info_{attr}={out_dict[index][attr]};"
-            info = f"{info}aln_info_symbol={dict_scinames[db_ID][0]};"      # add target symbol to info
-            info = f"{info}aln_info_sciname={dict_scinames[db_ID][1]};"     # add target sci name to info
+                info = f"{info}prokkaX_{attr}={out_dict[index][attr]};"
+            info = f"{info}prokkaX_symbol={dict_scinames[db_ID][0]};"      # add target symbol to info
+            info = f"{info}prokkaX_sciname={dict_scinames[db_ID][1]};"     # add target sci name to info
+            id_infos[hyprot] = [info]
+            id_infos[hyprot].append(out_dict[index]['target'])
                 # print(info)
                 # print(out_dict[index][attr])
             # print(info)
@@ -310,9 +466,7 @@ def mmseq(dbfasta, dbtarget, output=out_dir, mmseq = ms):
             hyprot_content[hyprot][0] = f"inference=mmseqs2 {db}"
             hyprot_content[hyprot][2] = f"product={out_dict[index]['target']}"
             hyprot_content[hyprot].append(info.rstrip(';'))
-            # print(hyprot_content[hyprot]) 
-            # print(hyprot_content[out_dict[index]['query']])
-            # print(out_dict[index]['query'])
+    return id_infos
       
 def update_gff(output=out_dir, delimiter = '\t'):
     global hyprot_content, hyprot_loc, gff_content, BN   
@@ -443,14 +597,15 @@ def collect_scinames(name_list):
 ############# MAIN ######################
 
 check_args()
-# create_outdir(out_dir, db)
+create_outdir(out_dir, db)
 load_gff()
 query_fasta()
 db_dir, dbfasta, dbtarget = download_db()
-mmseq(dbfasta, dbtarget)
+id_alninfo = mmseq(dbfasta, dbtarget)
 update_gff()
-update_faa(in_gff, out_dir)
-update_ffn(in_gff, out_dir)
+update_faa(out_dir)
+update_ffn(out_dir)
+extend_gbk(out_dir, id_alninfo)
 # get_names('/mnt/mahlzeitlocal/projects/ma_neander_assembly/hiwi/prokkaX/test/prokkaX/mmseq_output/mmseq2_out_unique.tsv')
 
 
@@ -553,3 +708,37 @@ def is_outdir(out=out_dir):
     else:
         print("Invalid output directory. Please enter '--help' flag for information on script usage.")
         exit()
+
+# DEPRECATED
+#def format_notes(string, delimiter):
+        # while len(elem) != 1:                           # asked for every new line
+    #     if lines == 0:                          # add the qualifier after the first leading spaces
+    #         l_string += '/notes=\"'   
+    #     else:
+    #         l_string += (lspaces * ' ')
+    #     lines += 1
+    #     added = 0                           # for removal of elements after for loop ends
+    #     for i in elem:
+    #         nl_count = l_string.count('\n')                                           # newline counts; are counted in len() function, but not present in gbk format
+    #         # print(f"newline counts \t {nl_count}")
+
+    #         if (len(elem) - 1) != 0:
+    #             length = len(l_string) + len(i) + len_del - nl_count      # + additional length of delimiter
+    #         else:
+    #             length = len(l_string) + len(i) + len_del + 1 - nl_count       # + additional quotes at the end of the string
+
+    #         if length <= lines*80:                          # add the element if it does not exceed the 80 character mark
+    #             added += 1
+    #             info = i
+    #             # elem.remove(i)
+    #             l_string += info + ';' 
+    #         else:
+    #             l_string +='\n'
+    #             break                           # if the line would get longer than allowed break iteration over elements
+    #     for i in range(0,added-1):                # erase added info from input string array
+    #         elem.pop(i)
+    # l_string = l_string.rstrip(';')
+    # l_string += '\"\n'
+    # print(l_string)
+    # # exit()
+    # return l_string
