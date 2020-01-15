@@ -71,4 +71,4 @@ prokkaX loads all necessary data for the extension process automatically. It sto
 
 * ``db`` - stores the databases you have chosen, each in an own directory
 * ``mmseqs2_output`` - to store mmseqs2 output
-* ``output` - all extended files from prokka will be stored here (currently: gff, ffn, faa)
+* ``output` - all extended files from prokka will be stored here (currently: gff, ffn, faa, gbk)
