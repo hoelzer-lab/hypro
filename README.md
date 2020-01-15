@@ -17,7 +17,7 @@ The tool has been tested in a conda environment (v. 4.7.11).
 
 ## Tool Composition:
 
-- **gff_extend.py** main script to be called by the user
+- **prokkaX.py**     main script to be called by the user
 - **mmseqs2.sh**     bash script comprising all required mmseqs2 commands (createdb, createindex, search) and output formatting
 
 ## Requirements
@@ -50,7 +50,7 @@ prokka --prefix testrun --outdir run/prokka test/data/GCF_000471025.2_ASM47102v2
 followed by
 
 ```bash
-scripts/gff_extend.py -i run/prokka/testrun.gff -o run/prokkax -d uniprotkb -t scripts/mmseqs2.sh -m full
+scripts/prokkaX.py -i run/prokka/testrun.gff -o run/prokkax -d uniprotkb -t scripts/mmseqs2.sh -m full
 ```
 
 assuming that your current working directory is the previously downloaded git repository of prokkaX. Otherwise, please adjust ``scripts/`` accordingly. 
