@@ -36,7 +36,7 @@ conda activate prokkax
 |mygene|3.1.0|Might also work for other versions|
 |pandas|0.25.2|Might also work for other versions.|
 |mmseqs2|10.6d92c|Install in conda environment|
-|prokka (recommended)|1.14.0|used for de-novo annotation of test data of chlamydia|
+|prokka (recommended)|1.14.5|used for de-novo annotation of test data of chlamydia|
 
 
 ## Script Usage
@@ -64,7 +64,9 @@ assuming that your current working directory is the previously downloaded git re
 |**-o**|**--output**|Specify PATH to a directory. prokkaX will generate the output files to PATH.|
 |**-d**|**--database**|Specifiy the target db to search for annotation extension. Current available options: [uniprotkb]|
 |**-t**|**--mmseq2**|Specify the path to the mmseqs2.sh. Obligatory for execution.|
-|**-m**|**--modus**|Choose the modus of prokkaX to search all hypothetical proteins (full) or leave those out which gained partial information (restricted). The dinstinction of fully un-annotated and partial annotated hypothetical proteins was observed for uniprot hits. Options: [full, restricted]|
+|**-m**|**--modus**|Choose the modus of prokkaX to search all hypothetical proteins (full) or leave those out which gained 
+|**-c**|**--custom-db**|Specifiy a path. ProkkaX will look for a db of the type defined with -d. If no database is found, prokkaX will build it in the path.|
+partial information (restricted). The dinstinction of fully un-annotated and partial annotated hypothetical proteins was observed for uniprot hits. Options: [full, restricted]|
 ## Output
 
 prokkaX loads all necessary data for the extension process automatically. It stores all needed information in the ``-o/--output PATH``. In ``PATH``, it creates the following directories:
