@@ -14,8 +14,10 @@ hyprot_loc = {}         # recognizes the line of each hyprot via prokka feature 
 hyprot_content = {}            # recognizes prokka features of 'hypothetical proteins' via prokka feature ID
 valid_db = ['uniprotkb']        # to be extended for novel db-types
 id_scinames = {}               # feature IDs and target scientific name
+automated_dbload = True
 ################## ARGPARSE #####################
 parser = argparse.ArgumentParser()
+
 # Mode
 parser.add_argument('-m', '--modus', dest='modus', metavar='[restricted, full]', choices=['restricted','full'], default = 'full', required = False, help="Modus of prokkaX to decide either for full hyprot annotation or restricted (only full blanks). Valid arguments: 'full' and 'restricted'")
 #Input-GFF
@@ -28,10 +30,14 @@ parser.add_argument('-d', '--database', dest='db', action='store', metavar='STR'
 parser.add_argument('-t', '--mmseqs2', dest='mmseq', action='store', metavar='PATH', nargs=1, required=True, help="Specify the path to the mmseqs2.sh. Obligatory for extension.")
 # ALL or just BLANKS ?
 #parser.add_argument('-m', '--modus', dest='modus', action='store', metavar='STR', nargs=1, default='blanks', help="Search all hypothetical proteins or just the blanks. default: blanks")
-
-
+# # Custom-DB
+parser.add_argument('-c', '--custom-db', dest='custdb', action='store', metavar='STR', nargs=1, required=False, help="Specifiy a path. ProkkaX will look for a db of the type defined with -d. If no database is found, prokkaX will build it.")
 
 args = parser.parse_args()
+
+if bool(args.custdb):               # set 
+    automated_dbload = False
+    custdb = args.custdb[0]
 
 if isinstance(args.modus, list):
     mode = args.modus[0]
@@ -394,17 +400,21 @@ def load_fasta(file):
             #     print(header)
 
 # download a particular db
-def download_db(output = out_dir, dbtype = db): #--------------------------TO BE EXTENDED -----------------------------------
-    global valid_db
+def download_db(output = out_dir, dbtype = db): #--------------------------TO BE EXTENDED WITH ADDITIONAL DBs-----------------------------------
+    global valid_db, automated_dbload
     weblink = ''
-    if dbtype == valid_db[0]:    # if clause to decide which db to download 
+    if automated_dbload:           # if no custom path defined, define db path as the output path
         path = output.rstrip('/') + "/db/" + dbtype
+    else:
+        global custdb
+        path = custdb
+    if dbtype == valid_db[0]:    # if clause to decide which db to download 
         db_fasta = path + "/uniprot_sprot.fasta"
         db_target = path + "/target_db"
         if loaded(db_fasta, dbtype):
-            print("uniprotkb fasta exists already. Skip download.")
+            print("Uniprotkb fasta exists already. Skip download.")
         else:
-            print("No db found. Download and index...")
+            print("No db found. Download...")
             weblink = "ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz"
             file = "uniprot_sprot.fasta.gz"
             print(path)
@@ -509,7 +519,7 @@ def get_input_info(input = in_gff):
     
 def check_args(infile = in_gff, output = out_dir, mmseq = ms, dbtype = db):
     '''Control all given paths and files first, before running anything!'''
-    global DIR, BN, EXT
+    global DIR, BN, EXT, automated_dbload
     print("CHECK ARGUMENTS")
     print(f"Current working directory: {os.getcwd()}")
     # check input gff file is valid - does not really test gff format!
@@ -545,7 +555,15 @@ def check_args(infile = in_gff, output = out_dir, mmseq = ms, dbtype = db):
     else:
         print("mmseqs2.sh path specification is corrupted. Check the specified path and the file you referenced.")
         exit()
-    
+    # check, if customdb is a valid path  
+    if automated_dbload == False:
+        global custdb
+        if os.path.isdir(custdb):
+            print("Path to custom db is valid.")
+        else:
+            print("the defined path to a custom db is corrupted. Please check. Exiting...")
+            exit()
+
 def loaded(dbfasta, db):
     global valid_db
     if db == valid_db[0]:
