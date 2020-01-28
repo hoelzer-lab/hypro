@@ -477,7 +477,7 @@ def mmseq(dbfasta, dbtarget, output=out_dir, mmseq = ms):
             hyprot_content[hyprot][2] = f"product={out_dict[index]['target']}"
             hyprot_content[hyprot].append(info.rstrip(';'))
     counts = count_hyprots(id_scinames)
-    print(f"Of those: {counts} hypothetical proteins again.")
+    print(f"The homology search finds {counts} / {int(hit_nums[2:-3])-1} hypothetical proteins again.")
     return id_infos
       
 def update_gff(output=out_dir, delimiter = '\t'):
