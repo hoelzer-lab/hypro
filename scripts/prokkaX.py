@@ -460,7 +460,7 @@ def mmseq(dbfasta, dbtarget, output=out_dir, mmseq = ms):
         hyprot = out_dict[index]['query']
         db_ID = out_dict[index]['target']
         # print(dict_scinames[db_ID][1])
-        id_scinames.update({hyprot:dict_scinames[db_ID][1]})
+        id_scinames.update({hyprot:dict_scinames[db_ID][1]})                # save scinames under the hyprot prokka IDs
         if hyprot in hyprot_content.keys():
             info = ''
             for attr in out_dict[index].keys():
@@ -476,6 +476,8 @@ def mmseq(dbfasta, dbtarget, output=out_dir, mmseq = ms):
             hyprot_content[hyprot][0] = f"inference=mmseqs2 {db}"
             hyprot_content[hyprot][2] = f"product={out_dict[index]['target']}"
             hyprot_content[hyprot].append(info.rstrip(';'))
+    counts = count_hyprots(id_scinames)
+    print(f"Of those: {counts} hypothetical proteins again.")
     return id_infos
       
 def update_gff(output=out_dir, delimiter = '\t'):
@@ -610,6 +612,15 @@ def collect_scinames(name_list):
             sciname_dict.update({entry['query']:['hyprot','hypothetical protein']})
         # print(entry['query'])
     return sciname_dict
+
+def count_hyprots(features):
+    hyprot_count = 0
+    hyprot = re.compile("hypothetical protein")
+    for id in features.keys():
+        if re.search(hyprot,features[id]):
+            hyprot_count += 1
+    return hyprot_count
+
 
 
 ############# MAIN ######################
