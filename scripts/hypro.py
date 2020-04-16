@@ -184,7 +184,6 @@ def extend_gbk(output, id_alninfo):
             while "//" not in line:
                 end_info.append(line)
                 line = file.readline()
-            # print(features)
             end_info.append(line)  
             content.extend(end_info)   
             line = file.readline()
