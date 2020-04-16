@@ -5,30 +5,23 @@
 
 Authors: Martin H&ouml;lzer, Maximilian Arlt
 
-# ProkkaX
+# HyPro
 Protein-coding annotation extension using additional homology searches against larger databases.
 
 ## Summary
 
-The prokkaX tool extends common protein-coding anotations made with Prokka using additional homology searches. The approach currently takes a gff input file, extracts the sequences of hypothetical proteins and searches against a selected database (currently available: only uniprotkb) to find homologs. For searching, mmseqs2 is utilized which currently offers a fast as well as accurate sequence comparison, to the best of our knowledge.
+The HyPro tool extends common protein-coding annotations made with Prokka using additional homology searches. The approach currently takes a gff input file, extracts the sequences of hypothetical proteins and searches against a selected database (currently available: only uniprotkb) to find homologs. For searching, mmseqs2 is utilized which currently offers a fast and accurate sequence comparison, to the best of our knowledge.
 
-The tool has been tested in a conda environment (v. 4.7.11). 
+The tool has been tested in a conda environment (v4.7.11). 
 
 
 ## Tool Composition:
 
-- **prokkaX.py**     main script to be called by the user
+- **hypro.py**     main script to be called by the user
 - **mmseqs2.sh**     bash script comprising all required mmseqs2 commands (createdb, createindex, search) and output formatting
 
 ## Requirements
-ProkkaX requires the provided list of software to function properly. It is recommended to clone this repository and use a conda environment for prokkaX.
-
-```bash
-git clone https://github.com/hoelzer-lab/prokkaX.git
-cd prokkaX
-conda create -n prokkax python=3.7 pandas=0.25.2 mmseqs2=10.6d92c prokka=1.14.0 mygene=3.1.0
-conda activate prokkax
-```
+HyPro requires the provided list of software to function properly. 
 
 |Program/Package|Version|Note|
 |---------------|-------|------|
@@ -38,22 +31,49 @@ conda activate prokkax
 |mmseqs2|10.6d92c|Install in conda environment|
 |prokka (recommended)|1.14.5|used for de-novo annotation of test data of chlamydia|
 
+It is recommended to clone this repository and use a conda environment for HyPro.
+
+
+```bash
+git clone https://github.com/hoelzer-lab/hypro.git
+cd hypro
+```
+Create a conda environment to use the binaries from github:
+
+```
+conda create -n hypro python=3.7 pandas=0.25.2 mmseqs2=10.6d92c prokka=1.14.0 mygene=3.1.0
+conda activate hypro
+```
+
+Or simply install HyPro from the anaconda repository:
+
+```
+conda create -n hypro python=3.7
+conda activate hypro
+conda install hypro
+```
+### Download via conda
+Alternatively
 
 ## Script Usage
 
-After installing all dependencies (see conda comand above) and cloning this repository we simply use Prokka on a test genome: 
+After installing all dependencies (see commands above) and cloning this repository we simply use Prokka on a test genome: 
 
 ```bash
 prokka --prefix testrun --outdir run/prokka test/data/GCF_000471025.2_ASM47102v2_genomic.fna
 ```
 
-followed by
+and for git binaries:
 
 ```bash
-scripts/prokkaX.py -i run/prokka/testrun.gff -o run/prokkax -d uniprotkb -t scripts/mmseqs2.sh -m full
+scripts/hypro.py -i run/prokka/testrun.gff -o run/hypro -d uniprotkb -t scripts/mmseqs2.sh -m full
 ```
-
-assuming that your current working directory is the previously downloaded git repository of prokkaX. Otherwise, please adjust ``scripts/`` accordingly. 
+assuming that your current working directory is the previously downloaded git repository of HyPro. Otherwise, please adjust ``scripts/`` accordingly.
+or in case of conda package:
+```bash
+hypro.py -i run/prokka/testrun.gff -o run/hypro -d uniprotkb -t pathotoconda/envs/hypro/bin/mmseqs2.sh -m full
+```
+The mmseqs2.sh can be found in the bin directory of the conda environment where HyPro is installed.
 
 **Arguments:**  
 
@@ -61,15 +81,16 @@ assuming that your current working directory is the previously downloaded git re
 |-----|----|-----------|
 |**-h**|**--help** |show this help message and exit|
 |**-i**|**--input**|Path to input gff that shall be extended|   
-|**-o**|**--output**|Specify PATH to a directory. prokkaX will generate the output files to PATH.|
+|**-o**|**--output**|Specify PATH to a directory. HyPro will generate the output files to PATH.|
 |**-d**|**--database**|Specifiy the target db to search for annotation extension. Current available options: [uniprotkb]|
-|**-t**|**--mmseq2**|Specify the path to the mmseqs2.sh. Obligatory for execution.|
-|**-m**|**--modus**|Choose the modus of prokkaX to search all hypothetical proteins (full) or leave those out which gained 
-|**-c**|**--custom-db**|Specifiy a path. ProkkaX will look for a db of the type defined with -d. If no database is found, prokkaX will build it in the path.|
+|**-t**|**--mmseq2**|Specify the path to the mmseqs2.sh. If using conda, the script was installed to /conda_dir/envs/my_env_name/bin/ .|
+|**-m**|**--modus**|Choose the modus of HyPro to search all hypothetical proteins (full) or leave those out which gained partial annotation (restricted).|
+|**-c**|**--custom-db**|Specifiy a path. HyPro will look for a db of the type defined with -d. If no database is found, HyPro will build it in the path.|
 partial information (restricted). The dinstinction of fully un-annotated and partial annotated hypothetical proteins was observed for uniprot hits. Options: [full, restricted]|
+
 ## Output
 
-prokkaX loads all necessary data for the extension process automatically. It stores all needed information in the ``-o/--output PATH``. In ``PATH``, it creates the following directories:
+HyPro loads all necessary data for the extension process automatically. It stores all needed information in the ``-o/--output PATH``. In ``PATH``, it creates the following directories:
 
 * ``db`` - stores the databases you have chosen, each in an own directory
 * ``mmseqs2_output`` - to store mmseqs2 output
