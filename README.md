@@ -52,8 +52,6 @@ conda create -n hypro python=3.7
 conda activate hypro
 conda install hypro
 ```
-### Download via conda
-Alternatively
 
 ## Script Usage
 
@@ -85,7 +83,7 @@ The mmseqs2.sh can be found in the bin directory of the conda environment where 
 |**-d**|**--database**|Specifiy the target db to search for annotation extension. Current available options: [uniprotkb]|
 |**-t**|**--mmseq2**|Specify the path to the mmseqs2.sh. If using conda, the script was installed to /conda_dir/envs/my_env_name/bin/ .|
 |**-m**|**--modus**|Choose the modus of HyPro to search all hypothetical proteins (full) or leave those out which gained partial annotation (restricted).|
-|**-c**|**--custom-db**|Specifiy a path. HyPro will look for a db of the type defined with -d. If no database is found, HyPro will build it in the path.|
+|**-c**|**--custom-db**|Specifiy a path. HyPro will look for a db of the type defined with -d. If no database is found, HyPro will build it in the path.
 partial information (restricted). The dinstinction of fully un-annotated and partial annotated hypothetical proteins was observed for uniprot hits. Options: [full, restricted]|
 
 ## Output
@@ -94,4 +92,4 @@ HyPro loads all necessary data for the extension process automatically. It store
 
 * ``db`` - stores the databases you have chosen, each in an own directory
 * ``mmseqs2_output`` - to store mmseqs2 output
-* ``output` - all extended files from prokka will be stored here (currently: gff, ffn, faa, gbk)
+* ``output`` - all extended files from prokka will be stored here (currently: gff, ffn, faa, gbk)
