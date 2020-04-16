@@ -29,7 +29,7 @@ HyPro requires the provided list of software to function properly.
 |mygene|3.1.0|Might also work for other versions|
 |pandas|0.25.2|Might also work for other versions.|
 |mmseqs2|10.6d92c|Install in conda environment|
-|prokka (recommended)|1.14.5|used for de-novo annotation of test data of chlamydia|
+|prokka (recommended)|1.14.0|used for de-novo annotation of test data of chlamydia|
 
 It is recommended to clone this repository and use a conda environment for HyPro.
 

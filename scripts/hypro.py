@@ -10,8 +10,8 @@ import pandas as pd
 
 ###### ############GLOBAL VAR #######################
 gff_content = {}        # gff content per row number
-hyprot_loc = {}         # recognizes the line of each hyprot via prokka feature ID
-hyprot_content = {}            # recognizes prokka features of 'hypothetical proteins' via prokka feature ID
+HyProt_loc = {}         # recognizes the line of each HyProt via prokka feature ID
+HyProt_content = {}            # recognizes prokka features of 'hypothetical proteins' via prokka feature ID
 valid_db = ['uniprotkb']        # to be extended for novel db-types
 id_scinames = {}               # feature IDs and target scientific name
 automated_dbload = True
@@ -19,19 +19,19 @@ automated_dbload = True
 parser = argparse.ArgumentParser()
 
 # Mode
-parser.add_argument('-m', '--modus', dest='modus', metavar='[restricted, full]', choices=['restricted','full'], default = 'full', required = False, help="Modus of prokkaX to decide either for full hyprot annotation or restricted (only full blanks). Valid arguments: 'full' and 'restricted'")
+parser.add_argument('-m', '--modus', dest='modus', metavar=['restricted', 'full'], choices=['restricted','full'], default = 'full', required = False, help="Modus of HyPro to decide either for an all hypothetical protein annotation or restricted (only full blanks with no partial annotation). Valid arguments: 'full' and 'restricted'")
 #Input-GFF
 parser.add_argument('-i', '--input', dest='input', action='store', metavar='PATH', nargs=1, required=True, help="Specify PATH to the gff file, that shall be extended.")
 # Output_dir
-parser.add_argument('-o', '--output', dest='output', action='store', metavar='PATH', nargs=1, required=True, default='..', help="Specify PATH to a directory. prokkaX will generate all output to this.")
+parser.add_argument('-o', '--output', dest='output', action='store', metavar='PATH', nargs=1, required=True, default='..', help="Specify PATH to a directory. HyPro will generate all output to this.")
 # DB-Type
 parser.add_argument('-d', '--database', dest='db', action='store', metavar='STR', nargs=1, required=False, default='uniprotkb', help="Specifiy the target db to search in for annotation extension. Available options: 'uniprotkb'")
 # location of mmseq2.sh:
-parser.add_argument('-t', '--mmseqs2', dest='mmseq', action='store', metavar='PATH', nargs=1, required=True, help="Specify the path to the mmseqs2.sh. Obligatory for extension.")
+parser.add_argument('-t', '--mmseqs2', dest='mmseq', action='store', metavar='PATH', nargs=1, required=True, help="Specify the path to the mmseqs2.sh. If using conda, the script was installed to /conda_dir/envs/my_env_name/bin/ .")
 # ALL or just BLANKS ?
 #parser.add_argument('-m', '--modus', dest='modus', action='store', metavar='STR', nargs=1, default='blanks', help="Search all hypothetical proteins or just the blanks. default: blanks")
 # # Custom-DB
-parser.add_argument('-c', '--custom-db', dest='custdb', action='store', metavar='STR', nargs=1, required=False, help="Specifiy a path. ProkkaX will look for a db of the type defined with -d. If no database is found, prokkaX will build it.")
+parser.add_argument('-c', '--custom-db', dest='custdb', action='store', metavar='STR', nargs=1, required=False, help="Specifiy a path. HyPro will look for a db of the type defined with -d. If no database is found, HyPro will build it.")
 
 args = parser.parse_args()
 
@@ -44,7 +44,7 @@ if isinstance(args.modus, list):
 elif isinstance(args.modus, str):
     mode = args.modus
 
-print(f'Start prokkaX in {mode} mode')
+print(f'Start HyPro in {mode} mode')
 in_gff = args.input[0]
 out_dir = args.output[0]
 if isinstance(args.db, list):
@@ -53,9 +53,6 @@ elif isinstance(args.db, str):
     db = args.db
 
 print(out_dir)
-# print(args.db)
-# print(db)
-# print(type(args.db))
 
 ms = args.mmseq[0]
 
@@ -87,7 +84,6 @@ def update_faa(output): #former 2nd arg: in_gff
                     faa_list.append(line)
             else:
                 faa_list.append(line)
-    # print(faa_list)
 
     #write the updated faa file
     with open(output + '/output/' + BN + "_extended.faa", 'w') as faa:
@@ -125,7 +121,7 @@ def extend_gbk(output, id_alninfo):
     '''extend the information in prokka output gbk with mmseq2 homology findings - based on the description of genbank file structure of NCBI'''
     global DIR, BN, id_scinames
     infile = f'{DIR}/{BN}.gbk'          #create the genbank file name from loaded DIR path and file basename
-    updated = 0                         # assert to check all hyprots had been matched
+    updated = 0                         # assert to check all HyProts had been matched
     with open (infile, 'r') as file:
         line = "\n"                     # initialize non-empty string to pass the first while statement
         content = []
@@ -161,11 +157,7 @@ def extend_gbk(output, id_alninfo):
                                 descriptors[elem[0]].append(f'{elem[0]}={elem[1]}')
                             else:
                                 descriptors[elem[0]] = [f'{elem[0]}={elem[1]}']
-                            # if elem[0][1:] not in descriptors:
-                            #     descriptors[elem[0]] = []
-                            # descriptors[elem[0]].append(elem[1])
-                            # print(elem)
-                        else:                   # only 2nd-to-last translation lines shall be parsed in here
+                        else:                                               # only 2nd-to-last translation lines shall be parsed in here
                             descriptors[elem[0]].append(lclean_line)        # when feature is complete, check for update in mmseq hit dictionary; update if found
                         line = file.readline()      
                         lclean_line = line.lstrip(' ')  # clip whitespaces
@@ -187,11 +179,6 @@ def extend_gbk(output, id_alninfo):
                 if bool(translation_ext):
                     features.append(translation_ext)
                 
-                    # features.append(feature)
-                    # keys = list(descriptors.keys())
-                    # print(keys[0])
-                    # print(descriptors['/product'])   
-                    # print(id_scinames)   
             # assert len(id_scinames.keys()) == updated  
             content.extend(features)
             while "//" not in line:
@@ -200,21 +187,18 @@ def extend_gbk(output, id_alninfo):
             # print(features)
             end_info.append(line)  
             content.extend(end_info)   
-            # write_gbk(output, ahead_info, comment, features, end_info, lspaces)
             line = file.readline()
-            # if bool(line) == False:
-            #     emptyfile = True
-        # write_gbk(output, ahead_info, comment, features, end_info, lspaces)
+
         write_gbk(output, content, lspaces)
         print(f'Updated {updated} features in the genbank file.')
         
 def format_notes(string, delimiter):
     '''Format a to lines of 80 characters which corresponds to gbk convention'''
     global lspaces
-    elem = string.split(delimiter)      # split the string into its meaningful units
+    elem = string.split(delimiter)              # split the string into its meaningful units
     l_string = ""
     lines = 0
-    # len_del = len(delimiter)            # if sth else than a single sign is used to delimit
+    # len_del = len(delimiter)                  # if sth else than a single sign is used to delimit
     for qual in elem:
         if lines == 0:                          # add the qualifier after the first leading spaces
             l_string += '/notes=\"'   
@@ -245,7 +229,7 @@ def insert_mmseq_info(descriptors, id_alninfo):
 def update_comment(in_list):
     add_string = ''
     w_spaces = len(in_list[1]) - len(in_list[1].lstrip(' '))
-    add_string = (w_spaces * " ") + "extended by homology searches with prokkaX v1.0 (based on mmseq2)\n"
+    add_string = (w_spaces * " ") + "extended by homology searches with HyPro v1.0 (based on mmseq2)\n"
     in_list.append(add_string)    
     return in_list
 
@@ -273,44 +257,33 @@ def write_gbk(output, content, wspaces):
             else:
                 gbk_out.write(elem)
                     
-                  
-###############
-
-
-
-# def update_fsa(): not necessary, just genomes
-# #and more:
-# def update_sqn(): what is this? and what is the meaning? features saved in nested dict??
-# def update_tbl(): just update product
-# def update_tsv(): table format - just names or also ftype and length_bp, gene, COG?
-# def update_txt(): statistics
 
 ############ update_gff
 def load_gff(input=in_gff):
     # is_outdir()
     # is_gff()
     row = 0
-    hyprot_count = 0
+    HyProt_count = 0
     with open(input, 'r') as gff:
         for line in gff:
             line = line.rstrip('\n')
             attr = line.split('\t')
             gff_content.update({row:attr})      # ggf content with line ID as identifier
-            if is_hyprot(attr, 'hypothetical protein'):
-                hyprot_count += 1
-                save_hyprot(attr, row)
+            if is_HyProt(attr, 'hypothetical protein'):
+                HyProt_count += 1
+                save_HyProt(attr, row)
             else:
                 pass
             row += 1             # next line
     print("loading gff file finished.")
     print(f"Total Features:\t{row} ")
-    print(f"Hyprot count:\t{hyprot_count}")
-    # print(f"Hyprot_content:\t{len(hyprot_content.keys())}")
+    print(f"Hypothetical Proteins count:\t{HyProt_count}")
+    # print(f"HyProt_content:\t{len(HyProt_content.keys())}")
     # print(gff_content[len(gff_content)-1])
-    print(f"Saved hyprots:\t{len(hyprot_content.keys())}")
-    return gff_content, hyprot_content   # DEPRECATED
+    print(f"Saved records:\t{len(HyProt_content.keys())}")
+    return gff_content, HyProt_content   # DEPRECATED
 
-def is_hyprot(attr, regex = ''):
+def is_HyProt(attr, regex = ''):
     '''Checks the attribute column for the regex "hypothetical protein" '''
     regex = re.compile(regex)
     try:
@@ -321,48 +294,48 @@ def is_hyprot(attr, regex = ''):
     except IndexError:
         pass
 
-def save_hyprot(attr, row):
-    '''get hyprot IDs, their attributes, and where in gff_content they can be found'''
-    global hyprot_loc, hyprot_content, count, mode
+def save_HyProt(attr, row):
+    '''get HyProt IDs, their attributes, and where in gff_content they can be found'''
+    global HyProt_loc, HyProt_content, count, mode
     fields = attr[8].split(';')
     ID = fields[0][3:]
     content = []
     # print(f'{ID} {len(fields)} {fields[len(fields)-1]}')
     if mode == 'restricted':
-        if len(fields) == 4:            # hypothetical proteins with no information at all
+        if len(fields) == 4:                                # hypothetical proteins with no information at all
             for i in range(1, len(fields)):
                 content.append(fields[i])
             # count += 1
-            hyprot_content.update({ID:content})
-            hyprot_loc.update({ID:row})
+            HyProt_content.update({ID:content})
+            HyProt_loc.update({ID:row})
         else:
             pass 
-        assert  len(hyprot_content.keys()) == len(hyprot_loc.keys())
+        assert  len(HyProt_content.keys()) == len(HyProt_loc.keys())
     elif mode == 'full':
-        if len(fields) == 4 or len(fields) == 5:            # hyprots with no info and partial info
+        if len(fields) == 4 or len(fields) == 5:            # hypothetical proteins with no info and partial info
             for i in range(1, len(fields)):
                 content.append(fields[i])
             # count += 1
-            hyprot_content.update({ID:content})
-            hyprot_loc.update({ID:row})
+            HyProt_content.update({ID:content})
+            HyProt_loc.update({ID:row})
         else:
             pass 
-        assert  len(hyprot_content.keys()) == len(hyprot_loc.keys())
-    # print(f"save_hyprots:\t{count}")
-    return hyprot_content, hyprot_loc   # DEPRECATED
+        assert  len(HyProt_content.keys()) == len(HyProt_loc.keys())
+    # print(f"save_HyProts:\t{count}")
+    return HyProt_content, HyProt_loc   # DEPRECATED
 
 def query_fasta(infile = in_gff, output = out_dir):
-    global hyprot_content, DIR, BN
-    # print("Build output directory 'prokkaX' in specified output location, if not existing.")
+    global HyProt_content, DIR, BN
+    # print("Build output directory 'HyPro' in specified output location, if not existing.")
     print("Try to build query fasta...")
     ffn_file = DIR + '/' + BN + '.ffn'      # feature sequences
-    if bool(hyprot_content):
+    if bool(HyProt_content):
         fasta = load_fasta(ffn_file)
         with open(output + "/query.fasta", 'w') as query:
             for ID in fasta.keys():
                 # print(ID)
-                if ID in hyprot_content.keys():
-                    # print("hyprot")
+                if ID in HyProt_content.keys():
+                    # print("HyProt")
                     query.write('>' + ID + '\n')
                     query.write(fasta[ID] + '\n')
                 else:
@@ -374,8 +347,8 @@ def query_fasta(infile = in_gff, output = out_dir):
         exit()   
     num =  int(subprocess.check_output("grep -c '>' " + output +  "/query.fasta", shell=True))
     print(f"Extracted {num} sequences to {output}/query.fasta")
-    # print(len(hyprot_content.keys()))
-    assert num == len(hyprot_content.keys()) 
+    # print(len(HyProt_content.keys()))
+    assert num == len(HyProt_content.keys()) 
 
 def load_fasta(file):
     fasta = {}      # header:seq, all sequences
@@ -395,20 +368,17 @@ def load_fasta(file):
     # print(len(fasta.keys()))
     return fasta
     # print(fasta)        
-            # if header in hyprots_names: # if the last fasta seq is hypothetical protein, too
-            #     elem = line.split(' ')
-            #     print(header)
 
 # download a particular db
 def download_db(output = out_dir, dbtype = db): #--------------------------TO BE EXTENDED WITH ADDITIONAL DBs-----------------------------------
     global valid_db, automated_dbload
     weblink = ''
-    if automated_dbload:           # if no custom path defined, define db path as the output path
+    if automated_dbload:                        # if no custom path defined, define db path as the output path
         path = output.rstrip('/') + "/db/" + dbtype
     else:
         global custdb
         path = custdb
-    if dbtype == valid_db[0]:    # if clause to decide which db to download 
+    if dbtype == valid_db[0]:                   # if clause to decide which db to download 
         db_fasta = path + "/uniprot_sprot.fasta"
         db_target = path + "/target_db"
         if loaded(db_fasta, dbtype):
@@ -433,7 +403,7 @@ def download_db(output = out_dir, dbtype = db): #--------------------------TO BE
     return path, db_fasta, db_target    #-----------------------------------------------------------------------------------------
 
 def mmseq(dbfasta, dbtarget, output=out_dir, mmseq = ms):
-    global hyprot_content, db, id_scinames 
+    global HyProt_content, db, id_scinames 
     id_infos = {}                                           # additional information found  with mmseq; saved with ID as key
     output = output.rstrip('/') + '/mmseq_output'
     # # execute mmseq2
@@ -441,7 +411,7 @@ def mmseq(dbfasta, dbtarget, output=out_dir, mmseq = ms):
     
     # # fraction identified
     hit_nums = str(subprocess.check_output("cut -f1 " + output + "/mmseq2_out_unique.tsv" + "| wc -l", shell=True))
-    print(f"Found hits for {int(hit_nums[2:-3])-1} / {len(hyprot_content.keys())} hypothetical proteins")
+    print(f"Found hits for {int(hit_nums[2:-3])-1} / {len(HyProt_content.keys())} hypothetical proteins")
 
     # load annotation pandas dataframe 
     mmseqs_out = pd.read_csv(output + '/mmseq2_out_unique.tsv', sep='\t')
@@ -453,47 +423,47 @@ def mmseq(dbfasta, dbtarget, output=out_dir, mmseq = ms):
     # lookup sci_names and symbols of target IDs
     dict_scinames = get_names(output + '/mmseq2_out_unique.tsv')
     # print(dict_scinames)
-    # save findings in hyprot_content (target info + scinames/symbols of target IDs)
-    # print(hyprot_content)
+    # save findings in HyProt_content (target info + scinames/symbols of target IDs)
+    # print(HyProt_content)
     for index in out_dict.keys():           
         # print(out_dict[index]['query'])
-        hyprot = out_dict[index]['query']
+        HyProt = out_dict[index]['query']
         db_ID = out_dict[index]['target']
         # print(dict_scinames[db_ID][1])
-        id_scinames.update({hyprot:dict_scinames[db_ID][1]})                # save scinames under the hyprot prokka IDs
-        if hyprot in hyprot_content.keys():
+        id_scinames.update({HyProt:dict_scinames[db_ID][1]})                # save scinames under the HyProt prokka IDs
+        if HyProt in HyProt_content.keys():
             info = ''
             for attr in out_dict[index].keys():
-                info = f"{info}prokkaX_{attr}={out_dict[index][attr]};"
-            info = f"{info}prokkaX_symbol={dict_scinames[db_ID][0]};"      # add target symbol to info
-            info = f"{info}prokkaX_sciname={dict_scinames[db_ID][1]};"     # add target sci name to info
-            id_infos[hyprot] = [info]
-            id_infos[hyprot].append(out_dict[index]['target'])
+                info = f"{info}HyPro_{attr}={out_dict[index][attr]};"
+            info = f"{info}HyPro_symbol={dict_scinames[db_ID][0]};"      # add target symbol to info
+            info = f"{info}HyPro_sciname={dict_scinames[db_ID][1]};"     # add target sci name to info
+            id_infos[HyProt] = [info]
+            id_infos[HyProt].append(out_dict[index]['target'])
                 # print(info)
                 # print(out_dict[index][attr])
             # print(info)
-            # print(hyprot_content[hyprot]) 
-            hyprot_content[hyprot][0] = f"inference=mmseqs2 {db}"
-            hyprot_content[hyprot][2] = f"product={out_dict[index]['target']}"
-            hyprot_content[hyprot].append(info.rstrip(';'))
-    counts = count_hyprots(id_scinames)
+            # print(HyProt_content[HyProt]) 
+            HyProt_content[HyProt][0] = f"inference=mmseqs2 {db}"
+            HyProt_content[HyProt][2] = f"product={out_dict[index]['target']}"
+            HyProt_content[HyProt].append(info.rstrip(';'))
+    counts = count_HyProts(id_scinames)
     print(f"The homology search finds {counts} / {int(hit_nums[2:-3])-1} hypothetical proteins again.")
     return id_infos
       
 def update_gff(output=out_dir, delimiter = '\t'):
-    global hyprot_content, hyprot_loc, gff_content, BN   
+    global HyProt_content, HyProt_loc, gff_content, BN   
     output = output.rstrip('/') + "/output"
-    for hyprot in hyprot_content.keys():        
+    for HyProt in HyProt_content.keys():        
         data = 'ID='
-        data = f'{data}{hyprot}'
-        # print(hyprot)
-        # print(hyprot_content[hyprot])
-        for elem in hyprot_content[hyprot]:
+        data = f'{data}{HyProt}'
+        # print(HyProt)
+        # print(HyProt_content[HyProt])
+        for elem in HyProt_content[HyProt]:
             data = f"{data};{elem}"
             # print(data)
         # data = data + '\''
         # print(data)
-        loc = hyprot_loc[hyprot]
+        loc = HyProt_loc[HyProt]
         # print(gff_content[loc])
         gff_content[loc][8] = data
         # print(gff_content[loc])
@@ -601,7 +571,7 @@ def get_names(table):   # table should be an input
     # print(sciname_dict)
     return sciname_dict
     # ret['query','name','symbol']
-    # ret.to_csv('/mnt/mahlzeitlocal/projects/ma_neander_assembly/hiwi/prokkaX/test/prokkaX/mmseq_output/mmseq2_out_unique_names.tsv')
+    # ret.to_csv('/mnt/mahlzeitlocal/projects/ma_neander_assembly/hiwi/HyPro/test/HyPro/mmseq_output/mmseq2_out_unique_names.tsv')
     # print(ret)
 def collect_scinames(name_list):
     sciname_dict = {}               # {ID:[symbol, sciname]}
@@ -609,17 +579,17 @@ def collect_scinames(name_list):
         try:
             sciname_dict.update({entry['query']:[entry['symbol'],entry['name']]})
         except: 
-            sciname_dict.update({entry['query']:['hyprot','hypothetical protein']})
+            sciname_dict.update({entry['query']:['HyProt','hypothetical protein']})
         # print(entry['query'])
     return sciname_dict
 
-def count_hyprots(features):
-    hyprot_count = 0
-    hyprot = re.compile("hypothetical protein")
+def count_HyProts(features):
+    HyProt_count = 0
+    HyProt = re.compile("hypothetical protein")
     for id in features.keys():
-        if re.search(hyprot,features[id]):
-            hyprot_count += 1
-    return hyprot_count
+        if re.search(HyProt,features[id]):
+            HyProt_count += 1
+    return HyProt_count
 
 
 
@@ -635,7 +605,7 @@ update_gff()
 update_faa(out_dir)
 update_ffn(out_dir)
 extend_gbk(out_dir, id_alninfo)
-# get_names('/mnt/mahlzeitlocal/projects/ma_neander_assembly/hiwi/prokkaX/test/prokkaX/mmseq_output/mmseq2_out_unique.tsv')
+# get_names('/mnt/mahlzeitlocal/projects/ma_neander_assembly/hiwi/HyPro/test/HyPro/mmseq_output/mmseq2_out_unique.tsv')
 
 
 # TO DO:
@@ -649,7 +619,7 @@ extend_gbk(out_dir, id_alninfo)
 # prokka 1.14.0
 # mmseqs2 10.6d92c
 # mygene module 3.1.0
-
+# python3.7
 
 
 
@@ -658,8 +628,8 @@ extend_gbk(out_dir, id_alninfo)
 
 
 # DEPRECATED
-def extract_hyprotIDs(gff):     
-    hyprots = {}
+def extract_HyProtIDs(gff):     
+    HyProts = {}
     for entry in gff:
         try:
             attr = entry[8].split(';')
@@ -673,24 +643,24 @@ def extract_hyprotIDs(gff):
     return prots
 
 #DEPRECATED
-def get_hyprot_names(prot_dict):
-    global hyprots_names
-    regex = re.compile('hypothetical protein')  #search for hyprots
+def get_HyProt_names(prot_dict):
+    global HyProts_names
+    regex = re.compile('hypothetical protein')  #search for HyProts
     if isinstance(prot_dict, dict):             # ensures loaded prot file is dictionary
         for prot in prot_dict.keys():
             # print(type(prot))
             # print(prot_dict[prot])
             if regex.search(str(prot_dict[prot])):
-                hyprots_names.append(prot[3:])   
-            #     hyprots.append(prot)
+                HyProts_names.append(prot[3:])   
+            #     HyProts.append(prot)
     else:
         print(type(prot_dict))
         print("Proteins must be arranged in dictionary {ID:content} to extract hypothetical protein names.")
-    # print(hyprots_names)
+    # print(HyProts_names)
 
 # DEPRECATED
-def get_hyprot_seqs(input="/data/mahlzeitlocal/projects/ma_neander_assembly/hiwi/prokkaX/test/prokka/chlamydia.ffn"):
-    global hyprots, hyprots_names
+def get_HyProt_seqs(input="/data/mahlzeitlocal/projects/ma_neander_assembly/hiwi/HyPro/test/prokka/chlamydia.ffn"):
+    global HyProts, HyProts_names
     annotated = {}              # all annotated subsequences, dictionary
     header = ''
     seq = ''
@@ -699,26 +669,26 @@ def get_hyprot_seqs(input="/data/mahlzeitlocal/projects/ma_neander_assembly/hiwi
             if line.startswith('>') and re.search('hypothetical protein', line):    # header!
                 elem = line.split(' ')
                 if header != '' and seq != '':      # update only meaningful seqs
-                    hyprots.update({header:seq})        # last sequence is complete, update the prots dictionary
+                    HyProts.update({header:seq})        # last sequence is complete, update the prots dictionary
                 header = elem[0][1:]
                 seq = '' 
             elif re.match("[ACGT]",line):    # nt seq of hypothetical protein
                 seq = seq + str(line)
-        if header in hyprots_names: # if the last fasta seq is hypothetical protein, too
+        if header in HyProts_names: # if the last fasta seq is hypothetical protein, too
             elem = line.split(' ')
             print(header)
-            hyprots.update({header:seq})
-    print(len(hyprots.keys()))
-    print(len(hyprots_names))
-    # print(hyprots)
-    assert len(hyprots) == len(hyprots_names)
+            HyProts.update({header:seq})
+    print(len(HyProts.keys()))
+    print(len(HyProts_names))
+    # print(HyProts)
+    assert len(HyProts) == len(HyProts_names)
 
-    # for name in hyprots:
+    # for name in HyProts:
     #     try
 
                                                                              # exits program, if no sequence to write
     # os.system("grep -c '>'" + path + "/query.fasta")
-    # assert int(os.system('grep -c '>'' + path + '/query.fasta')) == len(hyprots.keys())
+    # assert int(os.system('grep -c '>'' + path + '/query.fasta')) == len(HyProts.keys())
 
 # DEPRECATED
 def is_gff(infile=in_gff):
@@ -727,7 +697,7 @@ def is_gff(infile=in_gff):
     if os.path.isfile(infile) and EXT == 'gff':
         print("Specified input is a file with 'gff' extension. Trying to load content...")
     else:
-        print("Invalid input file. Please enter '--help' flag for information on script usage.")
+        print("Invalid input file. Please enter '--help' flag for information on tool usage.")
         exit()
 
 # DEPRECATED
