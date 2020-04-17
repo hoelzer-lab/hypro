@@ -72,7 +72,7 @@ hypro.py -i run/prokka/testrun.gff -o run/hypro -d uniprotkb -t pathotoconda/env
 ```
 The mmseqs2.sh can be found in the bin directory of the conda environment where HyPro is installed.
 
-When HyPro was already run once and the database was downloaded you can simply use the database again for other input/output data by specifiying the path to the database via ``-c``:
+When HyPro was already run once and the database was downloaded you can simply use the database again for other input/output data by specifiying the path to the database via ``-c``. When running the script again on the same output folder, an available database will be used again.
 ```bash
 scripts/hypro.py -i run/prokka/testrun.gff -o run/hypro_re-use_db -t scripts/mmseqs2.sh -m full -c run/hypro/db/uniprotkb
 ```
