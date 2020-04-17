@@ -86,9 +86,8 @@ scripts/hypro.py -i run/prokka/testrun.gff -o run/hypro_re-use_db -t scripts/mms
 |**-o**|**--output**|Specify PATH to a directory. HyPro will generate the output files to PATH.|
 |**-d**|**--database**|Specifiy the target db to search for annotation extension. Current available options: [uniprotkb]|
 |**-t**|**--mmseq2**|Specify the path to the mmseqs2.sh. If using conda, the script was installed to /conda_dir/envs/my_env_name/bin/ .|
-|**-m**|**--modus**|Choose the modus of HyPro to search all hypothetical proteins (full) or leave those out which gained partial annotation (restricted).|
-|**-c**|**--custom-db**|Specifiy a path. HyPro will look for a db of the type defined with -d. If no database is found, HyPro will build it in the path.
-partial information (restricted). The dinstinction of fully un-annotated and partial annotated hypothetical proteins was observed for uniprot hits. Options: [full, restricted]|
+|**-m**|**--modus**|Choose the modus of HyPro to search all hypothetical proteins (full) or leave those out which gained partial annotation (restricted). The dinstinction of fully un-annotated and partial annotated hypothetical proteins was observed for uniprot hits. Options: [full, restricted]|
+|**-c**|**--custom-db**|Specifiy a path. HyPro will look for a db of the type defined with -d. If no database is found, HyPro will build it in the path.|
 
 ## Output
 

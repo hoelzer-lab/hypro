@@ -10,7 +10,7 @@ source:
   folder: hypro-1.0
     
 build:
-    script: $PYTHON /data/mahlzeitlocal/projects/ma_neander_assembly/hiwi/HyPro/setup.py install --single-version-externally-managed --record=record.txt
+    script: $PYTHON hypro-1.0/setup.py install --single-version-externally-managed --record=record.txt
     
 requirements:
   build:

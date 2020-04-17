@@ -410,7 +410,7 @@ def mmseq(dbfasta, dbtarget, output=out_dir, mmseq = ms):
     
     # # fraction identified
     hit_nums = str(subprocess.check_output("cut -f1 " + output + "/mmseq2_out_unique.tsv" + "| wc -l", shell=True))
-    print(f"Found MMSeqs2 hits for {int(hit_nums[2:-3])-1} / {len(HyProt_content.keys())} hypothetical proteins\n\t(this includes also hits against hypothetical proteins in the database)")
+    print(f"The homology search assigns a function to {int(hit_nums[2:-3])-1} / {len(HyProt_content.keys())} hypothetical proteins\n\t(this includes also hits against hypothetical proteins in the database)")
 
     # load annotation pandas dataframe 
     mmseqs_out = pd.read_csv(output + '/mmseq2_out_unique.tsv', sep='\t')
@@ -446,7 +446,7 @@ def mmseq(dbfasta, dbtarget, output=out_dir, mmseq = ms):
             HyProt_content[HyProt][2] = f"product={out_dict[index]['target']}"
             HyProt_content[HyProt].append(info.rstrip(';'))
     counts = count_HyProts(id_scinames)
-    print(f"The homology search assigns a function to {counts} / {int(hit_nums[2:-3])-1} hypothetical proteins.")
+    print(f"Of those: {counts} / {int(hit_nums[2:-3])-1} are hypothetical proteins.")
     return id_infos
       
 def update_gff(output=out_dir, delimiter = '\t'):
@@ -521,11 +521,18 @@ def check_args(infile = in_gff, output = out_dir, mmseq = ms, dbtype = db):
         exit()
 
     # check, if mmseq2.sh is valid
-    if os.path.isfile(mmseq) and mmseq_name == "mmseqs2.sh":
+    try:
+        path_to_sh = str(subprocess.check_output(f'which {mmseq}', shell=True)).rstrip('\n')
+    except subprocess.CalledProcessError:
+        print("mmseqs2.sh path specification is corrupted. Check the specified path and the file you referenced.")
+        exit()
+        
+    if os.path.isfile(path_to_sh[2:-3]) and mmseq_name == "mmseqs2.sh":     # path should point to mmseqs2.sh
         print("Found mmseqs2.sh.")
     else:
         print("mmseqs2.sh path specification is corrupted. Check the specified path and the file you referenced.")
         exit()
+    
     # check, if customdb is a valid path  
     if automated_dbload == False:
         global custdb
