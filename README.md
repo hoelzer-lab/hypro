@@ -1,7 +1,7 @@
 <!--[![Build Status](https://travis-ci.org/hoelzer/ribap.svg?branch=master)](https://travis-ci.org/hoelzer/ribap)-->
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 ![Python](https://img.shields.io/badge/Language-Python3.7-green.svg)
-[![Twitter](https://img.shields.io/twitter/url/https/twitter.com/martinhoelzer?label=%40martinhoelzer&style=social)](https://twitter.com/martinhoelzer)
+[![Twitter Follow](https://img.shields.io/twitter/follow/martinhoelzer.svg?style=social)](https://twitter.com/martinhoelzer) 
 
 Authors: Martin H&ouml;lzer, Maximilian Arlt
 
@@ -10,10 +10,9 @@ Protein-coding annotation extension using additional homology searches against l
 
 ## Summary
 
-The HyPro tool extends common protein-coding annotations made with Prokka using additional homology searches. The approach currently takes a gff input file, extracts the sequences of hypothetical proteins and searches against a selected database (currently available: only uniprotkb) to find homologs. For searching, mmseqs2 is utilized which currently offers a fast and accurate sequence comparison, to the best of our knowledge.
+The HyPro tool extends common protein-coding annotations made with [Prokka](https://github.com/tseemann/prokka) using additional homology searches. The approach currently takes a gff input file, extracts the sequences of hypothetical proteins and searches against a selected database (currently available: only [UniProtKB](ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/)) to find homologs. For searching, [MMseqs2](https://github.com/soedinglab/MMseqs2) is utilized which offers a fast and accurate sequence comparison.
 
-The tool has been tested in a conda environment (v4.7.11). 
-
+The tool has been tested in a conda environment (v4.7.11).
 
 ## Tool Composition:
 
@@ -29,7 +28,7 @@ HyPro requires the provided list of software to function properly.
 |mygene|3.1.0|Might also work for other versions|
 |pandas|0.25.2|Might also work for other versions.|
 |mmseqs2|10.6d92c|Install in conda environment|
-|prokka (recommended)|1.14.0|used for de-novo annotation of test data of chlamydia|
+|prokka (recommended)|1.14.6|used for _de novo_ annotation of test data of chlamydia|
 
 It is recommended to clone this repository and use a conda environment for HyPro.
 
@@ -38,10 +37,10 @@ It is recommended to clone this repository and use a conda environment for HyPro
 git clone https://github.com/hoelzer-lab/hypro.git
 cd hypro
 ```
-Create a conda environment to use the binaries from github:
+Create a conda environment:
 
 ```
-conda create -n hypro python=3.7 pandas=0.25.2 mmseqs2=10.6d92c prokka=1.14.0 mygene=3.1.0
+conda create -n hypro python=3.7 pandas=0.25.2 mmseqs2=10.6d92c prokka=1.14.6 mygene=3.1.0
 conda activate hypro
 ```
 
@@ -61,17 +60,22 @@ After installing all dependencies (see commands above) and cloning this reposito
 prokka --prefix testrun --outdir run/prokka test/data/GCF_000471025.2_ASM47102v2_genomic.fna
 ```
 
-and for git binaries:
+and then execute the scripts from this repository:
 
 ```bash
 scripts/hypro.py -i run/prokka/testrun.gff -o run/hypro -d uniprotkb -t scripts/mmseqs2.sh -m full
 ```
 assuming that your current working directory is the previously downloaded git repository of HyPro. Otherwise, please adjust ``scripts/`` accordingly.
-or in case of conda package:
+or in case of conda package simply do:
 ```bash
 hypro.py -i run/prokka/testrun.gff -o run/hypro -d uniprotkb -t pathotoconda/envs/hypro/bin/mmseqs2.sh -m full
 ```
 The mmseqs2.sh can be found in the bin directory of the conda environment where HyPro is installed.
+
+When HyPro was already run once and the database was downloaded you can simply use the database again for other input/output data by specifiying the path to the database via ``-c``. When running the script again on the same output folder, an available database will be used again.
+```bash
+scripts/hypro.py -i run/prokka/testrun.gff -o run/hypro_re-use_db -t scripts/mmseqs2.sh -m full -c run/hypro/db/uniprotkb
+```
 
 **Arguments:**  
 

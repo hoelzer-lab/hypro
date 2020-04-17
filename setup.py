@@ -2,14 +2,14 @@ from setuptools import setup, find_packages
 
 requirements=['pandas==0.25.2','mygene==3.1.0'] # delete versions: 'pandas==0.25.2', 'mygene==3.1.0'
 
-long_description="HyPro provides homology searches of sequence stretches annotated as hypothetical proteins with mmseq2. Those sequences are searched in a nucleotide database to get a more specific prokka annotation. Thereby, HyPro updates the prokka output as the program is designed to be easily integrated in custom analysis pipelines."
+long_description="HyPro uses mmseqs2 to search for homology of sequence segments that have been annotated by Prokka as hypothetical proteins. These sequences are searched in a nucleotide database to obtain a more specific Prokka annotation. In this way, HyPro updates the Prokka output, as the program is designed to be easily integrated into custom analysis pipelines."
 setup(
     name="HyPro",
     version='1.0',
     author='Maximilian Arlt and Martin Hoelzer',
     author_email='hoelzer.martin@gmail.com',
     license='GPLv3',
-    description='Prokka extension for homology searches to enhance prokka de-novo annotations',
+    description='Extension for homology searches of hypothetical proteins to enhance Prokka annotations',
     install_requires=requirements,
     scripts=['hypro-1.0/scripts/hypro.py', 'hypro-1.0/scripts/mmseqs2.sh'],
     long_description=long_description,
