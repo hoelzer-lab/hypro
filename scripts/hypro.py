@@ -410,7 +410,7 @@ def mmseq(dbfasta, dbtarget, output=out_dir, mmseq = ms):
     
     # # fraction identified
     hit_nums = str(subprocess.check_output("cut -f1 " + output + "/mmseq2_out_unique.tsv" + "| wc -l", shell=True))
-    print(f"Found hits for {int(hit_nums[2:-3])-1} / {len(HyProt_content.keys())} hypothetical proteins")
+    print(f"Found MMSeqs2 hits for {int(hit_nums[2:-3])-1} / {len(HyProt_content.keys())} hypothetical proteins\n\t(this includes also hits against hypothetical proteins in the database)")
 
     # load annotation pandas dataframe 
     mmseqs_out = pd.read_csv(output + '/mmseq2_out_unique.tsv', sep='\t')
@@ -446,7 +446,7 @@ def mmseq(dbfasta, dbtarget, output=out_dir, mmseq = ms):
             HyProt_content[HyProt][2] = f"product={out_dict[index]['target']}"
             HyProt_content[HyProt].append(info.rstrip(';'))
     counts = count_HyProts(id_scinames)
-    print(f"The homology search finds {counts} / {int(hit_nums[2:-3])-1} hypothetical proteins again.")
+    print(f"The homology search assigns a function to {counts} / {int(hit_nums[2:-3])-1} hypothetical proteins.")
     return id_infos
       
 def update_gff(output=out_dir, delimiter = '\t'):
