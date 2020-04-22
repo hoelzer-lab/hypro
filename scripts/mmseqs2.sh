@@ -1,6 +1,6 @@
 #!/bin/bash
 # 22.10.19
-# script serves to find hypothetical protein (hyprot) annotation from prokka
+# script to extend hypothetical protein (hyprot) annotation from prokka using mmseqs2
 # input: query fasta with hyprots
 
 function is_indexed(){
@@ -33,7 +33,7 @@ function is_indexed(){
 }
 
 function created_querydb(){
-	if [ ${DBTYPE} == 'uniprotkb' ] # if clause to decide for the type of db that was chosen- default is uniprotkb (see gff_extend.py)
+	if [ ${DBTYPE} == 'uniprotkb' ] # if clause to decide for the type of db that was chosen- default is uniprotkb (see hypro.py)
 	then
 		index_files=('query_db' 'query_db.dbtype' 'query_db.index' 'query_db.lookup' 'query_db_h' 'query_db_h.dbtype' 'query_db_h.index')
 		DN=$(dirname ${2})
@@ -97,6 +97,9 @@ RESULTDB="${path}/results_db"
 TMP="${path}/tmp"
 OUT="${path}/mmseq2_out.tsv"
 DBTYPE="$4"
+EVAL="$5"						# minimal E-value - parameter "-e"
+ALEN="$6"						# minimal alignment length "--min-aln-len"
+PIDENT="$7"						# minimal percent identity - "--min-seq-id"
 
 # mmseqs createdb 
 mkdir -p ${TMP}
@@ -109,7 +112,7 @@ elif [ "$?" -eq 1 ]
 then
 	mmseqs createdb ${QFASTA} ${QUERYDB}
 fi
-
+#mmseqs createdb ${QFASTA} ${QUERYDB}
 
 created_resultsdb ${DBTYPE} ${TARGETDB}	# if all results_db files exist and are non-zero , skip 
 if [ "$?" -eq 0 ]
@@ -120,6 +123,8 @@ then
 	mmseqs createdb ${TFASTA} ${TARGETDB}
 fi
 
+#mmseqs createdb ${TFASTA} ${TARGETDB}
+
 is_indexed ${DBTYPE} ${TARGETDB}      # if index files of taget_db exist and non-zero, skip
 if [ "$?" -eq 0 ]
 then
@@ -128,12 +133,13 @@ elif [ "$?" -eq 1 ]
 then
 	mmseqs createindex ${TARGETDB} ${TMP}
 fi
-
-mmseqs search ${QUERYDB} ${TARGETDB} ${RESULTDB} ${TMP}
+# mmseqs createindex ${TARGETDB} ${TMP}
+echo mmseqs search ${QUERYDB} ${TARGETDB} ${RESULTDB} ${TMP} -e ${EVAL} --min-aln-len ${ALEN} --min-seq-id ${PIDENT}
+mmseqs search ${QUERYDB} ${TARGETDB} ${RESULTDB} ${TMP} -e ${EVAL} --min-aln-len ${ALEN} --min-seq-id ${PIDENT}
 mmseqs convertalis --format-mode 0 --format-output 'query,target,pident,alnlen,mismatch,gapopen,qlen,qstart,qend,tstart,tend,evalue,bits' ${QUERYDB} ${TARGETDB} ${RESULTDB} ${OUT}
 
 head ${OUT}
-echo "Generate top hit table from raw mmseq2 output..."
+echo "Generate unique table with highest bit scores from raw mmseq2 output..."
 echo "query	target	pident	alnlen	mismatch	gapopen	qlen	qstart	qend	tstart	tend	evalue	bits" > "${path}/mmseq2_out_unique.tsv" # add header
 sort -u -k1,1 ${OUT} >> "${path}/mmseq2_out_unique.tsv"
 head ${path}/mmseq2_out_unique.tsv
