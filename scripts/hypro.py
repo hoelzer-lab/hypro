@@ -30,8 +30,14 @@ parser.add_argument('-d', '--database', dest='db', action='store', metavar='STR'
 parser.add_argument('-t', '--mmseqs2', dest='mmseq', action='store', metavar='PATH', nargs=1, required=True, help="Specify the path to the mmseqs2.sh. If using conda, the script was installed to /conda_dir/envs/my_env_name/bin/ .")
 # ALL or just BLANKS ?
 #parser.add_argument('-m', '--modus', dest='modus', action='store', metavar='STR', nargs=1, default='blanks', help="Search all hypothetical proteins or just the blanks. default: blanks")
-# # Custom-DB
+# Custom-DB
 parser.add_argument('-c', '--custom-db', dest='custdb', action='store', metavar='STR', nargs=1, required=False, help="Specifiy a path. HyPro will look for a db of the type defined with -d. If no database is found, HyPro will build it.")
+# E-Value
+parser.add_argument('-e', '--evalue', dest='evalue', action='store', metavar='FLOAT', nargs=1, required=False, default='0.1', help='Include sequence matches with < e-value threshold into the profile. Requires a FLOAT >= 0.0. [0.1]')
+# Alignment length
+parser.add_argument('-a', '--min-aln-len', dest='alnlen', action='store', metavar='INT', nargs=1, required=False, default='0', help='Specifiy the inimum alignment length as INT in range 0 to MAX aln length. [0]')
+# Percentage identity
+parser.add_argument('-p', '--pident', dest='pident', action='store', metavar='FLOAT', nargs=1, required=False, default='0.0', help='List only matches above this sequence identity for clustering. Enter a FLOAT between 0 and 1.0. [0.0]')
 
 args = parser.parse_args()
 
@@ -56,6 +62,20 @@ print(out_dir)
 
 ms = args.mmseq[0]
 
+if isinstance(args.evalue, list):
+    evalue=float(args.evalue[0])
+elif isinstance(args.evalue, str):
+    evalue=float(args.evalue)
+
+if isinstance(args.alnlen, list):
+    alnlen=int(args.alnlen[0])
+elif isinstance(args.alnlen, str):
+    alnlen=int(args.alnlen)
+
+if isinstance(args.pident, list):
+    pident=float(args.pident[0])
+elif isinstance(args.pident, str):
+    pident=float(args.pident)
 
 DIR = ''            # input directory, all prokka files should reside at
 BN = ''             # basename of prokka output files
@@ -401,16 +421,16 @@ def download_db(output = out_dir, dbtype = db): #--------------------------TO BE
         exit()
     return path, db_fasta, db_target    #-----------------------------------------------------------------------------------------
 
-def mmseq(dbfasta, dbtarget, output=out_dir, mmseq = ms):
+def mmseq(dbfasta, dbtarget, output=out_dir, mmseq=ms, ev=evalue, aln=alnlen, pi=pident):
     global HyProt_content, db, id_scinames 
     id_infos = {}                                           # additional information found  with mmseq; saved with ID as key
     output = output.rstrip('/') + '/mmseq_output'
     # # execute mmseq2
-    os.system(f"{mmseq}  {output}  {dbfasta}  {dbtarget} {db}")
+    os.system(f"{mmseq} {output} {dbfasta} {dbtarget} {db} {ev} {alnlen} {pident}")
     
     # # fraction identified
     hit_nums = str(subprocess.check_output("cut -f1 " + output + "/mmseq2_out_unique.tsv" + "| wc -l", shell=True))
-    print(f"The homology search assigns a function to {int(hit_nums[2:-3])-1} / {len(HyProt_content.keys())} hypothetical proteins\n\t(this includes also hits against hypothetical proteins in the database)")
+    print(f"The homology search assigns a function to {int(hit_nums[2:-3])-1} / {len(HyProt_content.keys())} hypothetical proteins\n\t(this includes also hits on hypothetical proteins in the database)")
 
     # load annotation pandas dataframe 
     mmseqs_out = pd.read_csv(output + '/mmseq2_out_unique.tsv', sep='\t')
