@@ -77,7 +77,6 @@ When HyPro was already run once and the database was downloaded you can simply u
 scripts/hypro.py -i run/prokka/testrun.gff -o run/hypro_re-use_db -t scripts/mmseqs2.sh -m full -c run/hypro/db/uniprotkb
 ```
 
-**Arguments:**  
 ### Program Handling
 |Short|Long|Description|
 |-----|----|-----------|
