@@ -93,16 +93,20 @@ QFASTA="${path}/../query.fasta"
 TFASTA="$2"						#"${path}/db/uniprotkb/uniprot_sprot.fasta"
 QUERYDB="${path}/query_db"
 TARGETDB="$3"						#"${path}/db/uniprotkb/target_db"
-RESULTDB="${path}/results_db"
+RPREFIX="${path}/results_db"
 TMP="${path}/tmp"
-OUT="${path}/mmseq2_out.tsv"
 DBTYPE="$4"
 EVAL="$5"						# minimal E-value - parameter "-e"
 ALEN="$6"						# minimal alignment length "--min-aln-len"
 PIDENT="$7"						# minimal percent identity - "--min-seq-id"
+RESULTDB="${RPREFIX}/e${EVAL}_a${ALEN}_p${PIDENT}" # generate an individual resultsdb for every parameter setting, since the results db is not overwritten by mmseqs search
+OUT="${path}/final_outs/mmseqs2_out_e${EVAL}_a${ALEN}_p${PIDENT}.tsv"
 
-# mmseqs createdb 
+rm -r ${RPREFIX}
+
 mkdir -p ${TMP}
+mkdir -p "${path}/final_outs"
+mkdir -p ${RPREFIX}
 
 created_querydb ${DBTYPE} ${QUERYDB}	# if all query_db files exist and are non-zero , skip 
 if [ "$?" -eq 0 ]
@@ -112,7 +116,7 @@ elif [ "$?" -eq 1 ]
 then
 	mmseqs createdb ${QFASTA} ${QUERYDB}
 fi
-#mmseqs createdb ${QFASTA} ${QUERYDB}
+
 
 created_resultsdb ${DBTYPE} ${TARGETDB}	# if all results_db files exist and are non-zero , skip 
 if [ "$?" -eq 0 ]
@@ -123,7 +127,7 @@ then
 	mmseqs createdb ${TFASTA} ${TARGETDB}
 fi
 
-#mmseqs createdb ${TFASTA} ${TARGETDB}
+
 
 is_indexed ${DBTYPE} ${TARGETDB}      # if index files of taget_db exist and non-zero, skip
 if [ "$?" -eq 0 ]
@@ -133,16 +137,12 @@ elif [ "$?" -eq 1 ]
 then
 	mmseqs createindex ${TARGETDB} ${TMP}
 fi
-# mmseqs createindex ${TARGETDB} ${TMP}
-echo mmseqs search ${QUERYDB} ${TARGETDB} ${RESULTDB} ${TMP} -e ${EVAL} --min-aln-len ${ALEN} --min-seq-id ${PIDENT}
+
 mmseqs search ${QUERYDB} ${TARGETDB} ${RESULTDB} ${TMP} -e ${EVAL} --min-aln-len ${ALEN} --min-seq-id ${PIDENT}
 mmseqs convertalis --format-mode 0 --format-output 'query,target,pident,alnlen,mismatch,gapopen,qlen,qstart,qend,tstart,tend,evalue,bits' ${QUERYDB} ${TARGETDB} ${RESULTDB} ${OUT}
 
 head ${OUT}
 echo "Generate unique table with highest bit scores from raw mmseq2 output..."
-echo "query	target	pident	alnlen	mismatch	gapopen	qlen	qstart	qend	tstart	tend	evalue	bits" > "${path}/mmseq2_out_unique.tsv" # add header
-sort -u -k1,1 ${OUT} >> "${path}/mmseq2_out_unique.tsv"
-head ${path}/mmseq2_out_unique.tsv
-
-
-
+echo "query	target	pident	alnlen	mismatch	gapopen	qlen	qstart	qend	tstart	tend	evalue	bits" > "${path}/final_outs/mmseqs2_out_e${EVAL}_a${ALEN}_p${PIDENT}_unique.tsv" # add header
+sort -u -k1,1 ${OUT} >> "${path}/final_outs/mmseqs2_out_e${EVAL}_a${ALEN}_p${PIDENT}_unique.tsv"
+head "${path}/final_outs/mmseqs2_out_e${EVAL}_a${ALEN}_p${PIDENT}_unique.tsv"
