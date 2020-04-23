@@ -92,7 +92,7 @@ scripts/hypro.py -i run/prokka/testrun.gff -o run/hypro_re-use_db -t scripts/mms
 |Short|Long|Description|
 |-----|----|-----------|
 |**-e**|**--evalue**|Include sequence matches with < e-value threshold into the profile. Requires a FLOAT >= 0.0. [0.1]|
-|**-a**|**--min-aln-len**| Specifiy the inimum alignment length as INT in range 0 to MAX aln length. [0]|
+|**-a**|**--min-aln-len**| Specifiy the minimum alignment length as INT in range 0 to MAX aln length. [0]|
 |**-p**|**-pident**| List only matches above this sequence identity for clustering. Enter a FLOAT between 0 and 1.0. [0.0]|
 
 ## Output
@@ -100,5 +100,5 @@ scripts/hypro.py -i run/prokka/testrun.gff -o run/hypro_re-use_db -t scripts/mms
 HyPro loads all necessary data for the extension process automatically. It stores all needed information in the ``-o/--output PATH``. In ``PATH``, it creates the following directories:
 
 * ``db`` - stores the databases you have chosen, each in an own directory
-* ``mmseqs2_output`` - to store mmseqs2 output. The folder includes a subdirectory "final_outs" where all mmseqs2 results are stored with in tab-separated format (one is the mmseqs2 output while the other contains on bit-score unique filtered hits)
+* ``mmseqs2_output`` - to store mmseqs2 output. The folder includes a subdirectory "final_outs" where all mmseqs2 results are stored in tab-separated format (one is the mmseqs2 output while the other contains bit-score-filtered unique hits)
 * ``output`` - all extended files from prokka will be stored here (currently: gff, ffn, faa, gbk)
