@@ -424,23 +424,23 @@ def download_db(output = out_dir, dbtype = db): #--------------------------TO BE
 def mmseq(dbfasta, dbtarget, output=out_dir, mmseq=ms, ev=evalue, aln=alnlen, pi=pident):
     global HyProt_content, db, id_scinames 
     id_infos = {}                                           # additional information found  with mmseq; saved with ID as key
-    output = output.rstrip('/') + '/mmseq_output'
+    output = output.rstrip('/') + '/mmseqs_output'
     # # execute mmseq2
     os.system(f"{mmseq} {output} {dbfasta} {dbtarget} {db} {ev} {alnlen} {pident}")
     
     # # fraction identified
-    hit_nums = str(subprocess.check_output("cut -f1 " + output + "/mmseq2_out_unique.tsv" + "| wc -l", shell=True))
+    hit_nums = str(subprocess.check_output(f"cut -f1 {output}/final_outs/mmseqs2_out_e{ev}_a{alnlen}_p{pident}_unique.tsv | wc -l", shell=True))
     print(f"The homology search assigns a function to {int(hit_nums[2:-3])-1} / {len(HyProt_content.keys())} hypothetical proteins\n\t(this includes also hits on hypothetical proteins in the database)")
 
     # load annotation pandas dataframe 
-    mmseqs_out = pd.read_csv(output + '/mmseq2_out_unique.tsv', sep='\t')
+    mmseqs_out = pd.read_csv(f"{output}/final_outs/mmseqs2_out_e{ev}_a{alnlen}_p{pident}_unique.tsv" , sep='\t')
 
     #create dict from pandas df - ID:annotation dictionary
     out_dict = mmseqs_out.to_dict('index')  # dict of dicts; {index:{row}}; row = {col-X:row-entry}
     # print(prots_dict.keys())
 
     # lookup sci_names and symbols of target IDs
-    dict_scinames = get_names(output + '/mmseq2_out_unique.tsv')
+    dict_scinames = get_names(f"{output}/final_outs/mmseqs2_out_e{ev}_a{alnlen}_p{pident}_unique.tsv")
     # print(dict_scinames)
     # save findings in HyProt_content (target info + scinames/symbols of target IDs)
     # print(HyProt_content)
@@ -577,7 +577,7 @@ def create_outdir(out_dir, dbtype):
     os.system(f'mkdir -p {out_dir}')
     os.system(f'mkdir -p {out_dir}/db')
     os.system(f'mkdir -p {out_dir}/db/{dbtype}')
-    os.system(f'mkdir -p {out_dir}/mmseq_output/tmp')
+    os.system(f'mkdir -p {out_dir}/mmseqs_output/tmp')
     os.system(f'mkdir -p {out_dir}/output')
    
 def get_names(table):   # table should be an input 
