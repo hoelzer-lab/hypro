@@ -25,17 +25,17 @@ parser.add_argument('-i', '--input', dest='input', action='store', metavar='PATH
 # Output_dir
 parser.add_argument('-o', '--output', dest='output', action='store', metavar='PATH', nargs=1, required=True, default='..', help="Specify PATH to a directory. HyPro will generate all output to this.")
 # DB-Type
-parser.add_argument('-d', '--database', dest='db', action='store', metavar='STR', nargs=1, required=False, default='uniprotkb', help="Specifiy the target db to search in for annotation extension. Available options: 'uniprotkb', 'uniref100', 'uniref90', 'uniref50', 'pdb'")
+parser.add_argument('-d', '--database', dest='db', action='store', metavar='STR', nargs=1, required=False, default='uniprotkb', help="Specify the target db to search in for annotation extension. Available options: 'uniprotkb', 'uniref100', 'uniref90', 'uniref50', 'pdb'")
 # location of mmseq2.sh:
 parser.add_argument('-f', '--mmseqs2', dest='mmseq', action='store', metavar='PATH', nargs=1, required=True, help="Specify the path to the mmseqs2.sh. If using conda, the script was installed to /conda_dir/envs/my_env_name/bin/ .")
 # ALL or just BLANKS ?
 #parser.add_argument('-m', '--modus', dest='modus', action='store', metavar='STR', nargs=1, default='blanks', help="Search all hypothetical proteins or just the blanks. default: blanks")
 # Custom-DB
-parser.add_argument('-c', '--custom-db', dest='custdb', action='store', metavar='STR', nargs=1, required=False, help="Specifiy a path. HyPro will look for a db of the type defined with -d. If no database is found, HyPro will build it.")
+parser.add_argument('-c', '--custom-db', dest='custdb', action='store', metavar='STR', nargs=1, required=False, help="Specify a path. HyPro will look for a db of the type defined with -d. If no database is found, HyPro will build it.")
 # E-Value
 parser.add_argument('-e', '--evalue', dest='evalue', action='store', metavar='FLOAT', nargs=1, required=False, default='0.1', help='Include sequence matches with < e-value threshold into the profile. Requires a FLOAT >= 0.0. [0.1]')
 # Alignment length
-parser.add_argument('-a', '--min-aln-len', dest='alnlen', action='store', metavar='INT', nargs=1, required=False, default='0', help='Specifiy the minimum alignment length as INT in range 0 to MAX aln length. [0]')
+parser.add_argument('-a', '--min-aln-len', dest='alnlen', action='store', metavar='INT', nargs=1, required=False, default='0', help='Specify the minimum alignment length as INT in range 0 to MAX aln length. [0]')
 # Percentage identity
 parser.add_argument('-p', '--pident', dest='pident', action='store', metavar='FLOAT', nargs=1, required=False, default='0.0', help='List only matches above this sequence identity for clustering. Enter a FLOAT between 0 and 1.0. [0.0]')
 # sensitivity of mmseqs2
