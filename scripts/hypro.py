@@ -35,7 +35,7 @@ parser.add_argument('-c', '--custom-db', dest='custdb', action='store', metavar=
 # E-Value
 parser.add_argument('-e', '--evalue', dest='evalue', action='store', metavar='FLOAT', nargs=1, required=False, default='0.1', help='Include sequence matches with < e-value threshold into the profile. Requires a FLOAT >= 0.0. [0.1]')
 # Alignment length
-parser.add_argument('-a', '--min-aln-len', dest='alnlen', action='store', metavar='INT', nargs=1, required=False, default='0', help='Specifiy the inimum alignment length as INT in range 0 to MAX aln length. [0]')
+parser.add_argument('-a', '--min-aln-len', dest='alnlen', action='store', metavar='INT', nargs=1, required=False, default='0', help='Specifiy the minimum alignment length as INT in range 0 to MAX aln length. [0]')
 # Percentage identity
 parser.add_argument('-p', '--pident', dest='pident', action='store', metavar='FLOAT', nargs=1, required=False, default='0.0', help='List only matches above this sequence identity for clustering. Enter a FLOAT between 0 and 1.0. [0.0]')
 # sensitivity of mmseqs2
