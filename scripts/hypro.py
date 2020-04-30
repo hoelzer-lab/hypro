@@ -25,13 +25,13 @@ parser.add_argument('-i', '--input', dest='input', action='store', metavar='PATH
 # Output_dir
 parser.add_argument('-o', '--output', dest='output', action='store', metavar='PATH', nargs=1, required=True, default='..', help="Specify PATH to a directory. HyPro will generate all output to this.")
 # DB-Type
-parser.add_argument('-d', '--database', dest='db', action='store', metavar='STR', nargs=1, required=False, default='uniprotkb', help="Specify the target db to search in for annotation extension. Available options: 'uniprotkb', 'uniref100', 'uniref90', 'uniref50', 'pdb'")
+parser.add_argument('-d', '--database', dest='db', action='store', metavar='STR', nargs=1, required=False, default='uniprotkb', help="Specify the target db to search in for annotation extension. Available options: 'uniprotkb', 'uniref100', 'uniref90', 'uniref50', 'pdb' [uniprotkb]")
 # location of mmseq2.sh:
 parser.add_argument('-f', '--mmseqs2', dest='mmseq', action='store', metavar='PATH', nargs=1, required=True, help="Specify the path to the mmseqs2.sh. If using conda, the script was installed to /conda_dir/envs/my_env_name/bin/ .")
 # ALL or just BLANKS ?
 #parser.add_argument('-m', '--modus', dest='modus', action='store', metavar='STR', nargs=1, default='blanks', help="Search all hypothetical proteins or just the blanks. default: blanks")
 # Custom-DB
-parser.add_argument('-c', '--custom-db', dest='custdb', action='store', metavar='STR', nargs=1, required=False, help="Specify a path. HyPro will look for a db of the type defined with -d. If no database is found, HyPro will build it.")
+parser.add_argument('-c', '--custom-db', dest='custdb', action='store', metavar='STR', nargs=1, required=False, help="Specify a path. If no database is found, HyPro will build it. Requires accordingly set -d.  ")
 # E-Value
 parser.add_argument('-e', '--evalue', dest='evalue', action='store', metavar='FLOAT', nargs=1, required=False, default='0.1', help='Include sequence matches with < e-value threshold into the profile. Requires a FLOAT >= 0.0. [0.1]')
 # Alignment length
@@ -41,7 +41,7 @@ parser.add_argument('-p', '--pident', dest='pident', action='store', metavar='FL
 # sensitivity of mmseqs2
 # parser.add_argument('-s', '--sens', dest='sens', action='store', metavar='FLOAT', nargs=1, required=False, default='5.7', help=' Adjust the sensitivity of mmseqs search/index. 1.0 fastest, 7.5 most sensitive (range: 1.0 - 7.5). [5.7]')
 # Threads
-parser.add_argument('-t', '--threads', dest='threads', action='store', metavar='INT', nargs=1, required=False, default='1', help='Define number of threads to use by mmseqs indexdb and mmseqs search. [1]')
+parser.add_argument('-t', '--threads', dest='threads', action='store', metavar='INT', nargs=1, required=False, default='1', help='Define number of threads to use by mmseqs indexdb, mmseqs search and mmseqs convertalis. [1]')
 
 args = parser.parse_args()
 

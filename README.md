@@ -72,7 +72,8 @@ hypro.py -i run/prokka/testrun.gff -o run/hypro -d uniprotkb -t pathotoconda/env
 ```
 The mmseqs2.sh can be found in the bin directory of the conda environment where HyPro is installed.
 
-When HyPro was already run once and the database was downloaded you can simply use the database again for other input/output data by specifiying the path to the database via ``-c``. When running the script again on the same output folder, an available database will be used again.
+When running HyPro to the same output folder multiple times, the tool will look for an existing DB of the given type ('-d') first. If nothing could be found, it will download/build the specified DB. Alternatively, you may give HyPro a path to an existing DB created sometime before. Simply hand it over to the [-c parameter](#Program-Handling). In this case, do not forget to specify the DB type that you use in -d!
+
 ```bash
 scripts/hypro.py -i run/prokka/testrun.gff -o run/hypro_re-use_db -t scripts/mmseqs2.sh -m full -c run/hypro/db/uniprotkb
 ```
@@ -83,10 +84,11 @@ scripts/hypro.py -i run/prokka/testrun.gff -o run/hypro_re-use_db -t scripts/mms
 |**-h**|**--help** |show this help message and exit|
 |**-i**|**--input**|Path to input gff that shall be extended|   
 |**-o**|**--output**|Specify PATH to a directory. HyPro will generate the output files to PATH.|
-|**-d**|**--database**|Specifiy the target db to search for annotation extension. Current available options: [uniprotkb]|
-|**-t**|**--mmseq2**|Specify the path to the mmseqs2.sh. If using conda, the script was installed to /conda_dir/envs/my_env_name/bin/ .|
+|**-d**|**--database**|Specify the target db to search for annotation extension. Current available options: uniprotkb, uniref50, uniref90, uniref100, pdb. Note, that searching on uniref DBs will significantly extend runtime of HyPro. [uniprotkb]|
+|**-f**|**--mmseq2**|Specify the path to the mmseqs2.sh. If using conda, the script was installed to /conda_dir/envs/my_env_name/bin/ .|
 |**-m**|**--modus**|Choose the modus of HyPro to search all hypothetical proteins (full) or leave those out which gained partial annotation (restricted). The dinstinction of fully un-annotated and partial annotated hypothetical proteins was observed for uniprot hits. Options: [full, restricted]|
-|**-c**|**--custom-db**|Specifiy a path. HyPro will look for a db of the type defined with -d. If no database is found, HyPro will build it in the path.|
+|**-c**|**--custom-db**|Specify a path to an existing DB. If no database is found, HyPro will build it. Requires accordingly set -d.|
+|**-t**|**--threads**|Define the number of threads to use by mmseqs indexdb, search and convertalis. [1]|
 
 ### Alignment Parameters
 |Short|Long|Description|
@@ -102,3 +104,5 @@ HyPro loads all necessary data for the extension process automatically. It store
 * ``db`` - stores the databases you have chosen, each in an own directory
 * ``mmseqs2_output`` - to store mmseqs2 output. The folder includes a subdirectory "final_outs" where all mmseqs2 results are stored in tab-separated format (one is the mmseqs2 output while the other contains bit-score-filtered unique hits)
 * ``output`` - all extended files from prokka will be stored here (currently: gff, ffn, faa, gbk)
+
+Note: HyPro will save the mmseqs outputs in blast-like format (tsv) with a unique name composed of the DB you used and the chosen parameters. For example: *mmseqs2_out_db_uniprotkb_e0.1_a0_p0.0.tsv* and *mmseqs2_out_db_uniprotkb_e0.1_a0_p0.0_unique.tsv*. This means the results of an mmseqs run on the uniprotkb DB with an e-value  cut-off of 0.1, minimum alignment length is 0nt and percent identitiy 0%, too (those are the default alignment parameters set).
