@@ -12,7 +12,7 @@ import pandas as pd
 gff_content = {}        # gff content per row number
 HyProt_loc = {}         # recognizes the line of each HyProt via prokka feature ID
 HyProt_content = {}            # recognizes prokka features of 'hypothetical proteins' via prokka feature ID
-valid_db = ['uniprotkb']        # to be extended for novel db-types
+valid_db = ['uniprotkb','uniref100', 'uniref90', 'uniref50', 'pdb']        # to be extended for novel db-types
 id_scinames = {}               # feature IDs and target scientific name
 automated_dbload = True
 ################## ARGPARSE #####################
@@ -25,15 +25,36 @@ parser.add_argument('-i', '--input', dest='input', action='store', metavar='PATH
 # Output_dir
 parser.add_argument('-o', '--output', dest='output', action='store', metavar='PATH', nargs=1, required=True, default='..', help="Specify PATH to a directory. HyPro will generate all output to this.")
 # DB-Type
-parser.add_argument('-d', '--database', dest='db', action='store', metavar='STR', nargs=1, required=False, default='uniprotkb', help="Specifiy the target db to search in for annotation extension. Available options: 'uniprotkb'")
+parser.add_argument('-d', '--database', dest='db', action='store', metavar='STR', nargs=1, required=False, default='uniprotkb', help="Specify the target db to search in for annotation extension. Available options: 'uniprotkb', 'uniref100', 'uniref90', 'uniref50', 'pdb' [uniprotkb]")
 # location of mmseq2.sh:
-parser.add_argument('-t', '--mmseqs2', dest='mmseq', action='store', metavar='PATH', nargs=1, required=True, help="Specify the path to the mmseqs2.sh. If using conda, the script was installed to /conda_dir/envs/my_env_name/bin/ .")
+parser.add_argument('-f', '--mmseqs2', dest='mmseq', action='store', metavar='PATH', nargs=1, required=True, help="Specify the path to the mmseqs2.sh. If using the conda package, 'mmseqs2.sh' is enough.")
 # ALL or just BLANKS ?
 #parser.add_argument('-m', '--modus', dest='modus', action='store', metavar='STR', nargs=1, default='blanks', help="Search all hypothetical proteins or just the blanks. default: blanks")
-# # Custom-DB
-parser.add_argument('-c', '--custom-db', dest='custdb', action='store', metavar='STR', nargs=1, required=False, help="Specifiy a path. HyPro will look for a db of the type defined with -d. If no database is found, HyPro will build it.")
+# Custom-DB
+parser.add_argument('-c', '--custom-db', dest='custdb', action='store', metavar='STR', nargs=1, required=False, help="Specify a path. If no database is found, HyPro will build it.  Requires an according -d configuration.")
+# E-Value
+parser.add_argument('-e', '--evalue', dest='evalue', action='store', metavar='FLOAT', nargs=1, required=False, default='0.1', help='Include sequence matches with < e-value threshold into the profile. Requires a FLOAT >= 0.0. [0.1]')
+# Alignment length
+parser.add_argument('-a', '--min-aln-len', dest='alnlen', action='store', metavar='INT', nargs=1, required=False, default='0', help='Specify the minimum alignment length as INT in range 0 to MAX aln length. [0]')
+# Percentage identity
+parser.add_argument('-p', '--pident', dest='pident', action='store', metavar='FLOAT', nargs=1, required=False, default='0.0', help='List only matches above this sequence identity for clustering. Enter a FLOAT between 0 and 1.0. [0.0]')
+# sensitivity of mmseqs2
+# parser.add_argument('-s', '--sens', dest='sens', action='store', metavar='FLOAT', nargs=1, required=False, default='5.7', help=' Adjust the sensitivity of mmseqs search/index. 1.0 fastest, 7.5 most sensitive (range: 1.0 - 7.5). [5.7]')
+# Threads
+parser.add_argument('-t', '--threads', dest='threads', action='store', metavar='INT', nargs=1, required=False, default='1', help='Define number of threads to use by mmseqs indexdb, mmseqs search and mmseqs convertalis. [1]')
 
 args = parser.parse_args()
+
+# if isinstance(args.sens, list):
+#     sens = float(args.sens[0])
+# elif isinstance(args.sens, str):
+#     sens = float(args.sens)
+
+
+if isinstance(args.threads, list):
+    threads = int(args.threads[0])
+elif isinstance(args.threads, str):
+    threads = int(args.threads)
 
 if bool(args.custdb):               # set 
     automated_dbload = False
@@ -47,6 +68,7 @@ elif isinstance(args.modus, str):
 print(f'Start HyPro in {mode} mode')
 in_gff = args.input[0]
 out_dir = args.output[0]
+
 if isinstance(args.db, list):
     db = args.db[0]
 elif isinstance(args.db, str):
@@ -56,6 +78,20 @@ print(out_dir)
 
 ms = args.mmseq[0]
 
+if isinstance(args.evalue, list):
+    evalue=float(args.evalue[0])
+elif isinstance(args.evalue, str):
+    evalue=float(args.evalue)
+
+if isinstance(args.alnlen, list):
+    alnlen=int(args.alnlen[0])
+elif isinstance(args.alnlen, str):
+    alnlen=int(args.alnlen)
+
+if isinstance(args.pident, list):
+    pident=float(args.pident[0])
+elif isinstance(args.pident, str):
+    pident=float(args.pident)
 
 DIR = ''            # input directory, all prokka files should reside at
 BN = ''             # basename of prokka output files
@@ -258,6 +294,24 @@ def write_gbk(output, content, wspaces):
                     
 
 ############ update_gff
+def rusure(dbtype):
+    if dbtype == valid_db[3]:
+        print("Downloading the uniref50 may take several hours. Are you sure to continue? [yes/no]")
+    elif dbtype == valid_db[2]:
+        print("Downloading the uniref90 might take several days. Are you sure to continue? [yes/no]")
+    elif dbtype == valid_db[1]:
+        print("Downloading the uniref100 might take several days. Are you sure to continue? [yes/no]")
+
+    x = input()
+    if x == 'yes':
+        pass
+    elif x == 'no':
+        print('You can choose another database when re-running. Exiting...')
+        exit()
+    else:
+        print('Unknown option specified. Please choose: [yes/no]')
+        rusure()
+
 def load_gff(input=in_gff):
     # is_outdir()
     # is_gff()
@@ -380,7 +434,7 @@ def download_db(output = out_dir, dbtype = db): #--------------------------TO BE
     if dbtype == valid_db[0]:                   # if clause to decide which db to download 
         db_fasta = path + "/uniprot_sprot.fasta"
         db_target = path + "/target_db"
-        if loaded(db_fasta, dbtype):
+        if loaded(db_fasta, automated_dbload):
             print("Uniprotkb fasta exists already. Skip download.")
         else:
             print("No db found. Download...")
@@ -396,32 +450,123 @@ def download_db(output = out_dir, dbtype = db): #--------------------------TO BE
             os.system(f"gunzip ./{file}")
             os.chdir(pwd)
             # print(os.getcwd)
+    elif dbtype == valid_db[1]:
+        db_fasta = path + "/uniref100.fasta"
+        db_target = path + "/target_db"
+        if loaded(db_fasta, automated_dbload):
+            print("Uniref100 fasta exists already. Skip download.")
+        else:
+            rusure(dbtype)
+            print("No db found. Download...")
+            weblink = "ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref100/uniref100.fasta.gz"
+            file = "uniref100.fasta.gz"
+            print(path)
+            pwd = os.getcwd()
+            # print(pwd)
+            os.chdir(path)
+            # print(os.getcwd())
+            print(f"Download database to {path}")
+            os.system(f"wget {weblink}")    
+            os.system(f"gunzip ./{file}")
+            os.chdir(pwd)
+            # print(os.getcwd)
+    elif dbtype == valid_db[2]:
+        db_fasta = path + "/uniref90.fasta"
+        db_target = path + "/target_db"
+        if loaded(db_fasta, automated_dbload):
+            print("Uniref90 fasta exists already. Skip download.")
+        else:
+            rusure(dbtype)
+            print("No db found. Download...")
+            weblink = "ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref90/uniref90.fasta.gz"
+            file = "uniref90.fasta.gz"
+            print(path)
+            pwd = os.getcwd()
+            # print(pwd)
+            os.chdir(path)
+            # print(os.getcwd())
+            print(f"Download database to {path}")
+            os.system(f"wget {weblink}")    
+            os.system(f"gunzip ./{file}")
+            os.chdir(pwd)
+            # print(os.getcwd)
+    elif dbtype == valid_db[3]:
+        db_fasta = path + "/uniref50.fasta"
+        db_target = path + "/target_db"
+        if loaded(db_fasta, automated_dbload):
+            print("Uniref50 fasta exists already. Skip download.")
+        else:
+            rusure(dbtype)
+            print("No db found. Download...")
+            weblink = "ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref50/uniref50.fasta.gz"
+            file = "uniref50.fasta.gz"
+            print(path)
+            pwd = os.getcwd()
+            # print(pwd)
+            os.chdir(path)
+            # print(os.getcwd())
+            print(f"Download database to {path}")
+            os.system(f"wget {weblink}")
+            os.system(f"gunzip ./{file}")
+            os.chdir(pwd)
+            # print(os.getcwd)
+    elif dbtype == valid_db[4]:
+        db_fasta = path + "/pdb_seqres.txt"
+        db_target = path + "/target_db"
+        if loaded(db_fasta, automated_dbload):
+            print("Uniref50 fasta exists already. Skip download.")
+        else:
+            rusure(dbtype)
+            print("No db found. Download...")
+            weblink = "ftp://ftp.wwpdb.org/pub/pdb/derived_data/pdb_seqres.txt.gz"
+            file = "pdb_seqres.txt.gz"
+            print(path)
+            pwd = os.getcwd()
+            # print(pwd)
+            os.chdir(path)
+            # print(os.getcwd())
+            print(f"Download database to {path}")
+            os.system(f"wget {weblink}")    
+            os.system(f"gunzip ./{file}")
+            os.chdir(pwd)
+            # print(os.getcwd)
     else:
         print("Error. Exit from download_db function...")
         exit()
     return path, db_fasta, db_target    #-----------------------------------------------------------------------------------------
 
-def mmseq(dbfasta, dbtarget, output=out_dir, mmseq = ms):
+def mmseq(dbfasta, dbtarget, output=out_dir, mmseq=ms, ev=evalue, aln=alnlen, pi=pident, t=threads):
     global HyProt_content, db, id_scinames 
     id_infos = {}                                           # additional information found  with mmseq; saved with ID as key
-    output = output.rstrip('/') + '/mmseq_output'
+    output = output.rstrip('/') + '/mmseqs_output'
     # # execute mmseq2
-    os.system(f"{mmseq}  {output}  {dbfasta}  {dbtarget} {db}")
+    os.system(f"{mmseq} {output} {dbfasta} {dbtarget} {db} {ev} {alnlen} {pident} {t}")
     
     # # fraction identified
-    hit_nums = str(subprocess.check_output("cut -f1 " + output + "/mmseq2_out_unique.tsv" + "| wc -l", shell=True))
-    print(f"The homology search assigns a function to {int(hit_nums[2:-3])-1} / {len(HyProt_content.keys())} hypothetical proteins\n\t(this includes also hits against hypothetical proteins in the database)")
+    hit_nums = str(subprocess.check_output(f"cut -f1 {output}/final_outs/mmseqs2_out_db_{db}_e{ev}_a{alnlen}_p{pident}_unique.tsv | wc -l", shell=True))
+    print(f"The homology search assigns a function to {int(hit_nums[2:-3])-1} / {len(HyProt_content.keys())} hypothetical proteins\n\t(this includes also hits on hypothetical proteins in the database)")
 
     # load annotation pandas dataframe 
-    mmseqs_out = pd.read_csv(output + '/mmseq2_out_unique.tsv', sep='\t')
+    mmseqs_out = pd.read_csv(f"{output}/final_outs/mmseqs2_out_db_{db}_e{ev}_a{alnlen}_p{pident}_unique.tsv" , sep='\t')
 
     #create dict from pandas df - ID:annotation dictionary
     out_dict = mmseqs_out.to_dict('index')  # dict of dicts; {index:{row}}; row = {col-X:row-entry}
+    # if out_dict is unref50/90/100:
+    if db == valid_db[1] or db == valid_db[2] or db == valid_db[3]:
+        for num in out_dict.keys():
+            # out_dict[num]["target"]
+            value = out_dict[num]
+            target_split = out_dict[num]['target'].split('_')     
+            out_dict[num].update({'target':target_split[1]})  # ID form "Uniref[50,90,100]_uniprotID" replaced by uniprotID
+            # print(out_dict[num]['target'])
+
+    # print(f'MMSeqs2 Output:\n{out_dict}')
     # print(prots_dict.keys())
 
     # lookup sci_names and symbols of target IDs
-    dict_scinames = get_names(output + '/mmseq2_out_unique.tsv')
-    # print(dict_scinames)
+    dict_scinames = get_names(f"{output}/final_outs/mmseqs2_out_db_{db}_e{ev}_a{alnlen}_p{pident}_unique.tsv", db)
+
+    #print(f'SciNames of TargetIDs:\n{dict_scinames}')
     # save findings in HyProt_content (target info + scinames/symbols of target IDs)
     # print(HyProt_content)
     for index in out_dict.keys():           
@@ -542,25 +687,30 @@ def check_args(infile = in_gff, output = out_dir, mmseq = ms, dbtype = db):
             print("the defined path to a custom db is corrupted. Please check. Exiting...")
             exit()
 
-def loaded(dbfasta, db):
+def loaded(dbfasta, automated_dbload):
     global valid_db
-    if db == valid_db[0]:
+    if automated_dbload:
         if os.path.isfile(dbfasta):
             return True
-        else:
+        else:                       # Continue script, if automatic download does not find a db fasta
             return False
     else:
-        print("Unknown db type to be checked for loading status. (Message from 'loaded' method)")
-
+        if os.path.isfile(dbfasta):
+            return True
+        else:                           # exit, if custom db is not find in path. Maybe the db is corrupt or the -d does not match the db in -c. This limits the usage of -c to only customdbs
+            print('No valid fasta file of specified DB Type in custom path. Did you specify -d (dbtype) according to -c (path to custom db)?\n Exiting...')
+            exit()
+        
 def create_outdir(out_dir, dbtype):
     '''create the output path structure'''
     os.system(f'mkdir -p {out_dir}')
     os.system(f'mkdir -p {out_dir}/db')
     os.system(f'mkdir -p {out_dir}/db/{dbtype}')
-    os.system(f'mkdir -p {out_dir}/mmseq_output/tmp')
+    os.system(f'mkdir -p {out_dir}/mmseqs_output/tmp')
     os.system(f'mkdir -p {out_dir}/output')
    
-def get_names(table):   # table should be an input 
+def get_names(table, db):   # table should be an input 
+    global valid_db
     gene_ids = []
     translate = {}
     ids = []
@@ -572,8 +722,24 @@ def get_names(table):   # table should be an input
             ids.append(elem[1])
             # print(gene.getgene('uniport:P24941','name,symbol'))
     # print(f'{len(ids)} {sorted(ids)}')
-    ret = gene.querymany(ids, scopes='uniprot', fields='name,symbol', verbose= False)           # set verbose 'True' to get info about duplicates/missing values of name parsing
-    sciname_dict = collect_scinames(ret)
+    #print(ids)
+    if db == valid_db[0]:
+        ret = gene.querymany(ids, scopes='uniprot', fields='name,symbol', verbose= False)           # set verbose 'True' to get info about duplicates/missing values of name parsing
+        sciname_dict = collect_scinames(ret)
+    elif db == valid_db[1] or db == valid_db[2] or db == valid_db[3]:
+        for id in range(len(ids)):
+            entry = ids[id].split('_')
+            ids[id] = entry[1]
+       # print(ids)
+        ret = gene.querymany(ids, scopes='uniprot', fields='name,symbol', verbose= False)           # set verbose 'True' to get info about duplicates/missing values of name parsing
+        sciname_dict = collect_scinames(ret)
+    elif db == valid_db[4]:
+        ret = gene.querymany(ids, scopes='pdb', fields='name,symbol', verbose= False)           # set verbose 'True' to get info about duplicates/missing values of name parsing
+        sciname_dict = collect_scinames(ret)
+    else:
+        print('Sth went wrong in function get_names.')
+        exit()
+
     # print(sciname_dict)
     return sciname_dict
     # ret['query','name','symbol']
