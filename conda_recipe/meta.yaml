@@ -32,22 +32,20 @@ requirements:
     - mmseqs2==10.6d92c
     - prokka>=1.14.6
     
-# test:
-#   imports:
-    
-#   source_files:
-#     - hypro-1.0/test/data/GCF_000471025.2_ASM47102v2_genomic.fna
-#     - hypro-1.0/scripts/hypro.py
-#     - hypro-1.0/scripts/mmseqs2.sh
-#   commands:
-#     - chmod 777 hypro-1.0/
-#     - prokka --prefix testrun --outdir hypro-1.0/run/prokka hypro-1.0/test/data/GCF_000471025.2_ASM47102v2_genomic.fna
-#     - ls -lh hypro-1.0/
-#     - chmod 777 hypro-1.0/run/*
-#     - chmod 777 hypro-1.0/run/
-#     - mkdir -p hypro-1.0/run/hypro
-#     - ls -lh hypro-1.0/
-#     - hypro.py -i hypro-1.0/run/prokka/testrun.gff -o hypro-1.0/run/hypro -f mmseqs2.sh
+test:
+  source_files:
+    - hypro-1.0/test/data/GCF_000471025.2_ASM47102v2_genomic.fna
+    - hypro-1.0/scripts/hypro.py
+    - hypro-1.0/scripts/mmseqs2.sh
+  commands:
+    - chmod 777 hypro-1.0/
+    - prokka --prefix testrun --outdir hypro-1.0/run/prokka hypro-1.0/test/data/GCF_000471025.2_ASM47102v2_genomic.fna
+    - ls -lh hypro-1.0/
+    - chmod 777 hypro-1.0/run/*
+    - chmod 777 hypro-1.0/run/
+    - mkdir -p hypro-1.0/run/hypro
+    - ls -lh hypro-1.0/
+    - hypro.py -i hypro-1.0/run/prokka/testrun.gff -o hypro-1.0/run/hypro -f mmseqs2.sh
     
 about:
   home: https://github.com/hoelzer-lab/hypro.git
