@@ -264,7 +264,7 @@ def insert_mmseq_info(descriptors, id_alninfo):
 def update_comment(in_list):
     add_string = ''
     w_spaces = len(in_list[1]) - len(in_list[1].lstrip(' '))
-    add_string = (w_spaces * " ") + "extended by homology searches with HyPro v1.0 (based on mmseq2)\n"
+    add_string = (w_spaces * " ") + "extended by homology searches with HyPro v0.1 (based on mmseq2)\n"
     in_list.append(add_string)    
     return in_list
 

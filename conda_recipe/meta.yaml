@@ -1,17 +1,17 @@
 {% set name = "hypro" %}
-{% set version = "1.0" %}
+{% set version = "0.1" %}
 
 package:
   name: hypro
-  version: "1.0"
+  version: "0.1"
 
 source: 
   git_url: https://github.com/hoelzer-lab/hypro.git
-  folder: hypro-1.0
+  folder: hypro-0.1
     
 build:
-    number: 6
-    script: $PYTHON hypro-1.0/setup.py install --single-version-externally-managed --record=record.txt
+    number: 1
+    script: $PYTHON hypro-0.1/setup.py install --single-version-externally-managed --record=record.txt
     
 requirements:
   build:
@@ -22,10 +22,10 @@ requirements:
     
   host:
     - python==3.7.6
-    - configparser
     - prokka>=1.14.6
+    
   run:
-    - configparser
+
     - python==3.7.6
     - mygene==3.1.0
     - pandas==0.25.2
@@ -34,18 +34,18 @@ requirements:
     
 test:
   source_files:
-    - hypro-1.0/test/data/GCF_000471025.2_ASM47102v2_genomic.fna
-    - hypro-1.0/scripts/hypro.py
-    - hypro-1.0/scripts/mmseqs2.sh
+    - hypro-0.1/test/data/GCF_000471025.2_ASM47102v2_genomic.fna
+    - hypro-0.1/scripts/hypro.py
+    - hypro-0.1/scripts/mmseqs2.sh
   commands:
-    - chmod 777 hypro-1.0/
-    - prokka --prefix testrun --outdir hypro-1.0/run/prokka hypro-1.0/test/data/GCF_000471025.2_ASM47102v2_genomic.fna
-    - ls -lh hypro-1.0/
-    - chmod 777 hypro-1.0/run/*
-    - chmod 777 hypro-1.0/run/
-    - mkdir -p hypro-1.0/run/hypro
-    - ls -lh hypro-1.0/
-    - hypro.py -i hypro-1.0/run/prokka/testrun.gff -o hypro-1.0/run/hypro -f mmseqs2.sh
+    - chmod 777 hypro-0.1/
+    - prokka --prefix testrun --outdir hypro-0.1/run/prokka hypro-0.1/test/data/GCF_000471025.2_ASM47102v2_genomic.fna
+    - ls -lh hypro-0.1/
+    - chmod 777 hypro-0.1/run/*
+    - chmod 777 hypro-0.1/run/
+    - mkdir -p hypro-0.1/run/hypro
+    - ls -lh hypro-0.1/
+    - hypro.py -i hypro-0.1/run/prokka/testrun.gff -o hypro-0.1/run/hypro -f mmseqs2.sh
     
 about:
   home: https://github.com/hoelzer-lab/hypro.git
