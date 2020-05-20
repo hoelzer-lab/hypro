@@ -36,10 +36,7 @@ It is recommended to clone this repository and use a conda environment for HyPro
 ```bash
 git clone https://github.com/hoelzer-lab/hypro.git
 cd hypro
-```
-Create a conda environment:
 
-```
 conda create -n hypro python=3.7 pandas=0.25.2 mmseqs2=10.6d92c prokka=1.14.6 mygene=3.1.0
 conda activate hypro
 ```
