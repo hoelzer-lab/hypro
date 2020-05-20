@@ -63,19 +63,20 @@ prokka --prefix testrun --outdir run/prokka test/data/GCF_000471025.2_ASM47102v2
 and then execute the scripts from this repository:
 
 ```bash
-scripts/hypro.py -i run/prokka/testrun.gff -o run/hypro -d uniprotkb -t scripts/mmseqs2.sh -m full
+scripts/hypro.py -i run/prokka/testrun.gff -o run/hypro 
 ```
-assuming that your current working directory is the previously downloaded git repository of HyPro. Otherwise, please adjust ``scripts/`` accordingly.
-or in case of conda package simply do:
+assuming that your current working directory is the previously downloaded git repository of HyPro. The default of ``-f`` is ``./scripts/mmseqs2.sh``. Please adjust accordingly if running from another path.
+
+Or in case of conda package simply do:
 ```bash
-hypro.py -i run/prokka/testrun.gff -o run/hypro -d uniprotkb -t mmseqs2.sh -m full
+hypro.py -f mmseqs2.sh -i run/prokka/testrun.gff -o run/hypro 
 ```
-No path to the ``mmseqs2.sh`` is required.
+No path for``mmseqs2.sh`` is required since conda installs it to your evironments ``bin``.
 
-When running HyPro to the same output folder multiple times, the tool will look for an existing DB of the given type ('-d') first. If nothing could be found, it will download/build the specified DB. Alternatively, you may give HyPro a path to an existing DB created sometime before. Simply hand it over to the [-c parameter](#Program-Handling). In this case, do not forget to specify the DB type that you use in -d!
+When running HyPro to the same output folder multiple times, the tool will look for an existing DB of the type in ``-d`` first. If nothing could be found, it will download/build the specified DB. Alternatively, you may give HyPro a path to an existing DB created sometime before. Simply hand it over to the [-c parameter](#Program-Handling). In this case, do not forget to specify the DB type that you use in -d!
 
 ```bash
-scripts/hypro.py -i run/prokka/testrun.gff -o run/hypro_re-use_db -t scripts/mmseqs2.sh -m full -d uniref50 -c run/hypro/db/uniref50
+scripts/hypro.py -i run/prokka/testrun.gff -o run/hypro_reuse_db -d uniref50 -c run/hypro/db/uniref50
 ```
 
 ### Program Handling
