@@ -27,7 +27,7 @@ parser.add_argument('-o', '--output', dest='output', action='store', metavar='PA
 # DB-Type
 parser.add_argument('-d', '--database', dest='db', action='store', metavar='STR', nargs=1, required=False, default='uniprotkb', help="Specify the target db to search in for annotation extension. Available options: 'uniprotkb', 'uniref100', 'uniref90', 'uniref50', 'pdb' [uniprotkb]")
 # location of mmseq2.sh:
-parser.add_argument('-f', '--mmseqs2', dest='mmseq', action='store', metavar='PATH', nargs=1, required=True, help="Specify the path to the mmseqs2.sh. If using the conda package, 'mmseqs2.sh' is enough.")
+parser.add_argument('-f', '--mmseqs2', dest='mmseq', action='store', metavar='PATH', nargs=1, required=False, default="./scripts/mmseqs2.sh", help="Specify the path to the mmseqs2.sh. If using the conda package, 'mmseqs2.sh' is enough. Default path is './scripts/msmeqs2.sh'")
 # ALL or just BLANKS ?
 #parser.add_argument('-m', '--modus', dest='modus', action='store', metavar='STR', nargs=1, default='blanks', help="Search all hypothetical proteins or just the blanks. default: blanks")
 # Custom-DB
@@ -50,6 +50,10 @@ args = parser.parse_args()
 # elif isinstance(args.sens, str):
 #     sens = float(args.sens)
 
+if isinstance(args.mmseq, list):
+    ms = args.mmseq[0]
+elif isinstance(args.mmseq, str):
+    ms = args.mmseq
 
 if isinstance(args.threads, list):
     threads = int(args.threads[0])
@@ -76,7 +80,7 @@ elif isinstance(args.db, str):
 
 print(out_dir)
 
-ms = args.mmseq[0]
+# ms = args.mmseq[0]
 
 if isinstance(args.evalue, list):
     evalue=float(args.evalue[0])
