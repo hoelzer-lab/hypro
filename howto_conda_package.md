@@ -183,7 +183,7 @@ In this section I want to make the recipe I created transparent and comment on e
 
 This is the heart piece of your recipe. Please find the general structure and a first example [here](https://docs.conda.io/projects/conda-build/en/latest/resources/define-metadata.html). Further this website provides **all options** on the meta.yaml, sorted per section. Most sections have many more options available than the ones mentioned. Please visit the website for these information.
 Please always mind the exact format - code indentations, whitespaces etc. might all have a meaning so keep the format straight!
-For comparison, feel free to visit the [HyPro meta.yam](https://github.com/hoelzer-lab/hypro/blob/master/conda_recipe/meta.yaml).
+For comparison, feel free to visit the [HyPro meta.yaml](https://github.com/hoelzer-lab/hypro/blob/master/conda_recipe/meta.yaml).
 
 #### **The Header**
 ```
