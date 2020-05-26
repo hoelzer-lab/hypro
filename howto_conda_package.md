@@ -145,6 +145,7 @@ git remote add upstream https://github.com/bioconda/bioconda-recipes.git
 # Make sure our master is up to date with Bioconda
 git checkout master
 git pull upstream master
+git push origin master
 
 # Create and checkout a new branch for our work, replace <packagename> accordingly
 git checkout -b <packagename>_recipe
