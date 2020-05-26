@@ -15,11 +15,11 @@ For details, see [building the meta.yaml file](#Building-the-meta.yaml-file). He
 To build a conda package, you first have to write a conda recipe. Here, conda finds all the information necessary to construct the package. The recipe is composed of:
 
 * [**meta.yaml**](#building-the-metayaml-file) the script containing all the metadata 
-* [**build.sh** or **bld.bat**](#buildsh) - a build script installing all files for the package. Shell script for macOS and Linux, executed using `bash` command. .bat for Windows, executed using `cmd`. In case of a Python tool, this executable calls the setup.py.
+* [**build.sh** or **bld.bat**](#buildsh) - a build script installing all files for the package. Shell script for macOS and Linux, executed using `bash` command. .bat for Windows, executed using `cmd`. In case of a Python tool, this executable calls the `setup.py`.
 * **run_test.[py,pl,sh,bat]** - a Python test script testing proper functioning of the program in the package. Runs automatically when defined.
 
 * Optional patches and resources, not introduced in this protocol.
-* If you write a recipe for a Python tool, the build-executable simply calls your setup.py. Things to know about Python packaging are summarized in [this chaper](#Defining-the-setup.py-for-conda)
+* If you write a recipe for a Python tool, the build-executable simply calls your `setup.py`. Things to know about Python packaging are summarized in [this chaper](#Defining-the-`setup.py`-for-conda)
 
 It is recommended to put those files together in a folder "conda-recipe" or something like that. 
 
@@ -67,7 +67,7 @@ Generally, `conda-build` creates two environments for different purposes: build 
 4. Applies any patches.
 5. Re-evaluates the metadata, if source is necessary to fill any metadata values.
 6. Creates a build environment and then installs the build dependencies there. Those are dependencies necessary to build the package (e.g. `git` or `pip` for source loading, python for installing a python package)
-7. Runs the build script. The current working directory is the source directory with environment variables set. The build script installs into the build environment. In case of a python tool, this simply calls the setup.py in the source directory.
+7. Runs the build script. The current working directory is the source directory with environment variables set. The build script installs into the build environment. In case of a python tool, this simply calls the `setup.py` in the source directory.
 8. Performs some necessary post-processing steps, such as shebang and rpath.
 9. Creates a conda package containing all the files in the build environment that are new from step 5, along with the necessary conda package metadata.
 10. Tests the new conda package if the recipe includes tests (required for upload to bioconda later on):
@@ -81,7 +81,7 @@ Clean up your conda-bld directory from failed packages - the build environments 
 
 **Note:**
 1. Most likely, your first `conda-build` command will fail. Maybe the second also. Keep on trying and read the error messages carefully, they might help. When your package was built, under `/home/path-to-conda/conda-bld/` there will be as many broken environments as tries you had. They appear as directories, named like your conda package name plus a long digit code. Make sure to delete all those directories, **before** running your local install test. In my case, those impaired the installation process and led to some conflicts.
-2. `conda-build` defines many environment variables. A list of those is provided [here](https://docs.conda.io/projects/conda-build/en/latest/user-guide/environment-variables.html#environment-variables-set-during-the-build-process). One of those set wrongly is a common source for failing the build process. You should know or define where they are pointing to. More on that in the example in sections [meta.yaml](#building-the-metayaml-file) and [setup.py](#Defining-the-setup.py-for-conda).
+2. `conda-build` defines many environment variables. A list of those is provided [here](https://docs.conda.io/projects/conda-build/en/latest/user-guide/environment-variables.html#environment-variables-set-during-the-build-process). One of those set wrongly is a common source for failing the build process. You should know or define where they are pointing to. More on that in the example in sections [meta.yaml](#building-the-metayaml-file) and [`setup.py`](#Defining-the-`setup.py`-for-conda).
 
 ### **Test package locally**
 1. Create a new conda environment:
@@ -215,10 +215,10 @@ The folder option specifies the destination path. `conda-build` will create this
 build:
     number: 0  
     noarch: python     
-    script: {{ PYTHON }} hypro-{{ version }}/setup.py install --single-version-externally-managed --record=record.txt
+    script: {{ PYTHON }} hypro-{{ version }}/`setup.py` install --single-version-externally-managed --record=record.txt
 ```
 
-Define all build information in here. The build number should be incremented for every build command. If using 'script', it replaces your build.sh/bld.bat. You should remove those files in this case. Noarch should be used for pure python packages.
+Define all build information in here. The build number should be incremented for every build command. If using 'script', it replaces your `build.sh` and `bld.bat`. You should remove those files in this case. Noarch should be used for pure python packages.
 Many more options like defining RPATHs or entry points of python scripts can be found on the mentioned website.
 
 #### **The Requirements Section**
@@ -249,7 +249,7 @@ Specify all requirements that are necessary for building the package. This means
     - prokka>=1.14.6
 ```
 
-Define the tools for executing your program. Conda will load them in advance, as happened with the build requirements. E.g. mmseqs2 and prokka. In case of python, this includes all non-standard libraries (standard are e.g. sys, os, argparse). In my case, the python script utilizes pandas and the mygene python API. The libraries can then be found by setuptools when executing your setup.py script.
+Define the tools for executing your program. Conda will load them in advance, as happened with the build requirements. E.g. mmseqs2 and prokka. In case of python, this includes all non-standard libraries (standard are e.g. sys, os, argparse). In my case, the python script utilizes pandas and the mygene python API. The libraries can then be found by setuptools when executing your `setup.py` script.
 Note, that the host section was skipped for the HyPro package - it was not required.
 
 #### **The About Section**
@@ -265,16 +265,16 @@ Here you add specifying information about the package. Where is the package main
 
 Note: If you want to make your package available on different systems, you should make use of selectors. `conda-build` notices on which system it is run, so the selectors help to decide which information to use and which not. This is a convinient option I recommend to you.
 
-### **Build.sh**
+### `Build.sh`
 
-The build.sh can be a simple bash script containing only the one line you saw in [the build section](#the-build-section). However, this did not work for me because `conda-build` did not pass the environment variables to the bash correctly. Maybe you figure out how this works (pull requests are always welcome). 
+The `build.sh` can be a simple bash script containing only the one line you saw in [the build section](#the-build-section). However, this did not work for me because `conda-build` did not pass the environment variables to the bash correctly. Maybe you figure out how this works (pull requests are always welcome). 
 
 
-### **Bld.bat**
+### `Bld.bat`
 This is the executable build script for Windows. In the most basic form it should contain exactly the following command:
 
 ```
-"%PYTHON%" setup.py install
+"%PYTHON%" `setup.py` install
 if errorlevel 1 exit 1
 ```
 See the sample recipes and the conda doc for more information.
@@ -282,12 +282,13 @@ See the sample recipes and the conda doc for more information.
 **Note:**
 The build scripts can also contain a little more code and options - see the scripts provided with the [conda example recipes](https://docs.conda.io/projects/conda-build/en/latest/user-guide/recipes/sample-recipes.html). 
 
-### Defining the setup.py for conda
+### Defining the `setup.py` for conda
 
 Writing this script is the basis of formulating a python package. The following links contain more information about this:
 [Writing a python package](https://packaging.python.org/tutorials/packaging-projects/)
-[Writing the setup.py](https://docs.python.org/3/distutils/setupscript.html])
-Here, you see the code of HyPro's setup.py:
+
+[Writing the `setup.py`](https://docs.python.org/3/distutils/setupscript.html])
+Here, you see the code of HyPro's `setup.py`:
 
 ```bash
 from setuptools import setup, find_packages
@@ -315,32 +316,32 @@ setup(
 )
 ```
 
-The script firstly imports *setup* and *find_packages* from the setuptools module. Specifying the arguments for the setup function is key for successful packaging. The whole scope of options can be revisited in [Writing the setup.py](https://docs.python.org/3/distutils/setupscript.html). Here, we concentrate on specified ones:
+The script firstly imports *setup* and *find_packages* from the setuptools module. Specifying the arguments for the setup function is key for successful packaging. The whole scope of options can be revisited in [Writing the `setup.py`](https://docs.python.org/3/distutils/setupscript.html). Here, we concentrate on specified ones:
 
-name - *The name of your package*
+`name` - *The name of your package*
 
-version - *Version Number. You may stick to the [python version number conventions](https://www.python.org/dev/peps/pep-0396/).*
+`version` - *Version Number. You may stick to the [python version number conventions](https://www.python.org/dev/peps/pep-0396/).*
 
-author - *Author Names*
+`author` - *Author Names*
 
-author_email - *Autor email adresse*
+`author_email` - *Autor email adresse*
 
-license - *License to publish your tool*
+`license` - *License to publish your tool*
 
-description - *Short description of the tool - give the user an idea of what it's good for!*
+`description` - *Short description of the tool - give the user an idea of what it's good for!*
 
-install_requires - *List of required modules to load. For long lists, it is convenient to define a list variable above the setup command (see example above).*
+`install_requires` - *List of required modules to load. For long lists, it is convenient to define a list variable above the setup command (see example above).*
 
-scripts - *Define your executables here. In this case, hypro is called using the hypro.py script command line interface which requires the mmseqs2.sh as executable. Define relative paths, conda-build wioll extend them to ${SOURCE_DIR}/rpath_to_script. When finished successfully, the scripts will be available in the /bin of te conda environment you install your package to.*
+`scripts` - *Define your executables here. In this case, hypro is called using the hypro.py script command line interface which requires the mmseqs2.sh as executable. Define relative paths, conda-build wioll extend them to ${SOURCE_DIR}/rpath_to_script. When finished successfully, the scripts will be available in the /bin of te conda environment you install your package to.*
 
-long_description - *A more detailed description of your tool's function and use case. You may define a string variable to include it in setup() (see example above).*
+`long_description` - *A more detailed description of your tool's function and use case. You may define a string variable to include it in setup() (see example above).*
 
-long_description_content_typ - *Content type of the description.*
+`long_description_content_typ` - *Content type of the description.*
 url - *Homepage of your program.*
 
-packages - *Support in package finding in the working directory.*
+`packages` - *Support in package finding in the working directory.*
 
-classifiers - *Provide some classifers for this release. Review all supported options [here](https://pypi.org/classifiers/).*
+`classifiers` - *Provide some classifers for this release. Review all supported options [here](https://pypi.org/classifiers/).*
 
 
 # Useful links:
@@ -352,7 +353,7 @@ classifiers - *Provide some classifers for this release. Review all supported op
 
 [Packaging python projects](https://packaging.python.org/tutorials/packaging-projects/)
 
-[The setup.py](https://docs.python.org/3/distutils/setupscript.html)
+[The `setup.py`](https://docs.python.org/3/distutils/setupscript.html)
 
 [python classifier](https://pypi.org/classifiers/)
 
