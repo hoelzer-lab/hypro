@@ -61,7 +61,7 @@ Generally, `conda-build` creates two environments for different purposes: build 
 
 `conda-build` performs the following steps ([source](https://docs.conda.io/projects/conda-build/en/latest/concepts/recipehtml#conda-build-process)):
 
-1. Reads the metadata (meta.yaml).
+1. Reads the metadata (meta.yaml). On writing the meta.yaml, see the details [here](#building-the-metayaml-file)
 2. Downloads the source into a cache.
 3. Extracts the source into the source directory.
 4. Applies any patches.
