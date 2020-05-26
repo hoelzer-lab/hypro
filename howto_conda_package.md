@@ -262,7 +262,7 @@ about:
 
 Here you add specifying information about the package. Where is the package maintained and under which license it was published, in this case.
 
-Note: If you want to make your package available on different systems, you should make use of selectors. `conda-build` notices on which system it is run, so the selectors help to decide which information to use and which not. A very convinient option you should consider in case!
+Note: If you want to make your package available on different systems, you should make use of selectors. `conda-build` notices on which system it is run, so the selectors help to decide which information to use and which not. This is a convinient option I recommend to you.
 
 ### **Build.sh**
 
