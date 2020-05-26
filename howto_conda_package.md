@@ -2,40 +2,39 @@
 **Author**    Maximilian Arlt
 
 # How to write a conda package
-This protocol supports you in writing your first conda package from the scratch.
+This protocol supports you in writing your first conda package from scratch. 
 
 ## General Remarks
 
 1. The first important note: Conda packaging is very-well documented. I tried to wrap some of the most important and handy links in this document. Those shall further support the explanations that are given in the respective section.
 2. As you will quickly experience yourself, one conda package is not like the other. There is a lot you can and have to customize and decide, depending on the code source, programming language and composition of the program you want to package. 
-For details, see [building the meta.yaml file](#Building-the-meta.yaml-file). Here, this becomes more clear. Don't expect everything you need to be written in this protocol, that is impossible!
-3. The protocol was written from the experience in packaging HyPro, a python-based tool performing homology-based searches for protein sequences to extend hypothetical protein annotations of PROKKA. All files necessary for building the conda package can be revisited [here](https://github.com/hoelzer-lab/hypro) since I found many examples in the conda documentation rather advanced.
+For details, see [building the meta.yaml file](#Building-the-meta.yaml-file). Here, this becomes more clear. Don't expect everything you need to be written in this protocol, that's impossible!
+3. The protocol was written from the experience in packaging [HyPro](https://github.com/hoelzer-lab/hypro), a python-based tool performing homology-based searches for protein sequences to extend hypothetical protein annotations of Prokka. All files necessary for building the conda package can be revisited [here](https://github.com/hoelzer-lab/hypro) as I found many examples in the conda documentation rather advanced.
 
 ## Main requirements
-To build a conda package, you first have to write a conda recipe. In this, conda finds all the information necessary to construct the package. This is composed of:
+To build a conda package, you first have to write a conda recipe. Here, conda finds all the information necessary to construct the package. The recipe is composed of:
 
 * [**meta.yaml**](#building-the-metayaml-file) the script containing all the metadata 
-* [**build.sh** or **bld.bat**](#buildsh) - a build script installing all files for the package. Shell script for macOS and Linux, executed using 'bash' command. .bat for Windows, executed using 'cmd'. In case of a python tool, this executable calls the setup.py.
-* **run_test.[py,pl,sh,bat]** - a Python test script, that tests proper functioning of the program in the package. Runs automatically when defined.
+* [**build.sh** or **bld.bat**](#buildsh) - a build script installing all files for the package. Shell script for macOS and Linux, executed using `bash` command. .bat for Windows, executed using `cmd`. In case of a Python tool, this executable calls the setup.py.
+* **run_test.[py,pl,sh,bat]** - a Python test script testing proper functioning of the program in the package. Runs automatically when defined.
 
 * Optional patches and resources, not introduced in this protocol.
-* If you write a recipe for a python tool, the build - executable simply calls your setup.py. Things to know about python packaging are summarized in [this chaper](#Defining-the-setup.py-for-conda)
+* If you write a recipe for a Python tool, the build-executable simply calls your setup.py. Things to know about Python packaging are summarized in [this chaper](#Defining-the-setup.py-for-conda)
 
 It is recommended to put those files together in a folder "conda-recipe" or something like that. 
 
-**sNote:**
-A basic package can already be constructed defining only the meta.yaml. - However, to meet requirements of certain repositories like the Anaconda Cloud or Bioconda, you have to meet further criterions. In the following sections, this will become more clear.
+**Note:**
+A basic package can already be constructed defining only the meta.yaml. However, to meet requirements of certain repositories like the Anaconda Cloud or Bioconda, you have to meet further criterions. In the following sections, this will become more clear.
 For more remarks on constructing recipes, visit the [conda recipe documentation](https://docs.conda.io/projects/conda-build/en/latest/concepts/recipe.html).
 
 ## Walking through the build process
 ### **Build the package**
 
-Once your recipe is written it will be used to form the conda package. For that, you need the **conda-build** command. 
-Additionally, you may install [**conda-verify**](https://github.com/conda/conda-verify). This is a handy tool that checks for the right path configuration and points on conflicts or other malfunctions in your package. It is a nice extension to the basic conda-build command and starts automatically after conda-build finished the package creation.
-
+Once your recipe is written it will be used to form the conda package. For that, you need the `conda-build` command. 
+Additionally, you may install [`conda-verify`](https://github.com/conda/conda-verify). This is a handy tool that checks for the right path configuration and points on conflicts or other malfunctions in your package. It is a nice extension to the basic `conda-build` command and starts automatically after `conda-build` finished the package creation.
 
 1. Set up the conda environment you want to build the package in.
-Make sure to set your channel configuration properly. Recommended is to set conda-forge, bioconda and the defaults channel for most purposes:
+Make sure to set your channel configuration properly. It is recommended to set conda-forge, bioconda and the defaults channel for most purposes:
 
 ```
 conda create -n my_build_env --python==<version>
@@ -44,11 +43,11 @@ conda config --add channels defaults
 conda config --add channels bioconda
 conda config --add channels conda-forge
 ```
-**Conda install** will search those channels whenever you ask for installing a tool (first conda-forge, then bioconda, then defaults). 
+`conda install` will search these channels whenever you ask for installing a tool (first conda-forge, then bioconda, then defaults). 
 
-1. Install Conda-build.
-2. Install Conda-verify.
-3. Run conda-build to create a package from your directory.
+1. Install `conda-build`.
+2. Install `conda-verify`.
+3. Run `conda-build` to create a package from your directory.
 
 ```
 conda install conda-build
@@ -56,20 +55,19 @@ conda install conda-verify
 conda-build <path-to-recipe-dir>
 ```
 
-Optional, you may set the **--prefix-length** parameter (requires an INT). Otherwise conda-build gives a loooong placeholder to certain directories created during building process.
+Optional, you may set the `--prefix-length` parameter (requires an INT). Otherwise `conda-build` gives a loooong placeholder to certain directories created during building process.
 
+Generally, `conda-build` creates two environments for different purposes: build and test. 
 
-Generally, conda-build creates two environments for different purposes: build and test. 
-
-Conda-build performs the following steps ([source](https://docs.conda.io/projects/conda-build/en/latest/concepts/recipehtml#conda-build-process)):
+`conda-build` performs the following steps ([source](https://docs.conda.io/projects/conda-build/en/latest/concepts/recipehtml#conda-build-process)):
 
 1. Reads the metadata (meta.yaml).
 2. Downloads the source into a cache.
 3. Extracts the source into the source directory.
 4. Applies any patches.
 5. Re-evaluates the metadata, if source is necessary to fill any metadata values.
-6. Creates a build environment and then installs the build dependencies there. Those are dependencies necessary to build the package (e.g. gitor pip for source loading, python for installing a python package)
-7. Runs the build script. The current working directory is the source directory with environment variables set. The build script installs into the build environment. In case of a python tools, this simply calls the setup.py in the source directory.
+6. Creates a build environment and then installs the build dependencies there. Those are dependencies necessary to build the package (e.g. `git` or `pip` for source loading, python for installing a python package)
+7. Runs the build script. The current working directory is the source directory with environment variables set. The build script installs into the build environment. In case of a python tool, this simply calls the setup.py in the source directory.
 8. Performs some necessary post-processing steps, such as shebang and rpath.
 9. Creates a conda package containing all the files in the build environment that are new from step 5, along with the necessary conda package metadata.
 10. Tests the new conda package if the recipe includes tests (required for upload to bioconda later on):
@@ -77,16 +75,13 @@ Conda-build performs the following steps ([source](https://docs.conda.io/project
     2. Creates a test environment with the package and its dependencies.
     3. Runs the test scripts.
 
-
-If the build process finishes correctly, a compressed tarball file had been created (looks something like ``/home/<path-to-conda>/conda-bld/<os>/<mypkg>-<version>-<interpreter>.tar.bz2``, with 'os' being e.g. "linux-64"). This is your conda package. Conda-build prints the exact path. Keep the path, you might need it for local testing and upload.
-
+If the build process finishes correctly, a compressed tarball file had been created (looks something like ``/home/<path-to-conda>/conda-bld/<os>/<mypkg>-<version>-<interpreter>.tar.bz2``, with 'os' being e.g. "linux-64"). This is your conda package. `conda-build` prints the exact path. Keep the path, you might need it for local testing and upload.
 
 Clean up your conda-bld directory from failed packages - the build environments will still be present - delete them!
 
-
 **Note:**
-1. Most likely, your first conda-build command will fail. Maybe the second also. Keep on trying and read the error messages carefully, they might help. When your package was built, under "/home/path-to-conda/conda-bld/" there will be as many broken environments as tries you had. They appear as directories, named like your conda package name plus a long digit code. Make sure to delete all those directories, **before** running your local install test. In my case, those impaired the installation process and led to some conflicts.
-2. Conda-build defines a lot of environment variables. A list of those is provided [here](https://docs.conda.io/projects/conda-build/en/latest/user-guide/environment-variables.html#environment-variables-set-during-the-build-process). One of those set wrongly is a common source for failing the build process. You should know or define, where they are pointing to. More on that in the example under the points [meta.yaml](#building-the-metayaml-file) and [setup.py](#Defining-the-setup.py-for-conda).
+1. Most likely, your first `conda-build` command will fail. Maybe the second also. Keep on trying and read the error messages carefully, they might help. When your package was built, under `/home/path-to-conda/conda-bld/` there will be as many broken environments as tries you had. They appear as directories, named like your conda package name plus a long digit code. Make sure to delete all those directories, **before** running your local install test. In my case, those impaired the installation process and led to some conflicts.
+2. `conda-build` defines many environment variables. A list of those is provided [here](https://docs.conda.io/projects/conda-build/en/latest/user-guide/environment-variables.html#environment-variables-set-during-the-build-process). One of those set wrongly is a common source for failing the build process. You should know or define where they are pointing to. More on that in the example in sections [meta.yaml](#building-the-metayaml-file) and [setup.py](#Defining-the-setup.py-for-conda).
 
 ### **Test package locally**
 1. Create a new conda environment:
@@ -108,9 +103,8 @@ conda install -c file:///home/<path-to-conda>/envs/<env-name>/conda-bld/<os>/ <m
 ```
 
 The installer will ask you to install the dependencies for your package like during any other conda tool installation process. 
-1. Check, the requirements. If all are there, continue. If not, you may check your meta.yaml. Most likely your conda-build process would break anyway.
+1. Check, the requirements. If all are there, continue. If not, you may check your meta.yaml. Most likely your `conda-build` process would break anyway.
 2. After the installation finished, you are free to test your conda environment. Yippi!
-
 
 ### **Upload package**
 
@@ -122,8 +116,6 @@ This is the easiest way of distributing your package. An Upload to anaconda make
 2. Login: In the dashboard you get an overview on packages, projects, notes and so on. For more information click on [upload a package](https://docs.anaconda.com/anaconda-cloud/user-guide/tasks/work-with-packages/#uploading-packages)
 
 Follow the instructions provided.
-
-
 
 #### Upload to Bioconda Recipe Repository
 
@@ -153,7 +145,6 @@ git remote add upstream https://github.com/bioconda/bioconda-recipes.git
 # Make sure our master is up to date with Bioconda
 git checkout master
 git pull upstream master
-git push origin master
 
 # Create and checkout a new branch for our work, replace <packagename> accordingly
 git checkout -b <packagename>_recipe
@@ -170,19 +161,18 @@ Also have a look into the other packages to get familiar with the structure. Som
 git checkout <packagename>_recipe
 git add <package_name>
 git commit -m 'Meaningful message'
-git push
+git push origin <packagename>_recipe
 ```
-You may always check the differences and the your active branch using ``git status``.
+You may always check the differences and your active branch using ``git status`` or ``git branch``.
 
 9. You are almost there! Now its time to request merging.
   - Go to your branch on the github webpage. There should be something written like "branch is X commits ahead of bioconda-recipes:master". On the right-hand side, click on ``Pull request``.
   - When the request is successful, bioconda will automatically build your package from your recipe and makes it available over the bioconda channel.
   - To reach a successful pull request, you need to pass the bioconda test bot and at least one verified manual review by another bioconda user. 
   **Bioconda test bot**:
-  It will before three tests: linting, test-linux and test-macos. Most likely, those tests will fail the first time to try. If you are lucky, the manual review by another user may help you passing those tests.
+  It will perform three tests: linting, test-linux and test-macos. Most likely, those tests will fail the first time to try. If you are lucky, the manual review by another user may help you passing those tests.
   However, if you want to test your package locally, consider the [local testings](https://bioconda.github.io/contributor/building-locally.html#using-the-bootstrap-method) of bioconda.
   Those steps might become rather tricky and to the point as I write this protocol, HyPro did not pass the test-linux step. I suggest to get help from experienced bioconda reviewers, maybe the person that checked your recipe if the testing does not give sufficient info about the problem.
-
 
 ## Packaging in Practice: An Example
 
@@ -190,8 +180,8 @@ In this section I want to make the recipe I created transparent and comment on e
 
 ### **Building the meta.yaml file**
 
-This is the heart piece of your recipe. Please find the general structure and a first example [here](https://docs.conda.io/projects/conda-build/en/latest/resources/define-metadata.html). Further this website provides **all options** on the meta.yaml, sorted per section. Most sections have many more options available than the mentioned. Please visit the website for those information.
-Please always mind the exact format - code indentations, whitespaces etc might all have a meaning so keep the format straight!
+This is the heart piece of your recipe. Please find the general structure and a first example [here](https://docs.conda.io/projects/conda-build/en/latest/resources/define-metadata.html). Further this website provides **all options** on the meta.yaml, sorted per section. Most sections have many more options available than the ones mentioned. Please visit the website for these information.
+Please always mind the exact format - code indentations, whitespaces etc. might all have a meaning so keep the format straight!
 
 #### **The Header**
 ```
@@ -215,15 +205,15 @@ Specify the package information here. Set the version number in double-quotes, s
   sha256: 55510113190bc3c1154e7a67f2046970dd34b4388e88e81936fa73737bc3879e
 ```
 
-Specify the code source of your package. Conda-build will load all tool binaries from here and try to wrap them in the package. You may choose your source github repository; in this case the code is loaded from a githup repository. For providing a stable source, prepare a github release first and enter the url to the packaed tarball. Other sources are: local, hg, svn. Loading multiple source files is also possible - more details in the doc mentioned above
-The folder option specifies the destination path. Conda-build will create this within the source-path and save the source information here. Default is the <packagename>-<version>. 
+Specify the code source of your package. `conda-build` will load all tool binaries from here and try to wrap them in the package. You may choose your source github repository; in this case the code is loaded from a githup repository. For providing a stable source, prepare a github release first and enter the url to the packaed tarball. Other sources are: local, hg, svn. Loading multiple source files is also possible - more details in the doc mentioned above.
+The folder option specifies the destination path. `conda-build` will create this within the source-path and save the source information here. Default is the `<packagename>-<version>`. 
 
 #### **The Build Section**
 ```
 build:
     number: 0  
     noarch: python     
-    script: {{ PYTHON }} hypro-0.1/setup.py install --single-version-externally-managed --record=record.txt
+    script: {{ PYTHON }} hypro-{{ version }}/setup.py install --single-version-externally-managed --record=record.txt
 ```
 
 Define all build information in here. The build number should be incremented for every build command. If using 'script', it replaces your build.sh/bld.bat. You should remove those files in this case. Noarch should be used for pure python packages.
@@ -258,7 +248,7 @@ Specify all requirements that are necessary for building the package. This means
 ```
 
 Define the tools for executing your program. Conda will load them in advance, as happened with the build requirements. E.g. mmseqs2 and prokka. In case of python, this includes all non-standard libraries (standard are e.g. sys, os, argparse). In my case, the python script utilizes pandas and the mygene python API. The libraries can then be found by setuptools when executing your setup.py script.
-Note, that the host section was skipped for this package - it was not required.
+Note, that the host section was skipped for the HyPro package - it was not required.
 
 #### **The About Section**
 
@@ -271,11 +261,11 @@ about:
 
 Here you add specifying information about the package. Where is the package maintained and under which license it was published, in this case.
 
-Note: Of you want to make your package available on different systems, you should make use of selectors. Conda-build notices on which system it is run, so the selectors help to decide which information to use and which not. A very convinient option you should consider in case!
+Note: If you want to make your package available on different systems, you should make use of selectors. `conda-build` notices on which system it is run, so the selectors help to decide which information to use and which not. A very convinient option you should consider in case!
 
 ### **Build.sh**
 
-The build.sh can be a simple bash script containing only the one line you saw in [the build section](#the-build-section). However, this did not work for me since conda-build did not pass the environment variables to the bash correctly. Maybe you figure out how this works. 
+The build.sh can be a simple bash script containing only the one line you saw in [the build section](#the-build-section). However, this did not work for me because `conda-build` did not pass the environment variables to the bash correctly. Maybe you figure out how this works (pull requests are always welcome). 
 
 
 ### **Bld.bat**
@@ -289,7 +279,7 @@ See the sample recipes and the conda doc for more information.
 
 **Note:**
 The build scripts can also contain a little more code and options - see the scripts provided with the [conda example recipes](https://docs.conda.io/projects/conda-build/en/latest/user-guide/recipes/sample-recipes.html). 
-<br></br>
+
 ### Defining the setup.py for conda
 
 Writing this script is the basis of formulating a python package. The following links contain more information about this:
@@ -297,7 +287,7 @@ Writing this script is the basis of formulating a python package. The following 
 [Writing the setup.py](https://docs.python.org/3/distutils/setupscript.html])
 Here, you see the code of HyPro's setup.py:
 
-```
+```bash
 from setuptools import setup, find_packages
 
 requirements=['pandas==0.25.2','mygene==3.1.0'] 
@@ -323,7 +313,7 @@ setup(
 )
 ```
 
-The script firstly imports *setup* and *find_packages* from the setuptools module. Specifying the arguments for the setup function is key for successful packaging. The whole scope of options can be revisited in (Writing the setup.py)[https://docs.python.org/3/distutils/setupscript.html]. Here, we concentrate on specified ones:
+The script firstly imports *setup* and *find_packages* from the setuptools module. Specifying the arguments for the setup function is key for successful packaging. The whole scope of options can be revisited in [Writing the setup.py](https://docs.python.org/3/distutils/setupscript.html). Here, we concentrate on specified ones:
 
 name - *The name of your package*
 
