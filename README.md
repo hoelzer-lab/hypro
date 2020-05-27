@@ -48,6 +48,12 @@ conda create -n hypro python=3.7
 conda activate hypro
 conda install -c bioconda hypro
 ```
+If the install from bioconda is not available, instead, try out the anaconda channel:
+
+```
+conda install -c marlt hypro
+
+```
 
 ## Script Usage
 
