@@ -60,7 +60,7 @@ if isinstance(args.threads, list):
 elif isinstance(args.threads, str):
     threads = int(args.threads)
 
-if bool(args.custdb):               # set 
+if bool(args.custdb):               # set
     automated_dbload = False
     custdb = args.custdb[0]
 
@@ -117,7 +117,7 @@ def update_faa(output): #former 2nd arg: in_gff
                 if elem[0][1:] in id_scinames.keys():
                     # print(elem[0][1:])
                     # print(id_scinames[elem[0][1:]])
-                    header = f'{elem[0]} {id_scinames[elem[0][1:]]}\n'          # new header 
+                    header = f'{elem[0]} {id_scinames[elem[0][1:]]}\n'          # new header
                     faa_list.append(header)                                     # update header
                     # print(f'{elem[0]} \t {line} \t {header}')
                 else:
@@ -142,7 +142,7 @@ def update_ffn(output): #former 2nd arg: in_gff
                 if elem[0][1:] in id_scinames.keys():
                     # print(elem[0][1:])
                     # print(id_scinames[elem[0][1:]])
-                    header = f'{elem[0]} {id_scinames[elem[0][1:]]}\n'          # new header 
+                    header = f'{elem[0]} {id_scinames[elem[0][1:]]}\n'          # new header
                     ffn_list.append(header)                                     # update header
                     # print(f'{elem[0]} \t {line} \t {header}')
                 else:
@@ -172,12 +172,12 @@ def extend_gbk(output, id_alninfo):
             while "COMMENT" not in line:
                 content.append(line)
                 # ahead_info.append(line)
-                line = file.readline()   
+                line = file.readline()
             # print(line)
             while "FEATURES" not in line:
                 comment.append(line)
-                line = file.readline()    
-            comment = update_comment(comment)  
+                line = file.readline()
+            comment = update_comment(comment)
             content.extend(comment)
             while "ORIGIN" not in line:
                 if line[5] != ' ':              # acc. to def. of genbank file format in NCBI: feature starts in 6th column
@@ -190,8 +190,8 @@ def extend_gbk(output, id_alninfo):
                     lclean_line = line.lstrip()         # clip the leading whitespaces of the line
                     lspaces = len(line) - len(lclean_line)    # get the number of white spaces
                     while line[5] == ' ':               # as long as descriptors of the same feature parsed
-                        # print(line)                    
-                        if lclean_line.startswith('/'):                        
+                        # print(line)
+                        if lclean_line.startswith('/'):
                             elem = lclean_line.split('=')       # split the feature content line
                             if elem[0] in descriptors:
                                 descriptors[elem[0]].append(f'{elem[0]}={elem[1]}')
@@ -199,7 +199,7 @@ def extend_gbk(output, id_alninfo):
                                 descriptors[elem[0]] = [f'{elem[0]}={elem[1]}']
                         else:                                               # only 2nd-to-last translation lines shall be parsed in here
                             descriptors[elem[0]].append(lclean_line)        # when feature is complete, check for update in mmseq hit dictionary; update if found
-                        line = file.readline()      
+                        line = file.readline()
                         lclean_line = line.lstrip(' ')  # clip whitespaces
                 # Add info of the feature, if it was build:
                 if bool(descriptors):
@@ -215,22 +215,22 @@ def extend_gbk(output, id_alninfo):
                     except KeyError:                    # if no descriptor '/locus tag' was found, the loaded info is not a real feature (source or anythin else...)
                         pass
                     # print(descriptors)
-                    features.append(descriptors)                
+                    features.append(descriptors)
                 if bool(translation_ext):
                     features.append(translation_ext)
-                
-            # assert len(id_scinames.keys()) == updated  
+
+            # assert len(id_scinames.keys()) == updated
             content.extend(features)
             while "//" not in line:
                 end_info.append(line)
                 line = file.readline()
-            end_info.append(line)  
-            content.extend(end_info)   
+            end_info.append(line)
+            content.extend(end_info)
             line = file.readline()
 
         write_gbk(output, content, lspaces)
         print(f'Updated {updated} features in the genbank file.')
-        
+
 def format_notes(string, delimiter):
     '''Format a to lines of 80 characters which corresponds to gbk convention'''
     global lspaces
@@ -240,7 +240,7 @@ def format_notes(string, delimiter):
     # len_del = len(delimiter)                  # if sth else than a single sign is used to delimit
     for qual in elem:
         if lines == 0:                          # add the qualifier after the first leading spaces
-            l_string += '/notes=\"'   
+            l_string += '/notes=\"'
         else:
             l_string += (lspaces * ' ')
         lines += 1
@@ -269,17 +269,17 @@ def update_comment(in_list):
     add_string = ''
     w_spaces = len(in_list[1]) - len(in_list[1].lstrip(' '))
     add_string = (w_spaces * " ") + "extended by homology searches with HyPro v0.1 (based on mmseq2)\n"
-    in_list.append(add_string)    
+    in_list.append(add_string)
     return in_list
 
 def write_gbk(output, content, wspaces):
-    global DIR, BN   
+    global DIR, BN
     with open(output + "/output/" + BN + "_extended.gbk", 'w') as gbk_out:
         for elem in content[1:]:
             # if elem == content[0]:
             #     pass
             if isinstance(elem, dict):  # write the updated features
-                for key in elem.keys(): 
+                for key in elem.keys():
                     if "translation" not in key:                                # write translation the last
                         for val in elem[key]:
                             gbk_out.write(wspaces * ' ' + str(val))             # write the key array values one by one
@@ -295,7 +295,7 @@ def write_gbk(output, content, wspaces):
                     gbk_out.write(place)
             else:
                 gbk_out.write(elem)
-                    
+
 
 ############ update_gff
 def rusure(dbtype):
@@ -317,6 +317,10 @@ def rusure(dbtype):
         rusure()
 
 def load_gff(input=in_gff):
+    '''
+    Load .gff file from prokka output and read content into global gff_content.
+    Check for hypothetical protein entries: store relevant information and keep track of number.
+    '''
     # is_outdir()
     # is_gff()
     row = 0
@@ -366,7 +370,7 @@ def save_HyProt(attr, row):
             HyProt_content.update({ID:content})
             HyProt_loc.update({ID:row})
         else:
-            pass 
+            pass
         assert  len(HyProt_content.keys()) == len(HyProt_loc.keys())
     elif mode == 'full':
         if len(fields) == 4 or len(fields) == 5:            # hypothetical proteins with no info and partial info
@@ -376,12 +380,16 @@ def save_HyProt(attr, row):
             HyProt_content.update({ID:content})
             HyProt_loc.update({ID:row})
         else:
-            pass 
+            pass
         assert  len(HyProt_content.keys()) == len(HyProt_loc.keys())
     # print(f"save_HyProts:\t{count}")
     return HyProt_content, HyProt_loc   # DEPRECATED
 
 def query_fasta(infile = in_gff, output = out_dir):
+    '''
+    Match hypothetical protein content from .gff with .ffn file and write information to fasta.
+    Resulting file is used by mmseqs2.
+    '''
     global HyProt_content, DIR, BN
     # print("Build output directory 'HyPro' in specified output location, if not existing.")
     print("Try to build query fasta...")
@@ -400,14 +408,15 @@ def query_fasta(infile = in_gff, output = out_dir):
                     # print('other')
             query.close()
     else:
-        print("No query seq saved from input gff. Maybe file is corrupted. Exiting extension pipeline...")      
-        exit()   
+        print("No query seq saved from input gff. Maybe file is corrupted. Exiting extension pipeline...")
+        exit()
     num =  int(subprocess.check_output("grep -c '>' " + output +  "/query.fasta", shell=True))
     print(f"Extracted {num} sequences to {output}/query.fasta")
     # print(len(HyProt_content.keys()))
-    assert num == len(HyProt_content.keys()) 
+    assert num == len(HyProt_content.keys())
 
 def load_fasta(file):
+    ''' Load fasta into dict '''
     fasta = {}      # header:seq, all sequences
     header = ''
     seq = ''
@@ -424,7 +433,7 @@ def load_fasta(file):
     fasta.update({header:seq})
     # print(len(fasta.keys()))
     return fasta
-    # print(fasta)        
+    # print(fasta)
 
 # download a particular db
 def download_db(output = out_dir, dbtype = db): #--------------------------TO BE EXTENDED WITH ADDITIONAL DBs-----------------------------------
@@ -435,7 +444,7 @@ def download_db(output = out_dir, dbtype = db): #--------------------------TO BE
     else:
         global custdb
         path = custdb
-    if dbtype == valid_db[0]:                   # if clause to decide which db to download 
+    if dbtype == valid_db[0]:                   # if clause to decide which db to download
         db_fasta = path + "/uniprot_sprot.fasta"
         db_target = path + "/target_db"
         if loaded(db_fasta, automated_dbload):
@@ -450,7 +459,7 @@ def download_db(output = out_dir, dbtype = db): #--------------------------TO BE
             os.chdir(path)
             # print(os.getcwd())
             print(f"Download database to {path}")
-            os.system(f"wget {weblink}")    
+            os.system(f"wget {weblink}")
             os.system(f"gunzip ./{file}")
             os.chdir(pwd)
             # print(os.getcwd)
@@ -470,7 +479,7 @@ def download_db(output = out_dir, dbtype = db): #--------------------------TO BE
             os.chdir(path)
             # print(os.getcwd())
             print(f"Download database to {path}")
-            os.system(f"wget {weblink}")    
+            os.system(f"wget {weblink}")
             os.system(f"gunzip ./{file}")
             os.chdir(pwd)
             # print(os.getcwd)
@@ -490,7 +499,7 @@ def download_db(output = out_dir, dbtype = db): #--------------------------TO BE
             os.chdir(path)
             # print(os.getcwd())
             print(f"Download database to {path}")
-            os.system(f"wget {weblink}")    
+            os.system(f"wget {weblink}")
             os.system(f"gunzip ./{file}")
             os.chdir(pwd)
             # print(os.getcwd)
@@ -530,7 +539,7 @@ def download_db(output = out_dir, dbtype = db): #--------------------------TO BE
             os.chdir(path)
             # print(os.getcwd())
             print(f"Download database to {path}")
-            os.system(f"wget {weblink}")    
+            os.system(f"wget {weblink}")
             os.system(f"gunzip ./{file}")
             os.chdir(pwd)
             # print(os.getcwd)
@@ -540,17 +549,21 @@ def download_db(output = out_dir, dbtype = db): #--------------------------TO BE
     return path, db_fasta, db_target    #-----------------------------------------------------------------------------------------
 
 def mmseq(dbfasta, dbtarget, output=out_dir, mmseq=ms, ev=evalue, aln=alnlen, pi=pident, t=threads):
-    global HyProt_content, db, id_scinames 
+    '''
+    Search hypothetical proteins from prokka output in a selected database using mmseqs2.
+    Extract, format and write new annotation to output id_infos, update previous HyProt_content.
+    '''
+    global HyProt_content, db, id_scinames
     id_infos = {}                                           # additional information found  with mmseq; saved with ID as key
     output = output.rstrip('/') + '/mmseqs_output'
     # # execute mmseq2
     os.system(f"{mmseq} {output} {dbfasta} {dbtarget} {db} {ev} {alnlen} {pident} {t}")
-    
+
     # # fraction identified
     hit_nums = str(subprocess.check_output(f"cut -f1 {output}/final_outs/mmseqs2_out_db_{db}_e{ev}_a{alnlen}_p{pident}_unique.tsv | wc -l", shell=True))
     print(f"The homology search assigns a function to {int(hit_nums[2:-3])-1} / {len(HyProt_content.keys())} hypothetical proteins\n\t(this includes also hits on hypothetical proteins in the database)")
 
-    # load annotation pandas dataframe 
+    # load annotation pandas dataframe
     mmseqs_out = pd.read_csv(f"{output}/final_outs/mmseqs2_out_db_{db}_e{ev}_a{alnlen}_p{pident}_unique.tsv" , sep='\t')
 
     #create dict from pandas df - ID:annotation dictionary
@@ -560,7 +573,7 @@ def mmseq(dbfasta, dbtarget, output=out_dir, mmseq=ms, ev=evalue, aln=alnlen, pi
         for num in out_dict.keys():
             # out_dict[num]["target"]
             value = out_dict[num]
-            target_split = out_dict[num]['target'].split('_')     
+            target_split = out_dict[num]['target'].split('_')
             out_dict[num].update({'target':target_split[1]})  # ID form "Uniref[50,90,100]_uniprotID" replaced by uniprotID
             # print(out_dict[num]['target'])
 
@@ -573,7 +586,7 @@ def mmseq(dbfasta, dbtarget, output=out_dir, mmseq=ms, ev=evalue, aln=alnlen, pi
     #print(f'SciNames of TargetIDs:\n{dict_scinames}')
     # save findings in HyProt_content (target info + scinames/symbols of target IDs)
     # print(HyProt_content)
-    for index in out_dict.keys():           
+    for index in out_dict.keys():
         # print(out_dict[index]['query'])
         HyProt = out_dict[index]['query']
         db_ID = out_dict[index]['target']
@@ -590,18 +603,18 @@ def mmseq(dbfasta, dbtarget, output=out_dir, mmseq=ms, ev=evalue, aln=alnlen, pi
                 # print(info)
                 # print(out_dict[index][attr])
             # print(info)
-            # print(HyProt_content[HyProt]) 
+            # print(HyProt_content[HyProt])
             HyProt_content[HyProt][0] = f"inference=mmseqs2 {db}"
             HyProt_content[HyProt][2] = f"product={out_dict[index]['target']}"
             HyProt_content[HyProt].append(info.rstrip(';'))
     counts = count_HyProts(id_scinames)
     print(f"Of those: {counts} / {int(hit_nums[2:-3])-1} are hypothetical proteins.")
     return id_infos
-      
+
 def update_gff(output=out_dir, delimiter = '\t'):
-    global HyProt_content, HyProt_loc, gff_content, BN   
+    global HyProt_content, HyProt_loc, gff_content, BN
     output = output.rstrip('/') + "/output"
-    for HyProt in HyProt_content.keys():        
+    for HyProt in HyProt_content.keys():
         data = 'ID='
         data = f'{data}{HyProt}'
         # print(HyProt)
@@ -633,10 +646,10 @@ def get_input_info(input = in_gff):
     DIR = os.path.dirname(input)
     NAME = os.path.basename(input)
     file_split = NAME.split('.')
-    BN = file_split[0] 
+    BN = file_split[0]
     EXT = file_split[1]
     return DIR, BN, EXT
-    
+
 def check_args(infile = in_gff, output = out_dir, mmseq = ms, dbtype = db):
     '''Control all given paths and files first, before running anything!'''
     global DIR, BN, EXT, automated_dbload
@@ -649,7 +662,7 @@ def check_args(infile = in_gff, output = out_dir, mmseq = ms, dbtype = db):
         print("Specified input is a file with 'gff' extension.")
     else:
         print("Invalid input file. Please enter '--help' flag for information on script usage.")
-        exit()  
+        exit()
     # check output directory path
     print(f'Check args: outdir is: {output}')
     print("Building the output structure...")
@@ -675,14 +688,14 @@ def check_args(infile = in_gff, output = out_dir, mmseq = ms, dbtype = db):
     except subprocess.CalledProcessError:
         print("mmseqs2.sh path specification is corrupted. Check the specified path and the file you referenced.")
         exit()
-        
+
     if os.path.isfile(path_to_sh[2:-3]) and mmseq_name == "mmseqs2.sh":     # path should point to mmseqs2.sh
         print("Found mmseqs2.sh.")
     else:
         print("mmseqs2.sh path specification is corrupted. Check the specified path and the file you referenced.")
         exit()
-    
-    # check, if customdb is a valid path  
+
+    # check, if customdb is a valid path
     if automated_dbload == False:
         global custdb
         if os.path.isdir(custdb):
@@ -704,7 +717,7 @@ def loaded(dbfasta, automated_dbload):
         else:                           # exit, if custom db is not find in path. Maybe the db is corrupt or the -d does not match the db in -c. This limits the usage of -c to only customdbs
             print('No valid fasta file of specified DB Type in custom path. Did you specify -d (dbtype) according to -c (path to custom db)?\n Exiting...')
             exit()
-        
+
 def create_outdir(out_dir, dbtype):
     '''create the output path structure'''
     os.system(f'mkdir -p {out_dir}')
@@ -712,8 +725,8 @@ def create_outdir(out_dir, dbtype):
     os.system(f'mkdir -p {out_dir}/db/{dbtype}')
     os.system(f'mkdir -p {out_dir}/mmseqs_output/tmp')
     os.system(f'mkdir -p {out_dir}/output')
-   
-def get_names(table, db):   # table should be an input 
+
+def get_names(table, db):   # table should be an input
     global valid_db
     gene_ids = []
     translate = {}
@@ -754,7 +767,7 @@ def collect_scinames(name_list):
     for entry in name_list:
         try:
             sciname_dict.update({entry['query']:[entry['symbol'],entry['name']]})
-        except: 
+        except:
             sciname_dict.update({entry['query']:['HyProt','hypothetical protein']})
         # print(entry['query'])
     return sciname_dict
@@ -804,7 +817,7 @@ extend_gbk(out_dir, id_alninfo)
 
 
 # DEPRECATED
-def extract_HyProtIDs(gff):     
+def extract_HyProtIDs(gff):
     HyProts = {}
     for entry in gff:
         try:
@@ -813,7 +826,7 @@ def extract_HyProtIDs(gff):
             content = []
             for i in range(1,len(attr)):
                 content.append(attr[i])
-            prots.update({ID:content}) 
+            prots.update({ID:content})
         except IndexError:
             pass
     return prots
@@ -827,7 +840,7 @@ def get_HyProt_names(prot_dict):
             # print(type(prot))
             # print(prot_dict[prot])
             if regex.search(str(prot_dict[prot])):
-                HyProts_names.append(prot[3:])   
+                HyProts_names.append(prot[3:])
             #     HyProts.append(prot)
     else:
         print(type(prot_dict))
@@ -847,7 +860,7 @@ def get_HyProt_seqs(input="/data/mahlzeitlocal/projects/ma_neander_assembly/hiwi
                 if header != '' and seq != '':      # update only meaningful seqs
                     HyProts.update({header:seq})        # last sequence is complete, update the prots dictionary
                 header = elem[0][1:]
-                seq = '' 
+                seq = ''
             elif re.match("[ACGT]",line):    # nt seq of hypothetical protein
                 seq = seq + str(line)
         if header in HyProts_names: # if the last fasta seq is hypothetical protein, too
@@ -888,7 +901,7 @@ def is_outdir(out=out_dir):
 #def format_notes(string, delimiter):
         # while len(elem) != 1:                           # asked for every new line
     #     if lines == 0:                          # add the qualifier after the first leading spaces
-    #         l_string += '/notes=\"'   
+    #         l_string += '/notes=\"'
     #     else:
     #         l_string += (lspaces * ' ')
     #     lines += 1
@@ -906,7 +919,7 @@ def is_outdir(out=out_dir):
     #             added += 1
     #             info = i
     #             # elem.remove(i)
-    #             l_string += info + ';' 
+    #             l_string += info + ';'
     #         else:
     #             l_string +='\n'
     #             break                           # if the line would get longer than allowed break iteration over elements

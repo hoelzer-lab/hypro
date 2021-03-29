@@ -6,11 +6,11 @@ Nextflow -- Analysis Pipeline
 Author: someone@gmail.com
 */
 
-/************************** 
-* META & HELP MESSAGES 
+/**************************
+* META & HELP MESSAGES
 **************************/
 
-/************************** 
+/**************************
 * Help messages, user inputs & checks
 **************************/
 
@@ -24,7 +24,7 @@ defaultMSG()
 if (params.profile) {
   exit 1, "--profile is WRONG use -profile" }
 
-if (workflow.profile == 'standard') { 
+if (workflow.profile == 'standard') {
   "NO EXECUTION PROFILE SELECTED, using [-profile local,docker]" }
 
 if (!params.fasta) {
@@ -35,8 +35,8 @@ if (!nextflow.version.matches('20.+')) {
   exit 1
 }
 
-/************************** 
-* INPUT CHANNELS 
+/**************************
+* INPUT CHANNELS
 **************************/
 
 // fasta input & --list support
@@ -51,17 +51,18 @@ if (params.fasta && params.list) { fasta_input_ch = Channel
     .view()
 }
 
-/************************** 
-* PROCESSES 
+/**************************
+* PROCESSES
 **************************/
 
 /* include processes that should be used outside of a sub-workflow logic */
 
 include { example_db }    from './process/get_db'
-include { module1 } from './process/module1' 
-include { module2 } from './process/module2' 
-
-/************************** 
+include { module1 } from './process/module1'
+include { module2 } from './process/module2'
+include { prokka_annotation } from './process/prokka_annotation'
+include { mmseqs2 } from './process/mmseqs2'
+/**************************
 * DATABASES
 **************************/
 
@@ -78,13 +79,13 @@ workflow download_db {
     if (params.cloudProcess) {
       db_preload = file("${params.databases}/test_db/Chlamydia_gallinacea_08_1274_3.ASM47102v2.dna.toplevel.fa.gz")
       if (db_preload.exists()) { db = db_preload }
-      else  { example_db(); db = example_db.out } 
+      else  { example_db(); db = example_db.out }
     }
   emit: db
 }
 
 
-/************************** 
+/**************************
 * SUB-WORKFLOWS
 **************************/
 
@@ -92,7 +93,7 @@ workflow subworkflow_1 {
   take:
       fasta_input_ch
       db_ch
-  
+
   main:
     module2(module1(fasta_input_ch, db_ch))
 
@@ -100,22 +101,33 @@ workflow subworkflow_1 {
 }
 
 
-/************************** 
+/**************************
 * MAIN WORKFLOW ENTRY POINT
 **************************/
 
-/* Comment section: */
+/* Comment section:
+TODO:
+  - mmseqs2
+*/
 
 workflow {
       download_db()
       db = download_db.out
-      if (params.fasta) { 
+
+      /*******************************
+      if (params.fasta) {
         subworkflow_1(fasta_input_ch, db)
       }
+      ********************************/
+
+      prokka_annotation(fasta_input_ch)
+      prokka_out_ch = prokka_annotation.out
+
+
 }
 
 
-/*************  
+/*************
 * --help
 *************/
 def helpMSG() {
@@ -126,19 +138,19 @@ def helpMSG() {
     c_dim = "\033[2m";
     log.info """
     ____________________________________________________________________________________________
-    
+
     Workflow: Template
-    
+
     ${c_yellow}Usage example:${c_reset}
-    nextflow run wf_template --fasta '*/*.fasta' 
+    nextflow run wf_template --fasta '*/*.fasta'
 
     ${c_yellow}Input:${c_reset}
     ${c_green} --fasta ${c_reset}            '*.fasta'  -> one sample per file
-    ${c_dim}  ..change above input to csv:${c_reset} ${c_green}--list ${c_reset}            
+    ${c_dim}  ..change above input to csv:${c_reset} ${c_green}--list ${c_reset}
 
     ${c_yellow}Options:${c_reset}
     --cores             max cores per process for local use [default: $params.cores]
-    --max_cores         max cores per machine for local use [default: $params.max_cores]  
+    --max_cores         max cores per machine for local use [default: $params.max_cores]
     --memory            max memory for local use [default: $params.memory]
     --output            name of the result folder [default: $params.output]
 
@@ -155,7 +167,7 @@ def helpMSG() {
     For execution of the workflow on a HPC with LSF adjust the following parameters:
     --databases         defines the path where databases are stored [default: $params.databases]
     --workdir           defines the path where nextflow writes tmp files [default: $params.workdir]
-    --cachedir          defines the path where conda environments are cached [default: $params.cachedir] 
+    --cachedir          defines the path where conda environments are cached [default: $params.cachedir]
 
 
     ${c_yellow}Profiles:${c_reset}
