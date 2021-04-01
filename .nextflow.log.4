@@ -1,0 +1,65 @@
+Apr-01 12:28:42.352 [main] DEBUG nextflow.cli.Launcher - $> nextflow run main.nf -profile local,conda --fasta test/data/GCF_000471025.2_ASM47102v2_genomic.fna --database uniprotkb -resume
+Apr-01 12:28:42.927 [main] INFO  nextflow.cli.CmdRun - N E X T F L O W  ~  version 20.10.0
+Apr-01 12:28:42.958 [main] INFO  nextflow.cli.CmdRun - Launching `main.nf` [sad_sax] - revision: c5d27726d3
+Apr-01 12:28:43.023 [main] DEBUG nextflow.config.ConfigBuilder - Found config local: /Volumes/UNTITLED/RKI/MartinHölzer/hypro/nextflow.config
+Apr-01 12:28:43.024 [main] DEBUG nextflow.config.ConfigBuilder - Parsing config file: /Volumes/UNTITLED/RKI/MartinHölzer/hypro/nextflow.config
+Apr-01 12:28:43.406 [main] DEBUG nextflow.config.ConfigBuilder - Applying config profile: `local,conda`
+Apr-01 12:28:46.626 [main] DEBUG nextflow.config.ConfigBuilder - Available config profiles: [standard, conda, singularity, local, lsf, docker]
+Apr-01 12:28:47.050 [main] DEBUG nextflow.Session - Session uuid: b2fe948d-adea-4b43-9ea6-0afe5e05bc17
+Apr-01 12:28:47.050 [main] DEBUG nextflow.Session - Run name: sad_sax
+Apr-01 12:28:47.051 [main] DEBUG nextflow.Session - Executor pool size: 4
+Apr-01 12:28:47.109 [main] DEBUG nextflow.cli.CmdRun - 
+  Version: 20.10.0 build 5430
+  Created: 01-11-2020 15:14 UTC (16:14 MESZ)
+  System: Mac OS X 10.15.7
+  Runtime: Groovy 3.0.5 on Java HotSpot(TM) 64-Bit Server VM 1.8.0_91-b14
+  Encoding: UTF-8 (UTF-8)
+  Process: 66392@EMP.fritz.box [192.168.178.36]
+  CPUs: 4 - Mem: 8 GB (26 MB) - Swap: 3 GB (1 GB)
+Apr-01 12:28:47.189 [main] DEBUG nextflow.Session - Work-dir: /tmp/nextflow-eukaryotic-Eva [Mac OS X]
+Apr-01 12:28:47.343 [main] DEBUG nextflow.Session - Observer factory: TowerFactory
+Apr-01 12:28:47.348 [main] DEBUG nextflow.Session - Observer factory: DefaultObserverFactory
+Apr-01 12:28:48.018 [main] DEBUG nextflow.Session - Session start invoked
+Apr-01 12:28:49.468 [main] DEBUG nextflow.script.ScriptRunner - > Launching execution
+Apr-01 12:28:49.496 [main] INFO  nextflow.Nextflow - 
+[1;30m______________________________________[0m
+
+[36mWorkflow: TEMPLATE[0m
+[1;30m______________________________________[0m
+Profile:                local,conda
+Current User:           Eva
+Nextflow-version:       20.10.0
+Starting time:          01-11-2020 15:14 UTC
+Workflow hash:          null
+
+    --workdir           /tmp/nextflow-eukaryotic-Eva
+    --databases         nextflow-autodownload-databases
+    --output            results
+    --cores             2
+    --max_cores         4
+    --memory            2
+    --cachedir          conda
+[1;30m______________________________________[0m
+
+Apr-01 12:28:49.642 [main] DEBUG nextflow.Session - Session aborted -- Cause: Can't find a matching module file for include: ./process/get_db
+Apr-01 12:28:49.681 [main] DEBUG nextflow.Session - The following nodes are still active:
+  [operator] map
+  [operator] view
+
+Apr-01 12:28:49.698 [main] ERROR nextflow.cli.Launcher - Can't find a matching module file for include: ./process/get_db
+java.nio.file.NoSuchFileException: Can't find a matching module file for include: ./process/get_db
+	at nextflow.script.IncludeDef.realModulePath(IncludeDef.groovy:177)
+	at nextflow.script.IncludeDef.load0(IncludeDef.groovy:112)
+	at nextflow.script.IncludeDef$load0$1.call(Unknown Source)
+	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCall(CallSiteArray.java:47)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:125)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:139)
+	at Script_a0ec429e.runScript(Script_a0ec429e:60)
+	at nextflow.script.BaseScript.runDsl2(BaseScript.groovy:170)
+	at nextflow.script.BaseScript.run(BaseScript.groovy:200)
+	at nextflow.script.ScriptParser.runScript(ScriptParser.groovy:219)
+	at nextflow.script.ScriptRunner.run(ScriptRunner.groovy:219)
+	at nextflow.script.ScriptRunner.execute(ScriptRunner.groovy:127)
+	at nextflow.cli.CmdRun.run(CmdRun.groovy:277)
+	at nextflow.cli.Launcher.run(Launcher.groovy:466)
+	at nextflow.cli.Launcher.main(Launcher.groovy:648)

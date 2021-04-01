@@ -18,11 +18,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="Nextflow workflow report for run id [amazing_chandrasekhar]">
+  <meta name="description" content="Nextflow workflow report for run id [agitated_venter]">
   <meta name="author" content="Paolo Di Tommaso, Phil Ewels">
   <link rel="icon" type="image/png" href="https://www.nextflow.io/img/favicon.png" />
 
-  <title>[amazing_chandrasekhar] Nextflow Workflow Report</title>
+  <title>[agitated_venter] Nextflow Workflow Report</title>
 
   <style type="text/css">
   /*!
@@ -137,7 +137,7 @@ table.DTCR_clonedTable.dataTable{position:absolute !important;background-color:r
         <li class="nav-item"><a class="nav-link" href="#tasks">Tasks</a></li>
       </ul>
       <span class="navbar-text">
-        [amazing_chandrasekhar]
+        [agitated_venter]
       </span>
     </div>
   </nav>
@@ -146,24 +146,82 @@ table.DTCR_clonedTable.dataTable{position:absolute !important;background-color:r
     <div class="container">
 
       <h1 class="display-3">Nextflow workflow report</h1>
-      <h2 class="text-muted mb-4"><samp>[amazing_chandrasekhar]</samp> <em>(resumed run)</em></h2>
+      <h2 class="text-muted mb-4"><samp>[agitated_venter]</samp> <em>(resumed run)</em></h2>
 
       
-          <div class="alert alert-success mb-4">
-              Workflow execution completed successfully!
+          <div class="alert alert-danger mb-4">
+              <h4>Workflow execution completed unsuccessfully!</h4>
+              <p>The exit status of the task that caused the workflow execution to fail was: <code>null</code>.</p>
+              <p>The full error message was:</p>
+              <pre>Error executing process > 'get_db:download_db'
+
+Caused by:
+  No signature of method: nextflow.script.ScriptBinding.$() is applicable for argument types: () values: []
+Possible solutions: is(java.lang.Object), any(), any(groovy.lang.Closure), use([Ljava.lang.Object;), tap(groovy.lang.Closure), use(java.lang.Class, groovy.lang.Closure)
+
+Source block:
+  if( ${params.database} == 'uniprotkb' )
+        """
+        #!/bin/bash
+        wget ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz
+        gunzip uniprot_sprot.fasta.gz
+        db_out=uniprot_sprot.fasta
+        mkdir -p target_db
+        """
+  
+      else if( ${params.database} == 'uniref100' )
+        """
+        #!/bin/bash
+        wget ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref100/uniref100.fasta.gz
+        gunzip uniref100.fasta.gz
+        db_out=uniref100.fasta
+        mkdir -p target_db
+        """
+  
+      else if( ${params.database} == 'uniref90' )
+        """
+        #!/bin/bash
+        wget ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref90/uniref90.fasta.gz
+        gunzip uniref90.fasta.gz
+        db_out=uniref90.fasta
+        mkdir -p target_db
+        """
+  
+      else if( ${params.database} == 'uniref50' )
+        """
+        #!/bin/bash
+        wget ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref50/uniref50.fasta.gz
+        gunzip uniref50.fasta.gz
+        db_out=uniref50.fasta
+        mkdir -p target_db
+        """
+  
+      else if( ${params.database} == 'pdb' )
+        """
+        #!/bin/bash
+        wget ftp://ftp.wwpdb.org/pub/pdb/derived_data/pdb_seqres.txt.gz
+        gunzip pdb_seqres.txt.gz
+        db_out=pdb_seqres.txt
+        mkdir -p target_db
+        """
+  
+      else
+        error "Invalid database type ${params.database}"
+
+Tip: when you have fixed the problem you can continue the execution adding the option `-resume` to the run command line</pre>
           </div>
       
 
       <dl>
         <dt>Run times</dt>
         <dd>
-          <span id="workflow_start">29-Mär-2021 15:06:00</span> - <span id="workflow_complete">29-Mär-2021 15:07:47</span>
-          (<span id="completed_fromnow"></span>duration: <strong>1m 47s</strong>)
+          <span id="workflow_start">01-Apr-2021 12:53:23</span> - <span id="workflow_complete">01-Apr-2021 12:53:26</span>
+          (<span id="completed_fromnow"></span>duration: <strong>3.8s</strong>)
         </dd>
 
         <dl>
           <div class="progress" style="height: 1.6rem; margin: 1.2rem auto; border-radius: 0.20rem;">
-            <div style="width: 100.0%" class="progress-bar bg-success" data-toggle="tooltip" data-placement="top" title="2 tasks succeeded"><span class="text-truncate">&nbsp; 2 succeeded &nbsp;</span></div>
+            <div style="width: 0.0%" class="progress-bar bg-success" data-toggle="tooltip" data-placement="top" title="0 tasks succeeded"><span class="text-truncate">&nbsp; 0 succeeded &nbsp;</span></div>
             <div style="width: 0.0%" class="progress-bar bg-secondary" data-toggle="tooltip" data-placement="top" title="0 tasks were cached"><span class="text-truncate">&nbsp; 0 cached &nbsp;</span></div>
             <div style="width: 0.0%" class="progress-bar bg-warning" data-toggle="tooltip" data-placement="top" title="0 tasks reported and error and were ignored"><span class="text-truncate">&nbsp; 0 ignored &nbsp;</span></div>
             <div style="width: 0.0%" class="progress-bar bg-danger" data-toggle="tooltip" data-placement="top" title="0 tasks failed"><span class="text-truncate">&nbsp; 0 failed &nbsp;</span></div>
@@ -171,7 +229,7 @@ table.DTCR_clonedTable.dataTable{position:absolute !important;background-color:r
         </dl>
 
         <dt>Nextflow command</dt>
-        <dd><pre class="nfcommand"><code>nextflow run main.nf --fasta test/data/GCF_000471025.2_ASM47102v2_genomic.fna -profile local,conda -resume</code></pre></dd>
+        <dd><pre class="nfcommand"><code>nextflow run main.nf -profile local,conda --fasta test/data/GCF_000471025.2_ASM47102v2_genomic.fna --database uniprotkb -resume</code></pre></dd>
       </dl>
 
       <dl class="row small">
@@ -194,11 +252,11 @@ table.DTCR_clonedTable.dataTable{position:absolute !important;background-color:r
 
         
           <dt class="col-sm-3">Script ID</dt>
-          <dd class="col-sm-9"><code>27d292e8daf48d0eae1f2c64cda4e893</code></dd>
+          <dd class="col-sm-9"><code>25a2cee39edf84989c9e99a021ce87ee</code></dd>
         
 
         <dt class="col-sm-3">Workflow session</dt>
-        <dd class="col-sm-9"><code>a93800a3-e054-4e71-aaa7-2ce688cccf83</code></dd>
+        <dd class="col-sm-9"><code>b2fe948d-adea-4b43-9ea6-0afe5e05bc17</code></dd>
 
         
 
@@ -1020,7 +1078,7 @@ $(function() {
 
   // Nextflow report data
   window.data = { "trace":[
-{"task_id":"2","hash":"e1\/87febb","native_id":"46949","process":"prokka_annotation","module":"-","container":"-","tag":"-","name":"prokka_annotation (1)","status":"COMPLETED","exit":"0","submit":"1617023164548","start":"1617023164571","complete":"1617023267743","duration":"103195","realtime":"102000","%cpu":"-","%mem":"-","rss":"-","vmem":"-","peak_rss":"-","peak_vmem":"-","rchar":"-","wchar":"-","syscr":"-","syscw":"-","read_bytes":"-","write_bytes":"-","attempt":"1","workdir":"\/tmp\/nextflow-eukaryotic-Eva\/e1\/87febba5b603fc5626f73e6e025fc6","script":"\n  prokka --prefix GCF_000471025.2_ASM47102v2_genomic GCF_000471025.2_ASM47102v2_genomic.fna \n  ","scratch":"-","queue":"-","cpus":"1","memory":"-","disk":"-","time":"-","env":"PATH=\/Volumes\/UNTITLED\/RKI\/MartinH\u00F6lzer\/hypro\/bin:$PATH\n","error_action":"-","vol_ctxt":"-","inv_ctxt":"-"},{"task_id":"3","hash":"3d\/fa0736","native_id":"46954","process":"mmseqs2","module":"-","container":"-","tag":"-","name":"mmseqs2","status":"COMPLETED","exit":"0","submit":"1617023164586","start":"1617023164669","complete":"1617023165306","duration":"720","realtime":"1000","%cpu":"-","%mem":"-","rss":"-","vmem":"-","peak_rss":"-","peak_vmem":"-","rchar":"-","wchar":"-","syscr":"-","syscw":"-","read_bytes":"-","write_bytes":"-","attempt":"1","workdir":"\/tmp\/nextflow-eukaryotic-Eva\/3d\/fa07367b0db6095a120757dbeae624","script":"\n  mmseqs2.sh results\/mmseqs2\/ Chlamydia_gallinacea_08_1274_3.ASM47102v2.dna.toplevel.fa uniprotkb\/target_db uniprotkb 0.1 0 0.0 1\n  ","scratch":"-","queue":"-","cpus":"1","memory":"-","disk":"-","time":"-","env":"PATH=\/Volumes\/UNTITLED\/RKI\/MartinH\u00F6lzer\/hypro\/bin:$PATH\n","error_action":"-","vol_ctxt":"-","inv_ctxt":"-"}], "summary":[{"cpuUsage":null,"process":"mmseqs2","mem":null,"memUsage":null,"timeUsage":null,"vmem":null,"reads":null,"cpu":null,"time":{"mean":1000,"min":1000,"q1":1000,"q2":1000,"q3":1000,"max":1000,"minLabel":"mmseqs2","maxLabel":"mmseqs2","q1Label":"mmseqs2","q2Label":"mmseqs2","q3Label":"mmseqs2"},"writes":null},{"cpuUsage":null,"process":"prokka_annotation","mem":null,"memUsage":null,"timeUsage":null,"vmem":null,"reads":null,"cpu":null,"time":{"mean":102000,"min":102000,"q1":102000,"q2":102000,"q3":102000,"max":102000,"minLabel":"prokka_annotation (1)","maxLabel":"prokka_annotation (1)","q1Label":"prokka_annotation (1)","q2Label":"prokka_annotation (1)","q3Label":"prokka_annotation (1)"},"writes":null}] };
+], "summary":[] };
 
   </script>
 

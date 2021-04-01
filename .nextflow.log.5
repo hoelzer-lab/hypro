@@ -1,0 +1,73 @@
+Mär-31 16:34:08.846 [main] DEBUG nextflow.cli.Launcher - $> nextflow run main.nf --fasta test/data/GCF_000471025.2_ASM47102v2_genomic.fna -profile conda,local -resume --customdb nextflow-autodownload-databases/test_db/Chlamydia_gallinacea_08_1274_3.ASM47102v2.dna.toplevel.fa.gz
+Mär-31 16:34:09.377 [main] INFO  nextflow.cli.CmdRun - N E X T F L O W  ~  version 20.10.0
+Mär-31 16:34:09.406 [main] INFO  nextflow.cli.CmdRun - Launching `main.nf` [angry_swanson] - revision: 2df281d273
+Mär-31 16:34:09.475 [main] DEBUG nextflow.config.ConfigBuilder - Found config local: /Volumes/UNTITLED/RKI/MartinHölzer/hypro/nextflow.config
+Mär-31 16:34:09.476 [main] DEBUG nextflow.config.ConfigBuilder - Parsing config file: /Volumes/UNTITLED/RKI/MartinHölzer/hypro/nextflow.config
+Mär-31 16:34:09.520 [main] DEBUG nextflow.config.ConfigBuilder - Applying config profile: `conda,local`
+Mär-31 16:34:11.149 [main] DEBUG nextflow.config.ConfigBuilder - Available config profiles: [standard, conda, singularity, local, lsf, docker]
+Mär-31 16:34:11.232 [main] DEBUG nextflow.Session - Session uuid: b2fe948d-adea-4b43-9ea6-0afe5e05bc17
+Mär-31 16:34:11.232 [main] DEBUG nextflow.Session - Run name: angry_swanson
+Mär-31 16:34:11.232 [main] DEBUG nextflow.Session - Executor pool size: 4
+Mär-31 16:34:11.264 [main] DEBUG nextflow.cli.CmdRun - 
+  Version: 20.10.0 build 5430
+  Created: 01-11-2020 15:14 UTC (16:14 MESZ)
+  System: Mac OS X 10.15.7
+  Runtime: Groovy 3.0.5 on Java HotSpot(TM) 64-Bit Server VM 1.8.0_91-b14
+  Encoding: UTF-8 (UTF-8)
+  Process: 62316@EMP.fritz.box [192.168.178.36]
+  CPUs: 4 - Mem: 8 GB (315.9 MB) - Swap: 3 GB (1022.5 MB)
+Mär-31 16:34:11.358 [main] DEBUG nextflow.Session - Work-dir: /tmp/nextflow-eukaryotic-Eva [Mac OS X]
+Mär-31 16:34:11.503 [main] DEBUG nextflow.Session - Observer factory: TowerFactory
+Mär-31 16:34:11.506 [main] DEBUG nextflow.Session - Observer factory: DefaultObserverFactory
+Mär-31 16:34:13.267 [main] DEBUG nextflow.Session - Session start invoked
+Mär-31 16:34:14.186 [main] DEBUG nextflow.script.ScriptRunner - > Launching execution
+Mär-31 16:34:14.216 [main] INFO  nextflow.Nextflow - 
+[1;30m______________________________________[0m
+
+[36mWorkflow: TEMPLATE[0m
+[1;30m______________________________________[0m
+Profile:                conda,local
+Current User:           Eva
+Nextflow-version:       20.10.0
+Starting time:          01-11-2020 15:14 UTC
+Workflow hash:          null
+
+    --workdir           /tmp/nextflow-eukaryotic-Eva
+    --databases         nextflow-autodownload-databases
+    --output            results
+    --cores             2
+    --max_cores         4
+    --memory            2
+    --cachedir          conda
+[1;30m______________________________________[0m
+
+Mär-31 16:34:15.247 [main] DEBUG nextflow.Session - Workflow process names [dsl2]: example_db, prokka_annotation, download_db, module1, query_fasta, module2
+Mär-31 16:34:15.386 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withLabel:prokka` matches label `prokka` for process with name prokka_annotation
+Mär-31 16:34:15.398 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: local
+Mär-31 16:34:15.398 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Mär-31 16:34:15.408 [main] DEBUG nextflow.executor.Executor - [warm up] executor > local
+Mär-31 16:34:15.417 [main] DEBUG n.processor.LocalPollingMonitor - Creating local task monitor for executor 'local' > cpus=4; memory=8 GB; capacity=4; pollInterval=100ms; dumpInterval=5m
+Mär-31 16:34:15.619 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: local
+Mär-31 16:34:15.619 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Mär-31 16:34:15.646 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: local
+Mär-31 16:34:15.646 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Mär-31 16:34:15.651 [main] DEBUG nextflow.Session - Ignite dataflow network (4)
+Mär-31 16:34:15.662 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > prokka_annotation
+Mär-31 16:34:15.664 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > query_fasta
+Mär-31 16:34:15.668 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > get_db:download_db
+Mär-31 16:34:15.668 [main] DEBUG nextflow.script.ScriptRunner - > Await termination 
+Mär-31 16:34:15.669 [main] DEBUG nextflow.Session - Session await
+Mär-31 16:34:15.751 [Actor Thread 5] INFO  nextflow.processor.TaskProcessor - [skipping] Stored process > get_db:download_db
+Mär-31 16:34:15.861 [Actor Thread 3] DEBUG nextflow.conda.CondaCache - Conda found local env for environment=envs/prokka.yaml; path=/tmp/nextflow-eukaryotic-Eva/conda/prokka-7da6ca4b52a12c6127d4dd9ddaa3d345
+Mär-31 16:34:16.327 [Actor Thread 1] INFO  nextflow.processor.TaskProcessor - [c5/33ad4a] Cached process > prokka_annotation (1)
+Mär-31 16:34:16.372 [Actor Thread 7] INFO  nextflow.processor.TaskProcessor - [94/9bc1ac] Cached process > query_fasta (1)
+Mär-31 16:34:16.390 [Actor Thread 7] DEBUG n.util.BlockingThreadExecutorFactory - Thread pool name=FileTransfer; maxThreads=12; maxQueueSize=36; keepAlive=1m
+Mär-31 16:34:16.402 [main] DEBUG nextflow.Session - Session await > all process finished
+Mär-31 16:34:16.447 [main] DEBUG nextflow.Session - Session await > all barriers passed
+Mär-31 16:34:16.459 [main] DEBUG nextflow.trace.WorkflowStatsObserver - Workflow completed > WorkflowStats[succeededCount=0; failedCount=0; ignoredCount=0; cachedCount=2; pendingCount=0; submittedCount=0; runningCount=0; retriesCount=0; abortedCount=0; succeedDuration=0ms; failedDuration=0ms; cachedDuration=2m 4s;loadCpus=0; loadMemory=0; peakRunning=0; peakCpus=0; peakMemory=0; ]
+Mär-31 16:34:16.459 [main] DEBUG nextflow.trace.ReportObserver - Flow completing -- rendering html report
+Mär-31 16:34:16.509 [main] DEBUG nextflow.trace.ReportObserver - Execution report summary data:
+  [{"cpuUsage":null,"process":"prokka_annotation","mem":null,"memUsage":null,"timeUsage":null,"vmem":null,"reads":null,"cpu":null,"time":{"mean":123000,"min":123000,"q1":123000,"q2":123000,"q3":123000,"max":123000,"minLabel":"prokka_annotation (1)","maxLabel":"prokka_annotation (1)","q1Label":"prokka_annotation (1)","q2Label":"prokka_annotation (1)","q3Label":"prokka_annotation (1)"},"writes":null},{"cpuUsage":null,"process":"query_fasta","mem":null,"memUsage":null,"timeUsage":null,"vmem":null,"reads":null,"cpu":null,"time":{"mean":1000,"min":1000,"q1":1000,"q2":1000,"q3":1000,"max":1000,"minLabel":"query_fasta (1)","maxLabel":"query_fasta (1)","q1Label":"query_fasta (1)","q2Label":"query_fasta (1)","q3Label":"query_fasta (1)"},"writes":null}]
+Mär-31 16:34:20.166 [main] DEBUG nextflow.trace.TimelineObserver - Flow completing -- rendering html timeline
+Mär-31 16:34:21.108 [main] DEBUG nextflow.CacheDB - Closing CacheDB done
+Mär-31 16:34:22.009 [main] DEBUG nextflow.script.ScriptRunner - > Execution complete -- Goodbye
