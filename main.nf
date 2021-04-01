@@ -57,11 +57,13 @@ if (params.fasta && params.list) { fasta_input_ch = Channel
 
 /* include processes that should be used outside of a sub-workflow logic */
 
-include { example_db }    from './process/get_db'
 include { module1 } from './process/module1'
 include { module2 } from './process/module2'
+include { download_db }    from './process/download_db'
 include { prokka_annotation } from './process/prokka_annotation'
-include { mmseqs2 } from './process/mmseqs2'
+include { query_fasta } from './process/query_fasta'
+
+
 /**************************
 * DATABASES
 **************************/
@@ -71,19 +73,25 @@ The Database Section is designed to "auto-get" pre prepared databases.
 It is written for local use and hpc/cloud use via params.cloudProcess.
 */
 
-workflow download_db {
+workflow get_db {
   main:
+    /* TODO: check if db already exists
+    db_preload = file("${params.databases}/${params.database}/*{.fasta,.txt}")
     // local storage via storeDir
-    if (!params.cloudProcess) { example_db(); db = example_db.out }
+    if (!params.cloudProcess) {
+      if ( db_preload.exists() ) { db = db_preload}
+      else { download_db(); db = download_db.out }
+    }
     // cloud storage via db_preload.exists()
     if (params.cloudProcess) {
-      db_preload = file("${params.databases}/test_db/Chlamydia_gallinacea_08_1274_3.ASM47102v2.dna.toplevel.fa.gz")
       if (db_preload.exists()) { db = db_preload }
-      else  { example_db(); db = example_db.out }
+      else  { download_db(); db = download_db.out }
     }
+    */
+    download_db()
+    db = download_db.out
   emit: db
 }
-
 
 /**************************
 * SUB-WORKFLOWS
@@ -106,22 +114,26 @@ workflow subworkflow_1 {
 **************************/
 
 /* Comment section:
-TODO:
-  - mmseqs2
 */
 
 workflow {
-      download_db()
-      db = download_db.out
 
-      /*******************************
+      /*********** Template for subworkflows ********************
       if (params.fasta) {
         subworkflow_1(fasta_input_ch, db)
       }
-      ********************************/
+      ***********************************************************/
 
       prokka_annotation(fasta_input_ch)
       prokka_out_ch = prokka_annotation.out
+
+      query_fasta(prokka_out_ch)
+      query_fasta_out_ch = query_fasta.out
+      query_fasta_out_ch.view()
+
+      get_db()
+      db = get_db.out
+
 
 
 }

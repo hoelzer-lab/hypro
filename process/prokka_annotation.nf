@@ -7,17 +7,18 @@ publishDir:   Publish all process output files that match the pattern into defin
 
 process prokka_annotation {
   label 'prokka'
-  publishDir "${params.output}/prokka/", mode: 'copy'
+  publishDir "${params.output}/", mode: 'copy'
 
   input:
   tuple val(name), file(fasta)
 
   output:
-  file "${name}*"
+  tuple val(name), file("prokka.tar.gz")
 
   script:
   """
-  prokka --prefix ${name} ${fasta}
+  prokka --prefix ${name} --outdir prokka ${fasta}
+  tar czvf prokka.tar.gz prokka/
   """
 
 }

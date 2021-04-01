@@ -21,7 +21,7 @@ function is_indexed(){
 				# echo "${filepath} corrupted"
 				# echo 'Database Index is corrupted. Try to rebuild the index...'
 				return 1
-				echo 'Still in'	
+				echo 'Still in'
 			fi
 		done
 		# echo ${DN}
@@ -49,7 +49,7 @@ function created_querydb(){
 			else
 				# echo "${filepath} corrupted"
 				# echo 'Database Index is corrupted. Try to rebuild the index...'
-				return 1	
+				return 1
 			fi
 		done
 		# echo ${DN}
@@ -77,7 +77,7 @@ function created_resultsdb(){
 			else
 				# echo "${filepath} corrupted"
 				# echo 'Database Index is corrupted. Try to rebuild the index...'
-				return 1	
+				return 1
 			fi
 		done
 		echo ${DN}
@@ -110,7 +110,7 @@ mkdir -p ${TMP}
 mkdir -p "${path}/final_outs"
 mkdir -p ${RPREFIX}
 
-created_querydb ${DBTYPE} ${QUERYDB}	# if all query_db files exist and are non-zero , skip 
+created_querydb ${DBTYPE} ${QUERYDB}	# if all query_db files exist and are non-zero , skip
 if [ "$?" -eq 0 ]
 then
 	echo 'Found a valid querydb. Skip creating query_db...'
@@ -120,7 +120,7 @@ then
 fi
 
 
-created_resultsdb ${DBTYPE} ${TARGETDB}	# if all results_db files exist and are non-zero , skip 
+created_resultsdb ${DBTYPE} ${TARGETDB}	# if all results_db files exist and are non-zero , skip
 if [ "$?" -eq 0 ]
 then
 	echo 'Found a valid targetdb. Skip creating target_db...'
