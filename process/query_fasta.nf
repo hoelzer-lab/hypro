@@ -1,10 +1,12 @@
 /* Comment section:
-  - Create query.fasta from prokka output (.ffn and .gff file)
-    using load_gff(), is_Hyprot(), save_HyProt(), query_fasta(), load_fasta()
-    from hypro script
-  TODO:
+  - python script:
+    load_gff()
+    is_Hyprot()
+    save_HyProt()
+    query_fasta()
+    load_fasta()
   - For users with no python installed: conda env in order to use python??
-  - Include hypothetical proteins into output channel (HyProt_content etc. from python script)
+  - Add output channel for hypothetical proteins (HyProt_content, HyProt_loc, gff_content)
 */
 
 process query_fasta {

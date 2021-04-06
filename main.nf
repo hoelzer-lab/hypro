@@ -59,9 +59,11 @@ if (params.fasta && params.list) { fasta_input_ch = Channel
 
 include { module1 } from './process/module1'
 include { module2 } from './process/module2'
-include { download_db }    from './process/download_db'
 include { prokka_annotation } from './process/prokka_annotation'
 include { query_fasta } from './process/query_fasta'
+include { download_db } from './process/download_db'
+include { mmseqs2 } from './process/mmseqs2'
+//include { update_prokka } from './process/update_prokka'
 
 
 /**************************
@@ -75,8 +77,7 @@ It is written for local use and hpc/cloud use via params.cloudProcess.
 
 workflow get_db {
   main:
-    /* TODO: check if db already exists
-    db_preload = file("${params.databases}/${params.database}/*{.fasta,.txt}")
+    db_preload = file("${params.databases}/${params.database}/${params.database}.fasta")
     // local storage via storeDir
     if (!params.cloudProcess) {
       if ( db_preload.exists() ) { db = db_preload}
@@ -87,9 +88,7 @@ workflow get_db {
       if (db_preload.exists()) { db = db_preload }
       else  { download_db(); db = download_db.out }
     }
-    */
-    download_db()
-    db = download_db.out
+
   emit: db
 }
 
@@ -124,17 +123,30 @@ workflow {
       }
       ***********************************************************/
 
+      // run prokka annotation
       prokka_annotation(fasta_input_ch)
       prokka_out_ch = prokka_annotation.out
+      prokka_out_ch.view()
 
+
+      // create input fasta for mmseqs2
       query_fasta(prokka_out_ch)
       query_fasta_out_ch = query_fasta.out
       query_fasta_out_ch.view()
 
+      // download query database for mmseqs2
       get_db()
-      db = get_db.out
+      query_db = get_db.out
+      query_db.view()
 
+      // run mmseqs2
+      mmseqs2(query_db, query_fasta_out_ch)
+      id_alninfo = mmseqs2.out
+      id_alninfo.view()
 
+      /* Next: update prokka annotation with mmseqs2 output
+
+      */
 
 }
 
