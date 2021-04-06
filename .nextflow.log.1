@@ -1,0 +1,143 @@
+Apr-01 12:53:20.394 [main] DEBUG nextflow.cli.Launcher - $> nextflow run main.nf -profile local,conda --fasta test/data/GCF_000471025.2_ASM47102v2_genomic.fna --database uniprotkb -resume
+Apr-01 12:53:20.745 [main] INFO  nextflow.cli.CmdRun - N E X T F L O W  ~  version 20.10.0
+Apr-01 12:53:20.769 [main] INFO  nextflow.cli.CmdRun - Launching `main.nf` [agitated_venter] - revision: 25a2cee39e
+Apr-01 12:53:20.851 [main] DEBUG nextflow.config.ConfigBuilder - Found config local: /Volumes/UNTITLED/RKI/MartinHölzer/hypro/nextflow.config
+Apr-01 12:53:20.851 [main] DEBUG nextflow.config.ConfigBuilder - Parsing config file: /Volumes/UNTITLED/RKI/MartinHölzer/hypro/nextflow.config
+Apr-01 12:53:20.889 [main] DEBUG nextflow.config.ConfigBuilder - Applying config profile: `local,conda`
+Apr-01 12:53:22.715 [main] DEBUG nextflow.config.ConfigBuilder - Available config profiles: [standard, conda, singularity, local, lsf, docker]
+Apr-01 12:53:22.794 [main] DEBUG nextflow.Session - Session uuid: b2fe948d-adea-4b43-9ea6-0afe5e05bc17
+Apr-01 12:53:22.794 [main] DEBUG nextflow.Session - Run name: agitated_venter
+Apr-01 12:53:22.795 [main] DEBUG nextflow.Session - Executor pool size: 4
+Apr-01 12:53:22.832 [main] DEBUG nextflow.cli.CmdRun - 
+  Version: 20.10.0 build 5430
+  Created: 01-11-2020 15:14 UTC (16:14 MESZ)
+  System: Mac OS X 10.15.7
+  Runtime: Groovy 3.0.5 on Java HotSpot(TM) 64-Bit Server VM 1.8.0_91-b14
+  Encoding: UTF-8 (UTF-8)
+  Process: 67051@EMP.fritz.box [192.168.178.36]
+  CPUs: 4 - Mem: 8 GB (121 MB) - Swap: 3 GB (1 GB)
+Apr-01 12:53:22.883 [main] DEBUG nextflow.Session - Work-dir: /tmp/nextflow-eukaryotic-Eva [Mac OS X]
+Apr-01 12:53:22.988 [main] DEBUG nextflow.Session - Observer factory: TowerFactory
+Apr-01 12:53:22.992 [main] DEBUG nextflow.Session - Observer factory: DefaultObserverFactory
+Apr-01 12:53:23.784 [main] DEBUG nextflow.Session - Session start invoked
+Apr-01 12:53:24.623 [main] DEBUG nextflow.script.ScriptRunner - > Launching execution
+Apr-01 12:53:24.655 [main] INFO  nextflow.Nextflow - 
+[1;30m______________________________________[0m
+
+[36mWorkflow: TEMPLATE[0m
+[1;30m______________________________________[0m
+Profile:                local,conda
+Current User:           Eva
+Nextflow-version:       20.10.0
+Starting time:          01-11-2020 15:14 UTC
+Workflow hash:          null
+
+    --workdir           /tmp/nextflow-eukaryotic-Eva
+    --databases         nextflow-autodownload-databases
+    --output            results
+    --cores             2
+    --max_cores         4
+    --memory            2
+    --cachedir          conda
+[1;30m______________________________________[0m
+
+Apr-01 12:53:26.008 [main] DEBUG nextflow.Session - Workflow process names [dsl2]: prokka_annotation, download_db, module1, query_fasta, module2
+Apr-01 12:53:26.133 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withLabel:prokka` matches label `prokka` for process with name prokka_annotation
+Apr-01 12:53:26.260 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: local
+Apr-01 12:53:26.261 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Apr-01 12:53:26.268 [main] DEBUG nextflow.executor.Executor - [warm up] executor > local
+Apr-01 12:53:26.275 [main] DEBUG n.processor.LocalPollingMonitor - Creating local task monitor for executor 'local' > cpus=4; memory=8 GB; capacity=4; pollInterval=100ms; dumpInterval=5m
+Apr-01 12:53:26.440 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: local
+Apr-01 12:53:26.440 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Apr-01 12:53:26.477 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: local
+Apr-01 12:53:26.477 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Apr-01 12:53:26.482 [main] DEBUG nextflow.Session - Ignite dataflow network (4)
+Apr-01 12:53:26.541 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > prokka_annotation
+Apr-01 12:53:26.543 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > query_fasta
+Apr-01 12:53:26.545 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > get_db:download_db
+Apr-01 12:53:26.546 [main] DEBUG nextflow.script.ScriptRunner - > Await termination 
+Apr-01 12:53:26.546 [main] DEBUG nextflow.Session - Session await
+Apr-01 12:53:26.797 [Actor Thread 4] ERROR nextflow.processor.TaskProcessor - Error executing process > 'get_db:download_db'
+
+Caused by:
+  No signature of method: nextflow.script.ScriptBinding.$() is applicable for argument types: () values: []
+Possible solutions: is(java.lang.Object), any(), any(groovy.lang.Closure), use([Ljava.lang.Object;), tap(groovy.lang.Closure), use(java.lang.Class, groovy.lang.Closure)
+
+Source block:
+  if( ${params.database} == 'uniprotkb' )
+        """
+        #!/bin/bash
+        wget ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz
+        gunzip uniprot_sprot.fasta.gz
+        db_out=uniprot_sprot.fasta
+        mkdir -p target_db
+        """
+  
+      else if( ${params.database} == 'uniref100' )
+        """
+        #!/bin/bash
+        wget ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref100/uniref100.fasta.gz
+        gunzip uniref100.fasta.gz
+        db_out=uniref100.fasta
+        mkdir -p target_db
+        """
+  
+      else if( ${params.database} == 'uniref90' )
+        """
+        #!/bin/bash
+        wget ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref90/uniref90.fasta.gz
+        gunzip uniref90.fasta.gz
+        db_out=uniref90.fasta
+        mkdir -p target_db
+        """
+  
+      else if( ${params.database} == 'uniref50' )
+        """
+        #!/bin/bash
+        wget ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref50/uniref50.fasta.gz
+        gunzip uniref50.fasta.gz
+        db_out=uniref50.fasta
+        mkdir -p target_db
+        """
+  
+      else if( ${params.database} == 'pdb' )
+        """
+        #!/bin/bash
+        wget ftp://ftp.wwpdb.org/pub/pdb/derived_data/pdb_seqres.txt.gz
+        gunzip pdb_seqres.txt.gz
+        db_out=pdb_seqres.txt
+        mkdir -p target_db
+        """
+  
+      else
+        error "Invalid database type ${params.database}"
+
+Tip: when you have fixed the problem you can continue the execution adding the option `-resume` to the run command line
+Apr-01 12:53:26.806 [Actor Thread 4] DEBUG nextflow.Session - Session aborted -- Cause: Process `null` script contains error(s)
+Apr-01 12:53:26.851 [Actor Thread 4] DEBUG nextflow.Session - The following nodes are still active:
+[process] prokka_annotation
+  status=ACTIVE
+  port 0: (queue) closed; channel: -
+  port 1: (cntrl) -     ; channel: $
+
+[process] query_fasta
+  status=ACTIVE
+  port 0: (queue) OPEN  ; channel: -
+  port 1: (cntrl) -     ; channel: $
+
+[process] get_db:download_db
+  status=ACTIVE
+  port 0: (cntrl) -     ; channel: $
+
+Apr-01 12:53:26.856 [main] DEBUG nextflow.Session - Session await > all process finished
+Apr-01 12:53:26.857 [main] DEBUG nextflow.Session - Session await > all barriers passed
+Apr-01 12:53:26.882 [main] DEBUG nextflow.trace.WorkflowStatsObserver - Workflow completed > WorkflowStats[succeededCount=0; failedCount=0; ignoredCount=0; cachedCount=0; pendingCount=0; submittedCount=0; runningCount=0; retriesCount=0; abortedCount=0; succeedDuration=0ms; failedDuration=0ms; cachedDuration=0ms;loadCpus=0; loadMemory=0; peakRunning=0; peakCpus=0; peakMemory=0; ]
+Apr-01 12:53:26.882 [main] DEBUG nextflow.trace.ReportObserver - Flow completing -- rendering html report
+Apr-01 12:53:26.900 [main] DEBUG nextflow.trace.ReportObserver - Execution report summary data:
+  []
+Apr-01 12:53:26.924 [Actor Thread 5] DEBUG nextflow.conda.CondaCache - Conda found local env for environment=envs/prokka.yaml; path=/tmp/nextflow-eukaryotic-Eva/conda/prokka-7da6ca4b52a12c6127d4dd9ddaa3d345
+Apr-01 12:53:27.545 [Actor Thread 6] INFO  nextflow.processor.TaskProcessor - [c5/33ad4a] Cached process > prokka_annotation (1)
+Apr-01 12:53:27.647 [Actor Thread 6] DEBUG n.util.BlockingThreadExecutorFactory - Thread pool name=FileTransfer; maxThreads=12; maxQueueSize=36; keepAlive=1m
+Apr-01 12:53:30.527 [main] DEBUG nextflow.trace.TimelineObserver - Flow completing -- rendering html timeline
+Apr-01 12:53:31.276 [main] DEBUG nextflow.CacheDB - Closing CacheDB done
+Apr-01 12:53:31.314 [main] DEBUG nextflow.script.ScriptRunner - > Execution complete -- Goodbye

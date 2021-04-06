@@ -97,6 +97,7 @@
 2021-04-01 12:52:58	-	reverent_colden	-	eb4b03e04ffe1b762c24335a836666db	b2fe948d-adea-4b43-9ea6-0afe5e05bc17	nextflow run main.nf -profile local,conda --fasta test/data/GCF_000471025.2_ASM47102v2_genomic.fna --database uniprotkb -resume
 2021-04-01 12:53:22	9.3s	agitated_venter	ERR	25a2cee39edf84989c9e99a021ce87ee	b2fe948d-adea-4b43-9ea6-0afe5e05bc17	nextflow run main.nf -profile local,conda --fasta test/data/GCF_000471025.2_ASM47102v2_genomic.fna --database uniprotkb -resume
 2021-04-01 12:55:41	6.6s	jovial_engelbart	ERR	25a2cee39edf84989c9e99a021ce87ee	b2fe948d-adea-4b43-9ea6-0afe5e05bc17	nextflow run main.nf -profile local,conda --fasta test/data/GCF_000471025.2_ASM47102v2_genomic.fna --database uniprotkb -resume
+<<<<<<< HEAD
 2021-04-06 10:51:28	7.2s	compassionate_goodall	ERR	05dcab10e563d930ad552c0875ed0ca0	b2fe948d-adea-4b43-9ea6-0afe5e05bc17	nextflow run main.nf -profile local,conda --fasta test/data/GCF_000471025.2_ASM47102v2_genomic.fna --database uniprotkb -resume
 2021-04-06 10:52:57	17.1s	crazy_gilbert	ERR	05dcab10e563d930ad552c0875ed0ca0	b2fe948d-adea-4b43-9ea6-0afe5e05bc17	nextflow run main.nf -profile local,conda --fasta test/data/GCF_000471025.2_ASM47102v2_genomic.fna --database uniprotkb -resume
 2021-04-06 10:57:09	7.4s	small_linnaeus	ERR	05dcab10e563d930ad552c0875ed0ca0	b2fe948d-adea-4b43-9ea6-0afe5e05bc17	nextflow run main.nf -profile local,conda --fasta test/data/GCF_000471025.2_ASM47102v2_genomic.fna --database uniprotkb -resume
@@ -137,3 +138,5 @@
 2021-04-06 16:47:04	13.5s	soggy_picasso	ERR	004062f1d440f48243f3a2638031deda	ba80d834-2ab1-4b41-a0fd-6d4d7b601bbc	nextflow run main.nf -profile conda,local --fasta test/data/GCF_000471025.2_ASM47102v2_genomic.fna --database uniprotkb -resume
 2021-04-06 16:49:13	17.6s	evil_lichterman	ERR	1112e0801bba7aab8d7efd2cc0902e5d	ba80d834-2ab1-4b41-a0fd-6d4d7b601bbc	nextflow run main.nf -profile conda,local --fasta test/data/GCF_000471025.2_ASM47102v2_genomic.fna --database uniprotkb -resume
 2021-04-06 16:52:54	11.1s	intergalactic_gilbert	ERR	1112e0801bba7aab8d7efd2cc0902e5d	ba80d834-2ab1-4b41-a0fd-6d4d7b601bbc	nextflow run main.nf -profile conda,local --fasta test/data/GCF_000471025.2_ASM47102v2_genomic.fna --database uniprotkb -resume
+=======
+>>>>>>> e6af400d2be5dded651a8991eb63d177f013bb90

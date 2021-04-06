@@ -18,19 +18,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<<<<<<< HEAD
-  <meta name="description" content="Nextflow workflow report for run id [pedantic_kalam]">
+  <meta name="description" content="Nextflow workflow report for run id [mighty_cray]">
   <meta name="author" content="Paolo Di Tommaso, Phil Ewels">
   <link rel="icon" type="image/png" href="https://www.nextflow.io/img/favicon.png" />
 
-  <title>[pedantic_kalam] Nextflow Workflow Report</title>
-=======
-  <meta name="description" content="Nextflow workflow report for run id [pensive_perlman]">
-  <meta name="author" content="Paolo Di Tommaso, Phil Ewels">
-  <link rel="icon" type="image/png" href="https://www.nextflow.io/img/favicon.png" />
-
-  <title>[pensive_perlman] Nextflow Workflow Report</title>
->>>>>>> e6af400d2be5dded651a8991eb63d177f013bb90
+  <title>[mighty_cray] Nextflow Workflow Report</title>
 
   <style type="text/css">
   /*!
@@ -145,11 +137,7 @@ table.DTCR_clonedTable.dataTable{position:absolute !important;background-color:r
         <li class="nav-item"><a class="nav-link" href="#tasks">Tasks</a></li>
       </ul>
       <span class="navbar-text">
-<<<<<<< HEAD
-        [pedantic_kalam]
-=======
-        [pensive_perlman]
->>>>>>> e6af400d2be5dded651a8991eb63d177f013bb90
+        [mighty_cray]
       </span>
     </div>
   </nav>
@@ -158,81 +146,74 @@ table.DTCR_clonedTable.dataTable{position:absolute !important;background-color:r
     <div class="container">
 
       <h1 class="display-3">Nextflow workflow report</h1>
-<<<<<<< HEAD
-      <h2 class="text-muted mb-4"><samp>[pedantic_kalam]</samp> </h2>
+      <h2 class="text-muted mb-4"><samp>[mighty_cray]</samp> <em>(resumed run)</em></h2>
 
       
           <div class="alert alert-danger mb-4">
               <h4>Workflow execution completed unsuccessfully!</h4>
-              <p>The exit status of the task that caused the workflow execution to fail was: <code>127</code>.</p>
+              <p>The exit status of the task that caused the workflow execution to fail was: <code>1</code>.</p>
               <p>The full error message was:</p>
-              <pre>Error executing process > 'prokka_annotation (1)'
+              <pre>Error executing process > 'query_fasta (1)'
 
 Caused by:
-  Process `prokka_annotation (1)` terminated with an error exit status (127)
+  Process `query_fasta (1)` terminated with an error exit status (1)
 
 Command executed:
 
-  prokka --prefix GCF_000471025.2_ASM47102v2_genomic --outdir prokka GCF_000471025.2_ASM47102v2_genomic.fna
-  tar czvf prokka.tar.gz prokka/
+  tar -xzvf prokka.tar.gz
+  query_fasta.py -gff prokka/GCF_000471025.2_ASM47102v2_genomic.gff -ffn prokka/GCF_000471025.2_ASM47102v2_genomic.ffn -m full -o .
 
 Command exit status:
-  127
+  1
 
 Command output:
   (empty)
 
 Command error:
-  .command.sh: line 2: prokka: command not found
+  x prokka/
+  x prokka/GCF_000471025.2_ASM47102v2_genomic.gbk
+  x prokka/GCF_000471025.2_ASM47102v2_genomic.ffn
+  x prokka/GCF_000471025.2_ASM47102v2_genomic.log
+  x prokka/GCF_000471025.2_ASM47102v2_genomic.faa
+  x prokka/GCF_000471025.2_ASM47102v2_genomic.fsa
+  x prokka/GCF_000471025.2_ASM47102v2_genomic.txt
+  x prokka/GCF_000471025.2_ASM47102v2_genomic.err
+  x prokka/GCF_000471025.2_ASM47102v2_genomic.fna
+  x prokka/GCF_000471025.2_ASM47102v2_genomic.tsv
+  x prokka/GCF_000471025.2_ASM47102v2_genomic.gbf-r
+  x prokka/GCF_000471025.2_ASM47102v2_genomic.sqn
+  x prokka/GCF_000471025.2_ASM47102v2_genomic.tbl
+  x prokka/GCF_000471025.2_ASM47102v2_genomic.gff
+  Traceback (most recent call last):
+    File "/Volumes/UNTITLED/RKI/MartinHölzer/hypro/bin/query_fasta.py", line 5, in <module>
+      import mygene
+  ModuleNotFoundError: No module named 'mygene'
 
 Work dir:
-  /tmp/nextflow-eukaryotic-Eva/ce/0531fc99f33bead8e2a3a759b9e1a3
+  /tmp/nextflow-eukaryotic-Eva/a4/42741de1b10408f12bff6ba8b5224a
 
-Tip: view the complete command output by changing to the process work dir and entering the command `cat .command.out`</pre>
-=======
-      <h2 class="text-muted mb-4"><samp>[pensive_perlman]</samp> <em>(resumed run)</em></h2>
-
-      
-          <div class="alert alert-success mb-4">
-              Workflow execution completed successfully!
->>>>>>> e6af400d2be5dded651a8991eb63d177f013bb90
+Tip: you can try to figure out what's wrong by changing to the process work dir and showing the script file named `.command.sh`</pre>
           </div>
       
 
       <dl>
         <dt>Run times</dt>
         <dd>
-<<<<<<< HEAD
-          <span id="workflow_start">06-Apr-2021 14:33:49</span> - <span id="workflow_complete">06-Apr-2021 14:33:55</span>
-          (<span id="completed_fromnow"></span>duration: <strong>6s</strong>)
-=======
-          <span id="workflow_start">31-Mär-2021 15:30:50</span> - <span id="workflow_complete">31-Mär-2021 15:30:56</span>
-          (<span id="completed_fromnow"></span>duration: <strong>6.1s</strong>)
->>>>>>> e6af400d2be5dded651a8991eb63d177f013bb90
+          <span id="workflow_start">31-Mär-2021 14:05:35</span> - <span id="workflow_complete">31-Mär-2021 14:05:40</span>
+          (<span id="completed_fromnow"></span>duration: <strong>4.5s</strong>)
         </dd>
 
         <dl>
           <div class="progress" style="height: 1.6rem; margin: 1.2rem auto; border-radius: 0.20rem;">
-<<<<<<< HEAD
             <div style="width: 0.0%" class="progress-bar bg-success" data-toggle="tooltip" data-placement="top" title="0 tasks succeeded"><span class="text-truncate">&nbsp; 0 succeeded &nbsp;</span></div>
-            <div style="width: 0.0%" class="progress-bar bg-secondary" data-toggle="tooltip" data-placement="top" title="0 tasks were cached"><span class="text-truncate">&nbsp; 0 cached &nbsp;</span></div>
-            <div style="width: 0.0%" class="progress-bar bg-warning" data-toggle="tooltip" data-placement="top" title="0 tasks reported and error and were ignored"><span class="text-truncate">&nbsp; 0 ignored &nbsp;</span></div>
-            <div style="width: 100.0%" class="progress-bar bg-danger" data-toggle="tooltip" data-placement="top" title="1 tasks failed"><span class="text-truncate">&nbsp; 1 failed &nbsp;</span></div>
-=======
-            <div style="width: 50.0%" class="progress-bar bg-success" data-toggle="tooltip" data-placement="top" title="1 tasks succeeded"><span class="text-truncate">&nbsp; 1 succeeded &nbsp;</span></div>
             <div style="width: 50.0%" class="progress-bar bg-secondary" data-toggle="tooltip" data-placement="top" title="1 tasks were cached"><span class="text-truncate">&nbsp; 1 cached &nbsp;</span></div>
             <div style="width: 0.0%" class="progress-bar bg-warning" data-toggle="tooltip" data-placement="top" title="0 tasks reported and error and were ignored"><span class="text-truncate">&nbsp; 0 ignored &nbsp;</span></div>
-            <div style="width: 0.0%" class="progress-bar bg-danger" data-toggle="tooltip" data-placement="top" title="0 tasks failed"><span class="text-truncate">&nbsp; 0 failed &nbsp;</span></div>
->>>>>>> e6af400d2be5dded651a8991eb63d177f013bb90
+            <div style="width: 50.0%" class="progress-bar bg-danger" data-toggle="tooltip" data-placement="top" title="1 tasks failed"><span class="text-truncate">&nbsp; 1 failed &nbsp;</span></div>
           </div>
         </dl>
 
         <dt>Nextflow command</dt>
-<<<<<<< HEAD
-        <dd><pre class="nfcommand"><code>nextflow run main.nf -profile conda,local --fasta test/data/GCF_000471025.2_ASM47102v2_genomic.fna</code></pre></dd>
-=======
         <dd><pre class="nfcommand"><code>nextflow run main.nf --fasta test/data/GCF_000471025.2_ASM47102v2_genomic.fna -profile conda,local -resume</code></pre></dd>
->>>>>>> e6af400d2be5dded651a8991eb63d177f013bb90
       </dl>
 
       <dl class="row small">
@@ -255,19 +236,11 @@ Tip: view the complete command output by changing to the process work dir and en
 
         
           <dt class="col-sm-3">Script ID</dt>
-<<<<<<< HEAD
-          <dd class="col-sm-9"><code>004062f1d440f48243f3a2638031deda</code></dd>
-        
-
-        <dt class="col-sm-3">Workflow session</dt>
-        <dd class="col-sm-9"><code>5fbec645-da64-49bc-9ac3-5563265d5ab2</code></dd>
-=======
-          <dd class="col-sm-9"><code>d16914f88ecae6aa438e698d481f5fb2</code></dd>
+          <dd class="col-sm-9"><code>f21caa3e732551eca05f6633f231d62a</code></dd>
         
 
         <dt class="col-sm-3">Workflow session</dt>
         <dd class="col-sm-9"><code>b2fe948d-adea-4b43-9ea6-0afe5e05bc17</code></dd>
->>>>>>> e6af400d2be5dded651a8991eb63d177f013bb90
 
         
 
@@ -1089,11 +1062,7 @@ $(function() {
 
   // Nextflow report data
   window.data = { "trace":[
-<<<<<<< HEAD
-{"task_id":"1","hash":"ce\/0531fc","native_id":"90177","process":"prokka_annotation","module":"-","container":"-","tag":"-","name":"prokka_annotation (1)","status":"FAILED","exit":"127","submit":"1617712434546","start":"1617712434596","complete":"1617712435444","duration":"898","realtime":"848","%cpu":"-","%mem":"-","rss":"-","vmem":"-","peak_rss":"-","peak_vmem":"-","rchar":"-","wchar":"-","syscr":"-","syscw":"-","read_bytes":"-","write_bytes":"-","attempt":"1","workdir":"\/tmp\/nextflow-eukaryotic-Eva\/ce\/0531fc99f33bead8e2a3a759b9e1a3","script":"\n  prokka --prefix GCF_000471025.2_ASM47102v2_genomic --outdir prokka GCF_000471025.2_ASM47102v2_genomic.fna\n  tar czvf prokka.tar.gz prokka\/\n  ","scratch":"-","queue":"-","cpus":"1","memory":"-","disk":"-","time":"-","env":"PATH=\/Volumes\/UNTITLED\/RKI\/MartinH\u00F6lzer\/hypro\/bin:$PATH\n","error_action":"TERMINATE","vol_ctxt":"-","inv_ctxt":"-"}], "summary":[{"cpuUsage":null,"process":"prokka_annotation","mem":null,"memUsage":null,"timeUsage":null,"vmem":null,"reads":null,"cpu":null,"time":{"mean":848,"min":848,"q1":848,"q2":848,"q3":848,"max":848,"minLabel":"prokka_annotation (1)","maxLabel":"prokka_annotation (1)","q1Label":"prokka_annotation (1)","q2Label":"prokka_annotation (1)","q3Label":"prokka_annotation (1)"},"writes":null}] };
-=======
-{"task_id":"2","hash":"c5\/33ad4a","native_id":"58959","process":"prokka_annotation","module":"-","container":"-","tag":"-","name":"prokka_annotation (1)","status":"CACHED","exit":"0","submit":"1617191784629","start":"1617191784689","complete":"1617191908709","duration":"124080","realtime":"123000","%cpu":"-","%mem":"-","rss":"-","vmem":"-","peak_rss":"-","peak_vmem":"-","rchar":"-","wchar":"-","syscr":"-","syscw":"-","read_bytes":"-","write_bytes":"-","attempt":"1","workdir":"\/tmp\/nextflow-eukaryotic-Eva\/c5\/33ad4a35d2b3409e593e0c8af7248b","script":"\n  prokka --prefix GCF_000471025.2_ASM47102v2_genomic --outdir prokka GCF_000471025.2_ASM47102v2_genomic.fna\n  tar czvf prokka.tar.gz prokka\/\n  ","scratch":"-","queue":"-","cpus":"1","memory":"-","disk":"-","time":"-","env":"PATH=\/Volumes\/UNTITLED\/RKI\/MartinH\u00F6lzer\/hypro\/bin:$PATH\n","error_action":"-","vol_ctxt":"-","inv_ctxt":"-"},{"task_id":"3","hash":"94\/9bc1ac","native_id":"60914","process":"query_fasta","module":"-","container":"-","tag":"-","name":"query_fasta (1)","status":"COMPLETED","exit":"0","submit":"1617197454967","start":"1617197455042","complete":"1617197456119","duration":"1152","realtime":"1000","%cpu":"-","%mem":"-","rss":"-","vmem":"-","peak_rss":"-","peak_vmem":"-","rchar":"-","wchar":"-","syscr":"-","syscw":"-","read_bytes":"-","write_bytes":"-","attempt":"1","workdir":"\/tmp\/nextflow-eukaryotic-Eva\/94\/9bc1acf0b239f442cde6722d1eab31","script":"\n  tar -xzvf prokka.tar.gz\n  query_fasta.py -gff prokka\/GCF_000471025.2_ASM47102v2_genomic.gff -ffn prokka\/GCF_000471025.2_ASM47102v2_genomic.ffn -m full -o .\n  ","scratch":"-","queue":"-","cpus":"1","memory":"-","disk":"-","time":"-","env":"PATH=\/Volumes\/UNTITLED\/RKI\/MartinH\u00F6lzer\/hypro\/bin:$PATH\n","error_action":"-","vol_ctxt":"-","inv_ctxt":"-"}], "summary":[{"cpuUsage":null,"process":"prokka_annotation","mem":null,"memUsage":null,"timeUsage":null,"vmem":null,"reads":null,"cpu":null,"time":{"mean":123000,"min":123000,"q1":123000,"q2":123000,"q3":123000,"max":123000,"minLabel":"prokka_annotation (1)","maxLabel":"prokka_annotation (1)","q1Label":"prokka_annotation (1)","q2Label":"prokka_annotation (1)","q3Label":"prokka_annotation (1)"},"writes":null},{"cpuUsage":null,"process":"query_fasta","mem":null,"memUsage":null,"timeUsage":null,"vmem":null,"reads":null,"cpu":null,"time":{"mean":1000,"min":1000,"q1":1000,"q2":1000,"q3":1000,"max":1000,"minLabel":"query_fasta (1)","maxLabel":"query_fasta (1)","q1Label":"query_fasta (1)","q2Label":"query_fasta (1)","q3Label":"query_fasta (1)"},"writes":null}] };
->>>>>>> e6af400d2be5dded651a8991eb63d177f013bb90
+{"task_id":"2","hash":"c5\/33ad4a","native_id":"58959","process":"prokka_annotation","module":"-","container":"-","tag":"-","name":"prokka_annotation (1)","status":"CACHED","exit":"0","submit":"1617191784629","start":"1617191784689","complete":"1617191908709","duration":"124080","realtime":"123000","%cpu":"-","%mem":"-","rss":"-","vmem":"-","peak_rss":"-","peak_vmem":"-","rchar":"-","wchar":"-","syscr":"-","syscw":"-","read_bytes":"-","write_bytes":"-","attempt":"1","workdir":"\/tmp\/nextflow-eukaryotic-Eva\/c5\/33ad4a35d2b3409e593e0c8af7248b","script":"\n  prokka --prefix GCF_000471025.2_ASM47102v2_genomic --outdir prokka GCF_000471025.2_ASM47102v2_genomic.fna\n  tar czvf prokka.tar.gz prokka\/\n  ","scratch":"-","queue":"-","cpus":"1","memory":"-","disk":"-","time":"-","env":"PATH=\/Volumes\/UNTITLED\/RKI\/MartinH\u00F6lzer\/hypro\/bin:$PATH\n","error_action":"-","vol_ctxt":"-","inv_ctxt":"-"},{"task_id":"3","hash":"a4\/42741d","native_id":"59599","process":"query_fasta","module":"-","container":"-","tag":"-","name":"query_fasta (1)","status":"FAILED","exit":"1","submit":"1617192339381","start":"1617192339489","complete":"1617192339982","duration":"601","realtime":"493","%cpu":"-","%mem":"-","rss":"-","vmem":"-","peak_rss":"-","peak_vmem":"-","rchar":"-","wchar":"-","syscr":"-","syscw":"-","read_bytes":"-","write_bytes":"-","attempt":"1","workdir":"\/tmp\/nextflow-eukaryotic-Eva\/a4\/42741de1b10408f12bff6ba8b5224a","script":"\n  tar -xzvf prokka.tar.gz\n  query_fasta.py -gff prokka\/GCF_000471025.2_ASM47102v2_genomic.gff -ffn prokka\/GCF_000471025.2_ASM47102v2_genomic.ffn -m full -o .\n  ","scratch":"-","queue":"-","cpus":"1","memory":"-","disk":"-","time":"-","env":"PATH=\/Volumes\/UNTITLED\/RKI\/MartinH\u00F6lzer\/hypro\/bin:$PATH\n","error_action":"TERMINATE","vol_ctxt":"-","inv_ctxt":"-"}], "summary":[{"cpuUsage":null,"process":"prokka_annotation","mem":null,"memUsage":null,"timeUsage":null,"vmem":null,"reads":null,"cpu":null,"time":{"mean":123000,"min":123000,"q1":123000,"q2":123000,"q3":123000,"max":123000,"minLabel":"prokka_annotation (1)","maxLabel":"prokka_annotation (1)","q1Label":"prokka_annotation (1)","q2Label":"prokka_annotation (1)","q3Label":"prokka_annotation (1)"},"writes":null},{"cpuUsage":null,"process":"query_fasta","mem":null,"memUsage":null,"timeUsage":null,"vmem":null,"reads":null,"cpu":null,"time":{"mean":493,"min":493,"q1":493,"q2":493,"q3":493,"max":493,"minLabel":"query_fasta (1)","maxLabel":"query_fasta (1)","q1Label":"query_fasta (1)","q2Label":"query_fasta (1)","q3Label":"query_fasta (1)"},"writes":null}] };
 
   </script>
 

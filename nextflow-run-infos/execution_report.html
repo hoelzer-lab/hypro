@@ -18,11 +18,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<<<<<<< HEAD
   <meta name="description" content="Nextflow workflow report for run id [intergalactic_gilbert]">
   <meta name="author" content="Paolo Di Tommaso, Phil Ewels">
   <link rel="icon" type="image/png" href="https://www.nextflow.io/img/favicon.png" />
 
   <title>[intergalactic_gilbert] Nextflow Workflow Report</title>
+=======
+  <meta name="description" content="Nextflow workflow report for run id [jovial_engelbart]">
+  <meta name="author" content="Paolo Di Tommaso, Phil Ewels">
+  <link rel="icon" type="image/png" href="https://www.nextflow.io/img/favicon.png" />
+
+  <title>[jovial_engelbart] Nextflow Workflow Report</title>
+>>>>>>> e6af400d2be5dded651a8991eb63d177f013bb90
 
   <style type="text/css">
   /*!
@@ -137,7 +145,11 @@ table.DTCR_clonedTable.dataTable{position:absolute !important;background-color:r
         <li class="nav-item"><a class="nav-link" href="#tasks">Tasks</a></li>
       </ul>
       <span class="navbar-text">
+<<<<<<< HEAD
         [intergalactic_gilbert]
+=======
+        [jovial_engelbart]
+>>>>>>> e6af400d2be5dded651a8991eb63d177f013bb90
       </span>
     </div>
   </nav>
@@ -146,11 +158,16 @@ table.DTCR_clonedTable.dataTable{position:absolute !important;background-color:r
     <div class="container">
 
       <h1 class="display-3">Nextflow workflow report</h1>
+<<<<<<< HEAD
       <h2 class="text-muted mb-4"><samp>[intergalactic_gilbert]</samp> <em>(resumed run)</em></h2>
+=======
+      <h2 class="text-muted mb-4"><samp>[jovial_engelbart]</samp> <em>(resumed run)</em></h2>
+>>>>>>> e6af400d2be5dded651a8991eb63d177f013bb90
 
       
           <div class="alert alert-danger mb-4">
               <h4>Workflow execution completed unsuccessfully!</h4>
+<<<<<<< HEAD
               <p>The exit status of the task that caused the workflow execution to fail was: <code>127</code>.</p>
               <p>The full error message was:</p>
               <pre>Error executing process > 'prokka_annotation (1)'
@@ -176,14 +193,74 @@ Work dir:
   /tmp/nextflow-eukaryotic-Eva/a9/c2a26d4c69baa25198ca5587c00449
 
 Tip: you can try to figure out what's wrong by changing to the process work dir and showing the script file named `.command.sh`</pre>
+=======
+              <p>The exit status of the task that caused the workflow execution to fail was: <code>null</code>.</p>
+              <p>The full error message was:</p>
+              <pre>Error executing process > 'get_db:download_db'
+
+Caused by:
+  No signature of method: nextflow.script.ScriptBinding.$() is applicable for argument types: () values: []
+Possible solutions: is(java.lang.Object), any(), any(groovy.lang.Closure), use([Ljava.lang.Object;), tap(groovy.lang.Closure), use(java.lang.Class, groovy.lang.Closure)
+
+Source block:
+  if( ${params.database} == 'uniprotkb' )
+        """
+        wget ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz
+        gunzip uniprot_sprot.fasta.gz
+        db_out=uniprot_sprot.fasta
+        mkdir -p target_db
+        """
+  
+      else if( ${params.database} == 'uniref100' )
+        """
+        wget ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref100/uniref100.fasta.gz
+        gunzip uniref100.fasta.gz
+        db_out=uniref100.fasta
+        mkdir -p target_db
+        """
+  
+      else if( ${params.database} == 'uniref90' )
+        """
+        wget ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref90/uniref90.fasta.gz
+        gunzip uniref90.fasta.gz
+        db_out=uniref90.fasta
+        mkdir -p target_db
+        """
+  
+      else if( ${params.database} == 'uniref50' )
+        """
+        wget ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref50/uniref50.fasta.gz
+        gunzip uniref50.fasta.gz
+        db_out=uniref50.fasta
+        mkdir -p target_db
+        """
+  
+      else if( ${params.database} == 'pdb' )
+        """
+        wget ftp://ftp.wwpdb.org/pub/pdb/derived_data/pdb_seqres.txt.gz
+        gunzip pdb_seqres.txt.gz
+        db_out=pdb_seqres.txt
+        mkdir -p target_db
+        """
+  
+      else
+        error "Invalid database type ${params.database}"
+
+Tip: when you have fixed the problem you can continue the execution adding the option `-resume` to the run command line</pre>
+>>>>>>> e6af400d2be5dded651a8991eb63d177f013bb90
           </div>
       
 
       <dl>
         <dt>Run times</dt>
         <dd>
+<<<<<<< HEAD
           <span id="workflow_start">06-Apr-2021 16:52:55</span> - <span id="workflow_complete">06-Apr-2021 16:53:01</span>
           (<span id="completed_fromnow"></span>duration: <strong>6s</strong>)
+=======
+          <span id="workflow_start">01-Apr-2021 12:55:42</span> - <span id="workflow_complete">01-Apr-2021 12:55:45</span>
+          (<span id="completed_fromnow"></span>duration: <strong>3s</strong>)
+>>>>>>> e6af400d2be5dded651a8991eb63d177f013bb90
         </dd>
 
         <dl>
@@ -191,12 +268,20 @@ Tip: you can try to figure out what's wrong by changing to the process work dir 
             <div style="width: 0.0%" class="progress-bar bg-success" data-toggle="tooltip" data-placement="top" title="0 tasks succeeded"><span class="text-truncate">&nbsp; 0 succeeded &nbsp;</span></div>
             <div style="width: 0.0%" class="progress-bar bg-secondary" data-toggle="tooltip" data-placement="top" title="0 tasks were cached"><span class="text-truncate">&nbsp; 0 cached &nbsp;</span></div>
             <div style="width: 0.0%" class="progress-bar bg-warning" data-toggle="tooltip" data-placement="top" title="0 tasks reported and error and were ignored"><span class="text-truncate">&nbsp; 0 ignored &nbsp;</span></div>
+<<<<<<< HEAD
             <div style="width: 100.0%" class="progress-bar bg-danger" data-toggle="tooltip" data-placement="top" title="1 tasks failed"><span class="text-truncate">&nbsp; 1 failed &nbsp;</span></div>
+=======
+            <div style="width: 0.0%" class="progress-bar bg-danger" data-toggle="tooltip" data-placement="top" title="0 tasks failed"><span class="text-truncate">&nbsp; 0 failed &nbsp;</span></div>
+>>>>>>> e6af400d2be5dded651a8991eb63d177f013bb90
           </div>
         </dl>
 
         <dt>Nextflow command</dt>
+<<<<<<< HEAD
         <dd><pre class="nfcommand"><code>nextflow run main.nf -profile conda,local --fasta test/data/GCF_000471025.2_ASM47102v2_genomic.fna --database uniprotkb -resume</code></pre></dd>
+=======
+        <dd><pre class="nfcommand"><code>nextflow run main.nf -profile local,conda --fasta test/data/GCF_000471025.2_ASM47102v2_genomic.fna --database uniprotkb -resume</code></pre></dd>
+>>>>>>> e6af400d2be5dded651a8991eb63d177f013bb90
       </dl>
 
       <dl class="row small">
@@ -219,16 +304,28 @@ Tip: you can try to figure out what's wrong by changing to the process work dir 
 
         
           <dt class="col-sm-3">Script ID</dt>
+<<<<<<< HEAD
           <dd class="col-sm-9"><code>1112e0801bba7aab8d7efd2cc0902e5d</code></dd>
         
 
         <dt class="col-sm-3">Workflow session</dt>
         <dd class="col-sm-9"><code>ba80d834-2ab1-4b41-a0fd-6d4d7b601bbc</code></dd>
+=======
+          <dd class="col-sm-9"><code>25a2cee39edf84989c9e99a021ce87ee</code></dd>
+        
+
+        <dt class="col-sm-3">Workflow session</dt>
+        <dd class="col-sm-9"><code>b2fe948d-adea-4b43-9ea6-0afe5e05bc17</code></dd>
+>>>>>>> e6af400d2be5dded651a8991eb63d177f013bb90
 
         
 
         <dt class="col-sm-3">Workflow profile</dt>
+<<<<<<< HEAD
         <dd class="col-sm-9">conda,local</dd>
+=======
+        <dd class="col-sm-9">local,conda</dd>
+>>>>>>> e6af400d2be5dded651a8991eb63d177f013bb90
 
         
 
@@ -1045,7 +1142,11 @@ $(function() {
 
   // Nextflow report data
   window.data = { "trace":[
+<<<<<<< HEAD
 {"task_id":"1","hash":"a9\/c2a26d","native_id":"93334","process":"prokka_annotation","module":"-","container":"-","tag":"-","name":"prokka_annotation (1)","status":"FAILED","exit":"127","submit":"1617720779072","start":"1617720779089","complete":"1617720781260","duration":"2188","realtime":"2171","%cpu":"-","%mem":"-","rss":"-","vmem":"-","peak_rss":"-","peak_vmem":"-","rchar":"-","wchar":"-","syscr":"-","syscw":"-","read_bytes":"-","write_bytes":"-","attempt":"1","workdir":"\/tmp\/nextflow-eukaryotic-Eva\/a9\/c2a26d4c69baa25198ca5587c00449","script":"\n  prokka --prefix GCF_000471025.2_ASM47102v2_genomic --outdir prokka GCF_000471025.2_ASM47102v2_genomic.fna\n  tar czvf prokka.tar.gz prokka\/\n  ","scratch":"-","queue":"-","cpus":"1","memory":"-","disk":"-","time":"-","env":"PATH=\/Volumes\/UNTITLED\/RKI\/MartinH\u00F6lzer\/hypro\/bin:$PATH\n","error_action":"TERMINATE","vol_ctxt":"-","inv_ctxt":"-"}], "summary":[{"cpuUsage":null,"process":"prokka_annotation","mem":null,"memUsage":null,"timeUsage":null,"vmem":null,"reads":null,"cpu":null,"time":{"mean":2171,"min":2171,"q1":2171,"q2":2171,"q3":2171,"max":2171,"minLabel":"prokka_annotation (1)","maxLabel":"prokka_annotation (1)","q1Label":"prokka_annotation (1)","q2Label":"prokka_annotation (1)","q3Label":"prokka_annotation (1)"},"writes":null}] };
+=======
+], "summary":[] };
+>>>>>>> e6af400d2be5dded651a8991eb63d177f013bb90
 
   </script>
 
