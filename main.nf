@@ -59,17 +59,11 @@ if (params.fasta && params.list) { fasta_input_ch = Channel
 
 include { module1 } from './process/module1'
 include { module2 } from './process/module2'
-<<<<<<< HEAD
 include { prokka_annotation } from './process/prokka_annotation'
 include { query_fasta } from './process/query_fasta'
 include { download_db } from './process/download_db'
 include { mmseqs2 } from './process/mmseqs2'
 //include { update_prokka } from './process/update_prokka'
-=======
-include { download_db }    from './process/download_db'
-include { prokka_annotation } from './process/prokka_annotation'
-include { query_fasta } from './process/query_fasta'
->>>>>>> e6af400d2be5dded651a8991eb63d177f013bb90
 
 
 /**************************
@@ -83,12 +77,7 @@ It is written for local use and hpc/cloud use via params.cloudProcess.
 
 workflow get_db {
   main:
-<<<<<<< HEAD
     db_preload = file("${params.databases}/${params.database}/${params.database}.fasta")
-=======
-    /* TODO: check if db already exists
-    db_preload = file("${params.databases}/${params.database}/*{.fasta,.txt}")
->>>>>>> e6af400d2be5dded651a8991eb63d177f013bb90
     // local storage via storeDir
     if (!params.cloudProcess) {
       if ( db_preload.exists() ) { db = db_preload}
@@ -99,13 +88,7 @@ workflow get_db {
       if (db_preload.exists()) { db = db_preload }
       else  { download_db(); db = download_db.out }
     }
-<<<<<<< HEAD
 
-=======
-    */
-    download_db()
-    db = download_db.out
->>>>>>> e6af400d2be5dded651a8991eb63d177f013bb90
   emit: db
 }
 
@@ -116,10 +99,10 @@ workflow get_db {
 workflow subworkflow_1 {
   take:
       fasta_input_ch
-      db_ch
+      db
 
   main:
-    module2(module1(fasta_input_ch, db_ch))
+    module2(module1(fasta_input_ch, db))
 
   emit: module2.out
 }
@@ -134,49 +117,31 @@ workflow subworkflow_1 {
 
 workflow {
 
-      /*********** Template for subworkflows ********************
+      /*
       if (params.fasta) {
-        subworkflow_1(fasta_input_ch, db)
+        subworkflow_1(fasta_input_ch, query_db)
       }
-      ***********************************************************/
+      */
 
-<<<<<<< HEAD
       // run prokka annotation
       prokka_annotation(fasta_input_ch)
       prokka_out_ch = prokka_annotation.out
-      prokka_out_ch.view()
-
 
       // create input fasta for mmseqs2
-=======
-      prokka_annotation(fasta_input_ch)
-      prokka_out_ch = prokka_annotation.out
-
->>>>>>> e6af400d2be5dded651a8991eb63d177f013bb90
       query_fasta(prokka_out_ch)
       query_fasta_out_ch = query_fasta.out
-      query_fasta_out_ch.view()
 
-<<<<<<< HEAD
       // download query database for mmseqs2
       get_db()
       query_db = get_db.out
-      query_db.view()
 
       // run mmseqs2
       mmseqs2(query_db, query_fasta_out_ch)
       id_alninfo = mmseqs2.out
-      id_alninfo.view()
 
       /* Next: update prokka annotation with mmseqs2 output
 
       */
-=======
-      get_db()
-      db = get_db.out
-
-
->>>>>>> e6af400d2be5dded651a8991eb63d177f013bb90
 
 }
 

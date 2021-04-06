@@ -88,7 +88,6 @@ function created_resultsdb(){
 
 }
 
-<<<<<<< HEAD
 echo "read input"
 path="$1"
 QFASTA="$2"
@@ -108,34 +107,12 @@ OUT="${path}/final_outs/mmseqs2_out_db_${DBTYPE}_e${EVAL}_a${ALEN}_p${PIDENT}.ts
 
 echo "create content structure"
 rm -rf ${RPREFIX}
-=======
-path="$1"
-QFASTA="${path}/../query.fasta"
-TFASTA="$2"						#"${path}/db/uniprotkb/uniprot_sprot.fasta"
-QUERYDB="${path}/query_db"
-TARGETDB="$3"						#"${path}/db/uniprotkb/target_db"
-RPREFIX="${path}/results_db"
-TMP="${path}/tmp"
-DBTYPE="$4"
-EVAL="$5"						# minimal E-value - parameter "-e"
-ALEN="$6"						# minimal alignment length "--min-aln-len"
-PIDENT="$7"						# minimal percent identity - "--min-seq-id"
-THREADS="$8"					# number of threads to use
-# SENS="$9"						# adjust sensitivity of mmseqs
-RESULTDB="${RPREFIX}/db_${DBTYPE}_e${EVAL}_a${ALEN}_p${PIDENT}" # generate an individual resultsdb for every parameter setting, since the results db is not overwritten by mmseqs search
-OUT="${path}/final_outs/mmseqs2_out_db_${DBTYPE}_e${EVAL}_a${ALEN}_p${PIDENT}.tsv"
-
-rm -r ${RPREFIX}
->>>>>>> e6af400d2be5dded651a8991eb63d177f013bb90
 
 mkdir -p ${TMP}
 mkdir -p "${path}/final_outs"
 mkdir -p ${RPREFIX}
 
-<<<<<<< HEAD
 echo "prepare dbs"
-=======
->>>>>>> e6af400d2be5dded651a8991eb63d177f013bb90
 created_querydb ${DBTYPE} ${QUERYDB}	# if all query_db files exist and are non-zero , skip
 if [ "$?" -eq 0 ]
 then
