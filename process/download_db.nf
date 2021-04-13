@@ -1,6 +1,5 @@
 /*Comment section:
   - What about rusure(): check for user validation before downloading very large databases?
-  - Add customdb
 */
 
 process download_db {

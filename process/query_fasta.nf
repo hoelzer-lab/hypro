@@ -1,24 +1,18 @@
 /* Comment section:
-<<<<<<< HEAD
-  - python script:
-    load_gff()
-    is_Hyprot()
-    save_HyProt()
-    query_fasta()
-    load_fasta()
   - For users with no python installed: conda env in order to use python??
-  - Add output channel for hypothetical proteins (HyProt_content, HyProt_loc, gff_content)
+  - Note: 'file' needs to be replaced by 'path' to use emit (except when using tuple of files)
 */
 
 process query_fasta {
   label 'query_fasta'
-  publishDir "${params.output}/", mode: 'copy'
+  publishDir "${params.output}/", mode: 'copy', pattern: "mmseqs2_output.tar.gz"
 
   input:
   tuple val(name), file(prokka_out)
 
   output:
-  file "query.fasta"
+  path "query.fasta", emit: queryfasta
+  tuple file("HyProt_loc.json"), file("HyProt_content.json"), file("gff_content.json"), emit: hyprot_dicts
 
   script:
   """

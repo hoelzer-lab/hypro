@@ -63,7 +63,7 @@ include { prokka_annotation } from './process/prokka_annotation'
 include { query_fasta } from './process/query_fasta'
 include { download_db } from './process/download_db'
 include { mmseqs2 } from './process/mmseqs2'
-//include { update_prokka } from './process/update_prokka'
+include { update_prokka } from './process/update_prokka'
 
 
 /**************************
@@ -77,7 +77,9 @@ It is written for local use and hpc/cloud use via params.cloudProcess.
 
 workflow get_db {
   main:
-    db_preload = file("${params.databases}/${params.database}/${params.database}.fasta")
+
+    if (!params.customdb) { db_preload = file("${params.databases}/${params.database}/${params.database}.fasta") }
+    else { db_preload = file("${params.customdb}") }
     // local storage via storeDir
     if (!params.cloudProcess) {
       if ( db_preload.exists() ) { db = db_preload}
@@ -113,6 +115,9 @@ workflow subworkflow_1 {
 **************************/
 
 /* Comment section:
+  General Notes:
+    - python scripts: args structure (order of parameters, multiple inputs per flag?)
+    - create subworkflows?
 */
 
 workflow {
@@ -129,7 +134,8 @@ workflow {
 
       // create input fasta for mmseqs2
       query_fasta(prokka_out_ch)
-      query_fasta_out_ch = query_fasta.out
+      query_fasta_out_ch = query_fasta.out.queryfasta
+      hyprot_dicts_ch = query_fasta.out.hyprot_dicts
 
       // download query database for mmseqs2
       get_db()
@@ -139,9 +145,8 @@ workflow {
       mmseqs2(query_db, query_fasta_out_ch)
       id_alninfo = mmseqs2.out
 
-      /* Next: update prokka annotation with mmseqs2 output
-
-      */
+      // update prokka annotations
+      update_prokka(prokka_out_ch, hyprot_dicts_ch, id_alninfo)
 
 }
 
@@ -158,24 +163,39 @@ def helpMSG() {
     log.info """
     ____________________________________________________________________________________________
 
-    Workflow: Template
+    Workflow: HyPro
 
     ${c_yellow}Usage example:${c_reset}
     nextflow run wf_template --fasta '*/*.fasta'
 
     ${c_yellow}Input:${c_reset}
-    ${c_green} --fasta ${c_reset}            '*.fasta'  -> one sample per file
-    ${c_dim}  ..change above input to csv:${c_reset} ${c_green}--list ${c_reset}
+    ${c_green} --fasta ${c_reset}            '*.fasta'  -> One sample per file
+    ${c_dim}  ..change above input to csv with:${c_reset} ${c_green}--list${c_reset} true
+
+    ${c_yellow}Parameters:${c_reset}
+    --output            Name of the result folder [default: $params.output].
+    --database          Specify the target db to search for annotation extension.
+                        Current available options: uniprotkb, uniref50, uniref90, uniref100, pdb.
+                        Note, that searching on uniref DBs will significantly extend runtime of HyPro.
+                        [default: $params.database]
+    --customdb          Specify a path to an existing DB. If no DB is found, HyPro will build it.
+                        Requires an according -d configuration.
+    --modus             Choose the modus of HyPro to search all hypothetical proteins (full) or leave
+                        those out which gained partial annotation (restricted). The dinstinction of
+                        fully un-annotated and partial annotated hypothetical proteins was observed for
+                        uniprot annotations. Options: [full, restricted] [default: $params.modus]
+    --threads           Define the number of threads to use by mmseqs indexdb, search and convertalis.
+    --evalue            Include sequence matches with < e-value threshold into the profile.
+                        Requires a FLOAT >= 0.0. [default: $params.evalue]
+    --minalnlen         Specify the minimum alignment length as INT in range 0 to MAX aln length.
+                        [default: $params.minalnlen]
+    --pident            List only matches above this sequence identity for clustering.
+                        Enter a FLOAT between 0 and 1.0. [default: $params.pident]
 
     ${c_yellow}Options:${c_reset}
     --cores             max cores per process for local use [default: $params.cores]
     --max_cores         max cores per machine for local use [default: $params.max_cores]
     --memory            max memory for local use [default: $params.memory]
-    --output            name of the result folder [default: $params.output]
-
-    ${c_yellow}Parameters:${c_reset}
-    --variable1             a variable [default: $params.variable1]
-    --variable2             a variable [default: $params.variable2]
 
     ${c_dim}Nextflow options:
     -with-report rep.html    cpu / ram usage (may cause errors)
@@ -187,7 +207,6 @@ def helpMSG() {
     --databases         defines the path where databases are stored [default: $params.databases]
     --workdir           defines the path where nextflow writes tmp files [default: $params.workdir]
     --cachedir          defines the path where conda environments are cached [default: $params.cachedir]
-
 
     ${c_yellow}Profiles:${c_reset}
      -profile               local,conda

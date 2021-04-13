@@ -613,7 +613,6 @@ def mmseq(dbfasta, dbtarget, output=out_dir, mmseq=ms, ev=evalue, aln=alnlen, pi
 
 def update_gff(output=out_dir, delimiter = '\t'):
     global HyProt_content, HyProt_loc, gff_content, BN
-    output = output.rstrip('/') + "/output"
     for HyProt in HyProt_content.keys():
         data = 'ID='
         data = f'{data}{HyProt}'

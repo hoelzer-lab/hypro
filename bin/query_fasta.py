@@ -2,9 +2,8 @@
 
 ####### PACKAGES ##########
 import re, os, sys, subprocess, argparse
-# from biothings_client import get_client
 import pandas as pd
-# from Bio import SeqIO
+import json
 #######################################################
 
 ###### ############GLOBAL VAR #######################
@@ -153,8 +152,20 @@ def load_fasta(file):
     return fasta
     # print(fasta)
 
+def write_HyProts_to_file():
+    global HyProt_loc, HyProt_content, gff_content
+    f = open('HyProt_loc.json','w')
+    json.dump(HyProt_loc, f)
+    f.close()
+    f = open('HyProt_content.json','w')
+    json.dump(HyProt_content, f)
+    f.close()
+    f = open('gff_content.json','w')
+    json.dump(gff_content, f)
+    f.close()
 
 ############# MAIN ######################
 
 load_gff()
 query_fasta()
+write_HyProts_to_file()
