@@ -5,7 +5,7 @@
 
 process update_prokka {
   label 'update_prokka'
-  publishDir "${params.output}/", mode: 'copy', pattern: '${name}.*'
+  publishDir "${params.output}/", mode: 'copy', pattern: 'output/*'
   publishDir "${params.runinfo}/", mode: 'copy', pattern: '.command.log', saveAs: {filename -> "update_prokka.log"}
 
 
