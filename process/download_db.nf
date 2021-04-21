@@ -1,9 +1,9 @@
 /*Comment section:
-  - What about rusure(): check for user validation before downloading very large databases?
 */
 
 process download_db {
   label 'download_db'
+  publishDir "${params.runinfo}/", mode: 'copy', pattern: '.command.log', saveAs: {filename -> "download_db.log"}
   if (params.cloudProcess) {
     publishDir "${params.databases}/${params.database}/", mode: 'copy'
   }
@@ -12,7 +12,8 @@ process download_db {
   }
 
   output:
-    file "${params.database}.fasta"
+    path "${params.database}.fasta", emit: db
+    file ".command.log"
 
   script:
     if( "${params.database}" == 'uniprotkb' )

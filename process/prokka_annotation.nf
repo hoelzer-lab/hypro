@@ -7,17 +7,21 @@ publishDir:   Publish all process output files that match the pattern into defin
 
 process prokka_annotation {
   label 'prokka'
-  publishDir "${params.output}/", mode: 'copy'
+  publishDir "${params.output}/", mode: 'copy', pattern: "prokka.tar.gz"
+  publishDir "${params.runinfo}/", mode: 'copy', pattern: ".command.log", saveAs: {filename -> "prokka_annotation.log"}
 
   input:
   tuple val(name), file(fasta)
 
   output:
-  tuple val(name), file("prokka.tar.gz")
+  tuple val(name), file("prokka.tar.gz"), emit:output
+  file ".command.log"
 
   script:
   """
+  echo "----------------   Run prokka   ----------------"
   prokka --prefix ${name} --outdir prokka ${fasta}
+  echo "----------------   Compress prokka output   ----------------"
   tar czvf prokka.tar.gz prokka/
   """
 

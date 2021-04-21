@@ -29,10 +29,19 @@ elif isinstance(args.modus, str):
     mode = args.modus
 
 print(f'Start HyPro in {mode} mode')
-in_gff = args.input_gff[0]
-in_ffn = args.input_ffn[0]
 
-count = 0
+if isinstance(args.input_gff, list):
+    in_gff = args.input_gff[0]
+elif isinstance(args.input_ffn, str):
+    in_gff = args.input_gff
+
+if isinstance(args.input_ffn, list):
+    in_ffn = args.input_ffn[0]
+elif isinstance(args.input_ffn, str):
+    in_ffn = args.input_ffn
+
+
+#count = 0
 
 
 ################################     FUNCTIONS    #######################################
@@ -163,6 +172,7 @@ def write_HyProts_to_file():
     f = open('gff_content.json','w')
     json.dump(gff_content, f)
     f.close()
+    print("Wrote content and location on hypothetical proteins to Hyprot_content.json, Hyprot_loc.json and gff_content.json")
 
 ############# MAIN ######################
 

@@ -88,10 +88,6 @@ with open(hc, 'r') as f:
 with open(gffc, 'r') as f:
     gff_content = json.load(f)        # gff content per row number
 
-print(f'Start HyPro in {mode} mode')
-#in_gff = args.input[0]
-#out_dir = args.output[0]
-
 if isinstance(args.db, list):
     db = args.db[0]
 elif isinstance(args.db, str):
@@ -121,6 +117,7 @@ def update_faa(output=out_dir, infile=in_faa): #former 2nd arg: in_gff
 
     #write the updated faa file
     with open(output + '/' + name + "_extended.faa", 'w') as faa:
+        print(f"Write extended faa:\t{name}_extended.faa")
         for entry in faa_list:
             faa.write(entry)
 
@@ -146,9 +143,10 @@ def update_ffn(output=out_dir, infile=in_ffn): #former 2nd arg: in_gff
     # print(faa_list)
 
     #write the updated faa file
-    with open(output + '/' + name + "_extended.ffn", 'w') as faa:
+    with open(output + '/' + name + "_extended.ffn", 'w') as ffn:
+        print(f"Write extended ffn:\t{name}_extended.ffn")
         for entry in ffn_list:
-            faa.write(entry)
+            ffn.write(entry)
 
 
 ############ extend gbk
@@ -268,6 +266,7 @@ def update_comment(in_list):
 
 def write_gbk(output, content, wspaces):
     with open(output + "/" + name + "_extended.gbk", 'w') as gbk_out:
+        print(f"Write extended gbk:\t{name}_extended.gbk")
         for elem in content[1:]:
             # if elem == content[0]:
             #     pass
@@ -298,10 +297,9 @@ def get_mmseq_output(mmseqs2_out=ms):
     '''
     global HyProt_content, db, id_scinames
     id_infos = {}                                           # additional information found  with mmseq; saved with ID as key
-    #output = output.rstrip('/') + '/mmseqs_output'
-    # # fraction identified
-    #hit_nums = str(subprocess.check_output(f"cut -f1 {output}/final_outs/mmseqs2_out_db_{db}_e{ev}_a{alnlen}_p{pident}_unique.tsv | wc -l", shell=True))
-    #print(f"The homology search assigns a function to {int(hit_nums[2:-3])-1} / {len(HyProt_content.keys())} hypothetical proteins\n\t(this includes also hits on hypothetical proteins in the database)")
+    # fraction identified
+    hit_nums = str(subprocess.check_output(f"cut -f1 {ms} | wc -l", shell=True))
+    print(f"The homology search assigns a function to {int(hit_nums[2:-3])-1} / {len(HyProt_content.keys())} hypothetical proteins\n\t(this includes also hits on hypothetical proteins in the database)")
 
     # load annotation pandas dataframe
     mmseqs_out = pd.read_csv(mmseqs2_out , sep='\t')
@@ -338,7 +336,7 @@ def get_mmseq_output(mmseqs2_out=ms):
             HyProt_content[HyProt][2] = f"product={out_dict[index]['target']}"
             HyProt_content[HyProt].append(info.rstrip(';'))
     counts = count_HyProts(id_scinames)
-    #print(f"Of those: {counts} / {int(hit_nums[2:-3])-1} are hypothetical proteins.")
+    print(f"Of those: {counts} / {int(hit_nums[2:-3])-1} are hypothetical proteins.")
     return id_infos
 
 def update_gff(output=out_dir, delimiter = '\t'):

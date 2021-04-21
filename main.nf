@@ -130,7 +130,7 @@ workflow {
 
       // run prokka annotation
       prokka_annotation(fasta_input_ch)
-      prokka_out_ch = prokka_annotation.out
+      prokka_out_ch = prokka_annotation.out.output
 
       // create input fasta for mmseqs2
       query_fasta(prokka_out_ch)
@@ -139,11 +139,11 @@ workflow {
 
       // download query database for mmseqs2
       get_db()
-      query_db = get_db.out
+      query_db = get_db.out.db
 
       // run mmseqs2
       mmseqs2(query_db, query_fasta_out_ch)
-      id_alninfo = mmseqs2.out
+      id_alninfo = mmseqs2.out.output
 
       // update prokka annotations
       update_prokka(prokka_out_ch, hyprot_dicts_ch, id_alninfo)

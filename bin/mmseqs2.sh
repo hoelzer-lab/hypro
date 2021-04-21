@@ -89,27 +89,26 @@ function created_resultsdb(){
 }
 
 echo "read input"
-path="$1"
-QFASTA="$2"
-TFASTA="$3"						#"${path}/db/uniprotkb/uniprot_sprot.fasta"
-QUERYDB="${path}/query_db"
-TARGETDB="${4}"					#"${path}/db/uniprotkb/target_db"
-RPREFIX="${path}/results_db"
-TMP="${path}/tmp"
-DBTYPE="$5"
-EVAL="$6"						# minimal E-value - parameter "-e"
-ALEN="$7"						# minimal alignment length "--min-aln-len"
-PIDENT="$8"						# minimal percent identity - "--min-seq-id"
-THREADS="$9"					# number of threads to use
+QFASTA="$1"
+TFASTA="$2"						#"${path}/db/uniprotkb/uniprot_sprot.fasta"
+QUERYDB="query_db"
+TARGETDB="target_db"
+RPREFIX="results_db"
+TMP="tmp"
+DBTYPE="$3"
+EVAL="$4"						# minimal E-value - parameter "-e"
+ALEN="$5"						# minimal alignment length "--min-aln-len"
+PIDENT="$6"						# minimal percent identity - "--min-seq-id"
+THREADS="$7"					# number of threads to use
 # SENS="$10"						# adjust sensitivity of mmseqs
 RESULTDB="${RPREFIX}/db_${DBTYPE}_e${EVAL}_a${ALEN}_p${PIDENT}" # generate an individual resultsdb for every parameter setting, since the results db is not overwritten by mmseqs search
-OUT="${path}/final_outs/mmseqs2_out_db_${DBTYPE}_e${EVAL}_a${ALEN}_p${PIDENT}.tsv"
+OUT="final_outs/mmseqs2_out_db_${DBTYPE}_e${EVAL}_a${ALEN}_p${PIDENT}.tsv"
 
 echo "create content structure"
 rm -rf ${RPREFIX}
 
 mkdir -p ${TMP}
-mkdir -p "${path}/final_outs"
+mkdir -p "final_outs"
 mkdir -p ${RPREFIX}
 
 echo "prepare dbs"
@@ -146,6 +145,6 @@ mmseqs convertalis --threads ${THREADS} --format-mode 0 --format-output 'query,t
 
 head ${OUT}
 echo "Generate unique table with highest bit scores from raw mmseq2 output..."
-echo "query	target	pident	alnlen	mismatch	gapopen	qlen	qstart	qend	tstart	tend	evalue	bits" > "${path}/final_outs/mmseqs2_out_db_${DBTYPE}_e${EVAL}_a${ALEN}_p${PIDENT}_unique.tsv" # add header
-sort -u -k1,1 ${OUT} >> "${path}/final_outs/mmseqs2_out_db_${DBTYPE}_e${EVAL}_a${ALEN}_p${PIDENT}_unique.tsv"
-head "${path}/final_outs/mmseqs2_out_db_${DBTYPE}_e${EVAL}_a${ALEN}_p${PIDENT}_unique.tsv"
+echo "query	target	pident	alnlen	mismatch	gapopen	qlen	qstart	qend	tstart	tend	evalue	bits" > "final_outs/mmseqs2_out_db_${DBTYPE}_e${EVAL}_a${ALEN}_p${PIDENT}_unique.tsv" # add header
+sort -u -k1,1 ${OUT} >> "final_outs/mmseqs2_out_db_${DBTYPE}_e${EVAL}_a${ALEN}_p${PIDENT}_unique.tsv"
+head "final_outs/mmseqs2_out_db_${DBTYPE}_e${EVAL}_a${ALEN}_p${PIDENT}_unique.tsv"
