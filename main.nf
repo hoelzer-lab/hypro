@@ -83,12 +83,12 @@ workflow get_db {
     // local storage via storeDir
     if (!params.cloudProcess) {
       if ( db_preload.exists() ) { db = db_preload}
-      else { download_db(); db = download_db.out }
+      else { download_db(); db = download_db.out.db }
     }
     // cloud storage via db_preload.exists()
     if (params.cloudProcess) {
       if (db_preload.exists()) { db = db_preload }
-      else  { download_db(); db = download_db.out }
+      else  { download_db(); db = download_db.out.db }
     }
 
   emit: db
