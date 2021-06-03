@@ -4,7 +4,7 @@
 
 process query_fasta {
   label 'query_fasta'
-  publishDir "${params.runinfo}/", mode: 'copy', pattern: '.command.log', saveAs: {filename -> "query_fasta.log"}
+  publishDir "${params.runinfo}/", mode: 'copy', pattern: '.query_fasta.out', saveAs: {filename -> "query_fasta.log"}
 
   input:
   tuple val(name), file(prokka_out)
@@ -12,14 +12,19 @@ process query_fasta {
   output:
   path "query.fasta", emit: queryfasta
   tuple file("HyProt_loc.json"), file("HyProt_content.json"), file("gff_content.json"), emit: hyprot_dicts
-  file ".command.log"
+  path ".query_fasta.out", emit: log
 
   script:
   """
-  echo "----------------   Unpack prokka output   ----------------"
-  tar -xzvf ${prokka_out}
-  echo "----------------   Read prokka annotations   ----------------"
-  query_fasta.py -gff prokka/${name}.gff -ffn prokka/${name}.ffn -m ${params.modus}
+  tar -xzf ${prokka_out}
+
+  echo "----------------   Read hypothetical proteins from prokka annotations   ----------------"
+  query_fasta.py -gff ${prokka_out.getSimpleName()}/${name}.gff -ffn ${prokka_out.getSimpleName()}/${name}.ffn -m ${params.modus}
+
+  mv .command.out .query_fasta.out
+
+  # clean-up the unzipped files
+  rm -rf ${prokka_out.getSimpleName()}
   """
 
 }

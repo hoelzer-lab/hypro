@@ -1,6 +1,3 @@
-/*Comment section:
-*/
-
 process download_db {
   label 'download_db'
   publishDir "${params.runinfo}/", mode: 'copy', pattern: '.command.log', saveAs: {filename -> "download_db.log"}

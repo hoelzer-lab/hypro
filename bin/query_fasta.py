@@ -28,11 +28,11 @@ if isinstance(args.modus, list):
 elif isinstance(args.modus, str):
     mode = args.modus
 
-print(f'Start HyPro in {mode} mode')
+print(f'Run HyPro in {mode} mode')
 
 if isinstance(args.input_gff, list):
     in_gff = args.input_gff[0]
-elif isinstance(args.input_ffn, str):
+elif isinstance(args.input_gff, str):
     in_gff = args.input_gff
 
 if isinstance(args.input_ffn, list):
@@ -43,9 +43,7 @@ elif isinstance(args.input_ffn, str):
 
 #count = 0
 
-
 ################################     FUNCTIONS    #######################################
-
 
 
 def load_gff(input=in_gff):
@@ -63,6 +61,8 @@ def load_gff(input=in_gff):
             if is_HyProt(attr, 'hypothetical protein'):
                 HyProt_count += 1
                 save_HyProt(attr, row)
+                #print(f"HyProt_content:\t{len(HyProt_content.keys())}")
+
             else:
                 pass
             row += 1             # next line
@@ -70,6 +70,7 @@ def load_gff(input=in_gff):
     print(f"Total Features:\t{row} ")
     print(f"Hypothetical Proteins count:\t{HyProt_count}")
     print(f"Saved records:\t{len(HyProt_content.keys())}")
+    print(f"HyProt_content:\t{HyProt_content.keys()}")
     return gff_content, HyProt_content   # DEPRECATED
 
 def is_HyProt(attr, regex = ''):
@@ -101,7 +102,7 @@ def save_HyProt(attr, row):
             pass
         assert  len(HyProt_content.keys()) == len(HyProt_loc.keys())
     elif mode == 'full':
-        if len(fields) == 4 or len(fields) == 5:            # hypothetical proteins with no info and partial info
+        if len(fields) == 4 or len(fields) == 5:             # hypothetical proteins with no info and partial info
             for i in range(1, len(fields)):
                 content.append(fields[i])
             # count += 1
@@ -175,7 +176,8 @@ def write_HyProts_to_file():
     print("Wrote content and location on hypothetical proteins to Hyprot_content.json, Hyprot_loc.json and gff_content.json")
 
 ############# MAIN ######################
-
+print('Load gff file')
 load_gff()
+print('Create query.fasta')
 query_fasta()
 write_HyProts_to_file()

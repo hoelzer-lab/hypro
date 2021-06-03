@@ -57,14 +57,17 @@ if (params.fasta && params.list) { fasta_input_ch = Channel
 
 /* include processes that should be used outside of a sub-workflow logic */
 
-include { module1 } from './process/module1'
-include { module2 } from './process/module2'
+include { rename } from './process/rename'
 include { prokka_annotation } from './process/prokka_annotation'
+include { restore } from './process/restore'
 include { query_fasta } from './process/query_fasta'
 include { download_db } from './process/download_db'
+include { create_query_db } from './process/create_query_db'
+include { create_target_db } from './process/create_target_db'
+include { index_target_db } from './process/index_target_db'
 include { mmseqs2 } from './process/mmseqs2'
 include { update_prokka } from './process/update_prokka'
-
+include { summary } from './process/summary'
 
 /**************************
 * DATABASES
@@ -77,7 +80,6 @@ It is written for local use and hpc/cloud use via params.cloudProcess.
 
 workflow get_db {
   main:
-
     if (!params.customdb) { db_preload = file("${params.databases}/${params.database}/${params.database}.fasta") }
     else { db_preload = file("${params.customdb}") }
     // local storage via storeDir
@@ -91,64 +93,86 @@ workflow get_db {
       else  { download_db(); db = download_db.out.db }
     }
 
-  emit: db
+  emit:
+    db
+}
+
+
+workflow mmseqs2_dbs {
+  take:
+    query_db
+    query_fasta
+
+  main:
+    querydb_ch = file("${params.output}/query_db.tar.gz")
+    if ( !querydb_ch.exists() ) { create_query_db(query_fasta); querydb_ch = create_query_db.out.output }
+    targetdb_ch = file("${params.output}/target_db.tar.gz")
+    if ( !targetdb_ch.exists() ) { create_target_db(query_db); targetdb_ch = create_target_db.out.output }
+    index = file("${params.output}/target_db_index.tar.gz")
+    tmp = file("${params.output}/tmp.tar.gz")
+    if ( !index.exists() || !tmp.exists() ) { index_target_db(targetdb_ch); targetdb_index_ch = index_target_db.out.output }
+    else {targetdb_index_ch = channel.fromPath([index, tmp]).buffer( size:2 )}
+
+  emit:
+    querydb_ch
+    targetdb_ch
+    targetdb_index_ch
 }
 
 /**************************
 * SUB-WORKFLOWS
 **************************/
 
-workflow subworkflow_1 {
-  take:
-      fasta_input_ch
-      db
-
-  main:
-    module2(module1(fasta_input_ch, db))
-
-  emit: module2.out
-}
-
-
 /**************************
 * MAIN WORKFLOW ENTRY POINT
 **************************/
 
-/* Comment section:
-  General Notes:
-    - python scripts: args structure (order of parameters, multiple inputs per flag?)
-    - create subworkflows?
-*/
-
 workflow {
-
-      /*
-      if (params.fasta) {
-        subworkflow_1(fasta_input_ch, query_db)
-      }
-      */
+      // rename contig IDs
+      rename(fasta_input_ch)
+      renamed_contigs = rename.out.renamed_contigs
+      rename_map = rename.out.contig_map
 
       // run prokka annotation
-      prokka_annotation(fasta_input_ch)
+      prokka_annotation(renamed_contigs)
       prokka_out_ch = prokka_annotation.out.output
 
+      // restore original contig IDs
+      restore(prokka_out_ch, rename_map)
+      restored_prokka_contigs = restore.out.restored_contigs
+
       // create input fasta for mmseqs2
-      query_fasta(prokka_out_ch)
+      query_fasta(restored_prokka_contigs)
       query_fasta_out_ch = query_fasta.out.queryfasta
+      log1 = query_fasta.out.log
       hyprot_dicts_ch = query_fasta.out.hyprot_dicts
 
       // download query database for mmseqs2
       get_db()
       query_db = get_db.out.db
 
+      // prepare databases for mmseqs2
+      mmseqs2_dbs(query_db, query_fasta_out_ch)
+      mmseqs2_querydb = mmseqs2_dbs.out.querydb_ch
+      mmseqs2_targetdb = mmseqs2_dbs.out.targetdb_ch
+      mmseqs2_targetdb_index = mmseqs2_dbs.out.targetdb_index_ch
+
       // run mmseqs2
-      mmseqs2(query_db, query_fasta_out_ch)
+      mmseqs2(mmseqs2_querydb, mmseqs2_targetdb, mmseqs2_targetdb_index)
       id_alninfo = mmseqs2.out.output
 
       // update prokka annotations
-      update_prokka(prokka_out_ch, hyprot_dicts_ch, id_alninfo)
+      update_prokka(restored_prokka_contigs, hyprot_dicts_ch, id_alninfo)
+      log2 = update_prokka.out.log
+
+      // produce hypro summary
+      summary(log1, log2, id_alninfo)
+
+      // TODO: stdout content of summary file
+
 
 }
+
 
 
 /*************
@@ -220,7 +244,7 @@ def defaultMSG() {
     log.info """
     \u001B[1;30m______________________________________\033[0m
 
-    \u001B[36mWorkflow: TEMPLATE\033[0m
+    \u001B[36mWorkflow: HYPRO\033[0m
     \u001B[1;30m______________________________________\033[0m
     Profile:                $workflow.profile
     Current User:           $workflow.userName

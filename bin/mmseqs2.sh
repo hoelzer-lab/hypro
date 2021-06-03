@@ -60,7 +60,7 @@ function created_querydb(){
 
 }
 
-function created_resultsdb(){
+function created_targetdb(){
 	# if [ ${DBTYPE} == 'uniprotkb' ] # if clause to decide for the type of db that was chosen- default is uniprotkb (see gff_extend.py)
 	# then
 		index_files=('target_db.index' 'target_db.lookup' 'target_db_h' 'target_db_h.dbtype' 'target_db_h.index')
@@ -88,12 +88,14 @@ function created_resultsdb(){
 
 }
 
+
+
 echo "read input"
 QFASTA="$1"
 TFASTA="$2"						#"${path}/db/uniprotkb/uniprot_sprot.fasta"
 QUERYDB="query_db"
 TARGETDB="target_db"
-RPREFIX="results_db"
+PREFIX="results_db"
 TMP="tmp"
 DBTYPE="$3"
 EVAL="$4"						# minimal E-value - parameter "-e"
@@ -104,14 +106,16 @@ THREADS="$7"					# number of threads to use
 RESULTDB="${RPREFIX}/db_${DBTYPE}_e${EVAL}_a${ALEN}_p${PIDENT}" # generate an individual resultsdb for every parameter setting, since the results db is not overwritten by mmseqs search
 OUT="final_outs/mmseqs2_out_db_${DBTYPE}_e${EVAL}_a${ALEN}_p${PIDENT}.tsv"
 
-echo "create content structure"
-rm -rf ${RPREFIX}
 
+echo "create content structure"
+rm -rf ${PREFIX}
 mkdir -p ${TMP}
 mkdir -p "final_outs"
 mkdir -p ${RPREFIX}
 
+
 echo "prepare dbs"
+
 created_querydb ${DBTYPE} ${QUERYDB}	# if all query_db files exist and are non-zero , skip
 if [ "$?" -eq 0 ]
 then
@@ -121,8 +125,7 @@ then
 	mmseqs createdb ${QFASTA} ${QUERYDB}
 fi
 
-
-created_resultsdb ${DBTYPE} ${TARGETDB}	# if all results_db files exist and are non-zero , skip
+created_targetdb ${DBTYPE} ${TARGETDB}	# if all target_db files exist and are non-zero , skip
 if [ "$?" -eq 0 ]
 then
 	echo 'Found a valid targetdb. Skip creating target_db...'
@@ -140,8 +143,10 @@ then
 	mmseqs createindex ${TARGETDB} ${TMP} --threads ${THREADS}
 fi
 
+
 mmseqs search ${QUERYDB} ${TARGETDB} ${RESULTDB} ${TMP} --threads ${THREADS} -e ${EVAL} --min-aln-len ${ALEN} --min-seq-id ${PIDENT}
 mmseqs convertalis --threads ${THREADS} --format-mode 0 --format-output 'query,target,pident,alnlen,mismatch,gapopen,qlen,qstart,qend,tstart,tend,evalue,bits' ${QUERYDB} ${TARGETDB} ${RESULTDB} ${OUT}
+
 
 head ${OUT}
 echo "Generate unique table with highest bit scores from raw mmseq2 output..."

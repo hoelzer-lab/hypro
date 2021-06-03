@@ -94,7 +94,6 @@ elif isinstance(args.db, str):
     db = args.db
 
 out_dir = args.output[0]
-print(out_dir)
 
 ################# FUNCTIONS ##################################################
 def update_faa(output=out_dir, infile=in_faa): #former 2nd arg: in_gff
