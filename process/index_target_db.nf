@@ -1,7 +1,7 @@
 process index_target_db {
   label 'mmseqs2'
-  publishDir "${params.output}/", mode: 'copy', pattern: "${targetdb.getSimpleName()}_index.tar.gz"
-  publishDir "${params.output}/", mode: 'copy', pattern: 'tmp.tar.gz'
+  publishDir "${params.databases_indices}/", mode: 'copy', pattern: "${targetdb.getSimpleName()}_index.tar.gz"
+  publishDir "${params.databases_indices}/", mode: 'copy', pattern: 'tmp.tar.gz'
   publishDir "${params.runinfo}/", mode: 'copy', pattern: '.command.log', saveAs: {filename -> "index_target_db.log"}
 
 

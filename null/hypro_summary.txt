@@ -1,7 +1,0 @@
-Run HyPro in full mode
-Total Features:	18750 
-Hypothetical Proteins count:	378
-Saved records:	378
-The homology search assigns a function to 155 / 378 hypothetical proteins
-	(this includes also hits on hypothetical proteins in the database)
-Of those: 67 / 155 are hypothetical proteins.

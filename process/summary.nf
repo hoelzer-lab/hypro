@@ -1,13 +1,13 @@
 process summary{
-  publishDir "${params.output}/${outdir}/", mode:'copy'
+  publishDir "${params.output}/${outdir}/", mode:'copy', pattern: "hypro_summary.txt"
 
   input:
   path query_fasta_log
   path update_prokka_log
-  tuple file(mmseqs2_output), val(outdir)
+  tuple path(mmseqs2_output), val(outdir)
 
   output:
-  file "hypro_summary.txt"
+  path "hypro_summary.txt"
 
   script:
   """

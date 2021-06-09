@@ -44,11 +44,10 @@ if (params.fasta && params.list) { fasta_input_ch = Channel
   .fromPath( params.fasta, checkIfExists: true )
   .splitCsv()
   .map { row -> [row[0], file("${row[1]}", checkIfExists: true)] }
-  .view() }
+  }
   else if (params.fasta) { fasta_input_ch = Channel
     .fromPath( params.fasta, checkIfExists: true)
     .map { file -> tuple(file.baseName, file) }
-    .view()
 }
 
 /**************************
@@ -62,8 +61,7 @@ include { prokka_annotation } from './process/prokka_annotation'
 include { restore } from './process/restore'
 include { query_fasta } from './process/query_fasta'
 include { download_db } from './process/download_db'
-include { create_query_db } from './process/create_query_db'
-include { create_target_db } from './process/create_target_db'
+include { create_query_db ; create_query_db as create_target_db } from './process/create_query_db'
 include { index_target_db } from './process/index_target_db'
 include { mmseqs2 } from './process/mmseqs2'
 include { update_prokka } from './process/update_prokka'
@@ -104,12 +102,12 @@ workflow mmseqs2_dbs {
     query_fasta
 
   main:
-    querydb_ch = file("${params.output}/query_db.tar.gz")
-    if ( !querydb_ch.exists() ) { create_query_db(query_fasta); querydb_ch = create_query_db.out.output }
-    targetdb_ch = file("${params.output}/target_db.tar.gz")
-    if ( !targetdb_ch.exists() ) { create_target_db(query_db); targetdb_ch = create_target_db.out.output }
-    index = file("${params.output}/target_db_index.tar.gz")
-    tmp = file("${params.output}/tmp.tar.gz")
+    querydb_ch = file("${params.databases_indices}/query_db.tar.gz")
+    if ( !querydb_ch.exists() ) { create_query_db(query_fasta, "query_db"); querydb_ch = create_query_db.out.output }
+    targetdb_ch = file("${params.databases_indices}/target_db.tar.gz")
+    if ( !targetdb_ch.exists() ) { create_target_db(query_db, "target_db"); targetdb_ch = create_target_db.out.output }
+    index = file("${params.databases_indices}/target_db_index.tar.gz")
+    tmp = file("${params.databases_indices}/tmp.tar.gz")
     if ( !index.exists() || !tmp.exists() ) { index_target_db(targetdb_ch); targetdb_index_ch = index_target_db.out.output }
     else {targetdb_index_ch = channel.fromPath([index, tmp]).buffer( size:2 )}
 
@@ -168,8 +166,41 @@ workflow {
       // produce hypro summary
       summary(log1, log2, id_alninfo)
 
-      // TODO: stdout content of summary file
+}
 
+
+
+/*************
+* output
+*************/
+
+workflow.onComplete {
+
+  summary = """"""
+  myFile = file("$params.output/mmseqs2_run_db${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}/hypro_summary.txt")
+  myReader = myFile.newReader()
+  String line
+  while( line = myReader.readLine() ) {
+    summary = summary + line + "\n"
+  }
+  myReader.close()
+
+  log.info """
+  Execution status: ${ workflow.success ? 'OK' : 'failed' }
+
+______________________________________
+
+\u001B[36mExecution summary\033[0m
+______________________________________
+$summary
+
+Summary report:         $params.output/mmseqs2_run_db${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}/hypro_summary.txt
+______________________________________
+
+Thanks for using HYPRO!
+Please cite: tbd
+
+""".stripIndent()
 
 }
 
@@ -240,12 +271,15 @@ def helpMSG() {
     """.stripIndent()
 }
 
-def defaultMSG() {
-    log.info """
-    \u001B[1;30m______________________________________\033[0m
 
-    \u001B[36mWorkflow: HYPRO\033[0m
-    \u001B[1;30m______________________________________\033[0m
+def defaultMSG() {
+c_blue = "\u001B[36m"
+c_reset = "\033[0m"
+    log.info """
+    ______________________________________
+
+    ${c_blue}Workflow: HYPRO${c_reset}
+    ______________________________________
     Profile:                $workflow.profile
     Current User:           $workflow.userName
     Nextflow-version:       $nextflow.version
@@ -259,6 +293,6 @@ def defaultMSG() {
         --max_cores         $params.max_cores
         --memory            $params.memory
         --cachedir          $params.cachedir
-    \u001B[1;30m______________________________________\033[0m
+    ______________________________________
     """.stripIndent()
 }
