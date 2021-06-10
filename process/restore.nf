@@ -3,8 +3,7 @@ process restore {
   publishDir "${params.runinfo}/", mode: 'copy', pattern: ".command.log", saveAs: {filename -> "restore_ids.log"}
 
   input:
-    tuple val(name), file(prokka_out)
-    file(map)
+    tuple val(name), file(prokka_out), file(map)
 
   output:
     tuple val(name), path("${prokka_out.getSimpleName()}.tar.gz"), emit:restored_contigs

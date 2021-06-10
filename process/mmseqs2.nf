@@ -3,16 +3,15 @@ process mmseqs2 {
   publishDir "${params.output}/mmseqs2_run_db${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}/", mode: 'copy', pattern: 'mmseqs2_outs/*'
   publishDir "${params.runinfo}/", mode: 'copy', pattern: '.command.log', saveAs: {filename -> "mmseqs2.log"}
 
-
   input:
-  file query
-  file target
+  path query
+  path target
   tuple path(target_index), path(tmp)
 
   output:
-  file "mmseqs2_outs/*"
+  path "mmseqs2_outs/*"
   tuple path("mmseqs2_outs/mmseqs2_out_db_${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}_unique.tsv"), val("mmseqs2_run_db${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}"), emit: output
-  file ".command.log"
+  path ".command.log"
 
   script:
   """

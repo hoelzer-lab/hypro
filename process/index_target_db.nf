@@ -4,7 +4,6 @@ process index_target_db {
   publishDir "${params.databases_indices}/", mode: 'copy', pattern: 'tmp.tar.gz'
   publishDir "${params.runinfo}/", mode: 'copy', pattern: '.command.log', saveAs: {filename -> "index_target_db.log"}
 
-
   input:
   file targetdb
 
@@ -14,7 +13,7 @@ process index_target_db {
 
   script:
   """
-  echo "-----------------   Index target_db   -----------------------"
+  echo "----------------------   Index target_db   ----------------------------"
   tar -xzf ${targetdb}
   mkdir -p "${targetdb.getSimpleName()}_index"
 

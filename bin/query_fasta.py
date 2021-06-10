@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 
-####### PACKAGES ##########
+####### PACKAGES ###############################################################
 import re, os, sys, subprocess, argparse
 import pandas as pd
 import json
-#######################################################
+################################################################################
 
-###### ############GLOBAL VAR #######################
+################## GLOBAL VAR ##################################################
 gff_content = {}        # gff content per row number
 HyProt_loc = {}         # recognizes the line of each HyProt via prokka feature ID
-HyProt_content = {}            # recognizes prokka features of 'hypothetical proteins' via prokka feature ID
-################## ARGPARSE #####################
+HyProt_content = {}     # recognizes prokka features of 'hypothetical proteins' via prokka feature ID
+
+################## ARGPARSE ####################################################
 parser = argparse.ArgumentParser()
 
 # Mode
@@ -21,7 +22,6 @@ parser.add_argument('-gff', '--input_gff', dest='input_gff', action='store', met
 parser.add_argument('-ffn', '--input_ffn', dest='input_ffn', action='store', metavar='PATH', nargs=1, required=True, help="Specify PATH to the ffn file")
 
 args = parser.parse_args()
-
 
 if isinstance(args.modus, list):
     mode = args.modus[0]
@@ -41,10 +41,8 @@ elif isinstance(args.input_ffn, str):
     in_ffn = args.input_ffn
 
 
-#count = 0
 
-################################     FUNCTIONS    #######################################
-
+################################     FUNCTIONS    ##############################
 
 def load_gff(input=in_gff):
     '''
@@ -175,7 +173,7 @@ def write_HyProts_to_file():
     f.close()
     print("Wrote content and location on hypothetical proteins to Hyprot_content.json, Hyprot_loc.json and gff_content.json")
 
-############# MAIN ######################
+####################################### MAIN ###################################
 print('Load gff file')
 load_gff()
 print('Create query.fasta')

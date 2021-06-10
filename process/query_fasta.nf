@@ -1,17 +1,13 @@
-/* Comment section:
-  - Note: 'file' needs to be replaced by 'path' in order to use emit (except when using tuple of files)
-*/
-
 process query_fasta {
   label 'query_fasta'
   publishDir "${params.runinfo}/", mode: 'copy', pattern: '.query_fasta.out', saveAs: {filename -> "query_fasta.log"}
 
   input:
-  tuple val(name), file(prokka_out)
+  tuple val(name), path(prokka_out)
 
   output:
   path "query.fasta", emit: queryfasta
-  tuple file("HyProt_loc.json"), file("HyProt_content.json"), file("gff_content.json"), emit: hyprot_dicts
+  tuple path("HyProt_loc.json"), path("HyProt_content.json"), path("gff_content.json"), emit: hyprot_dicts
   path ".query_fasta.out", emit: log
 
   script:

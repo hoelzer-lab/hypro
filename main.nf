@@ -6,6 +6,8 @@ Nextflow -- Analysis Pipeline
 Author: someone@gmail.com
 */
 
+
+
 /**************************
 * META & HELP MESSAGES
 **************************/
@@ -35,6 +37,8 @@ if (!nextflow.version.matches('20.+')) {
   exit 1
 }
 
+
+
 /**************************
 * INPUT CHANNELS
 **************************/
@@ -49,6 +53,8 @@ if (params.fasta && params.list) { fasta_input_ch = Channel
     .fromPath( params.fasta, checkIfExists: true)
     .map { file -> tuple(file.baseName, file) }
 }
+
+
 
 /**************************
 * PROCESSES
@@ -66,6 +72,8 @@ include { index_target_db } from './process/index_target_db'
 include { mmseqs2 } from './process/mmseqs2'
 include { update_prokka } from './process/update_prokka'
 include { summary } from './process/summary'
+
+
 
 /**************************
 * DATABASES
@@ -95,7 +103,6 @@ workflow get_db {
     db
 }
 
-
 workflow mmseqs2_dbs {
   take:
     query_db
@@ -117,9 +124,13 @@ workflow mmseqs2_dbs {
     targetdb_index_ch
 }
 
+
+
 /**************************
 * SUB-WORKFLOWS
 **************************/
+
+
 
 /**************************
 * MAIN WORKFLOW ENTRY POINT
@@ -136,7 +147,7 @@ workflow {
       prokka_out_ch = prokka_annotation.out.output
 
       // restore original contig IDs
-      restore(prokka_out_ch, rename_map)
+      restore(prokka_out_ch.join(rename_map))
       restored_prokka_contigs = restore.out.restored_contigs
 
       // create input fasta for mmseqs2
@@ -171,7 +182,7 @@ workflow {
 
 
 /*************
-* output
+* OUTPUT
 *************/
 
 workflow.onComplete {
@@ -198,7 +209,7 @@ Summary report:         $params.output/mmseqs2_run_db${params.database}_e${param
 ______________________________________
 
 Thanks for using HYPRO!
-Please cite: tbd
+Please cite: https://github.com/hoelzer-lab/hypro
 
 """.stripIndent()
 

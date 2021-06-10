@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 
+##############################  Code reference:  ###############################
+# https://github.com/EBI-Metagenomics/emg-viral-pipeline/blob/master/nextflow/modules/rename.nf
+
+############################# PACKAGES #########################################
 import argparse
 import csv
 import sys
 import re
 import os
 
-
+################################     FUNCTIONS    ##############################
 def _parse_name(seq):
     """Parse a fasta header and remove > and new lines.
     If [metadata is True] then parse the prophage metadata from
@@ -23,7 +27,6 @@ def _parse_name(seq):
 
     return clean.replace(prophage, "").strip(), \
         "phage-circular" if "phage-circular" in seq else "", prophage
-
 
 def rename(args):
     """Rename a multi-fasta fasta entries with <name>.<counter> and store the
@@ -67,6 +70,6 @@ def main():
     args = parser.parse_args()
     args.func(args)
 
-
+####################################### MAIN ###################################
 if __name__ == "__main__":
     main()

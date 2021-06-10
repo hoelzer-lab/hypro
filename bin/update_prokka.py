@@ -120,7 +120,6 @@ def update_faa(output=out_dir, infile=in_faa): #former 2nd arg: in_gff
         for entry in faa_list:
             faa.write(entry)
 
-
 def update_ffn(output=out_dir, infile=in_ffn): #former 2nd arg: in_gff
     global DIR, BN, id_scinames
     ffn_list = []
@@ -146,7 +145,6 @@ def update_ffn(output=out_dir, infile=in_ffn): #former 2nd arg: in_gff
         print(f"Write extended ffn:\t{name}_extended.ffn")
         for entry in ffn_list:
             ffn.write(entry)
-
 
 ############ extend gbk
 def extend_gbk(output, id_alninfo, infile=in_gbk):
@@ -287,7 +285,6 @@ def write_gbk(output, content, wspaces):
             else:
                 gbk_out.write(elem)
 
-
 ############ update_gff
 def get_mmseq_output(mmseqs2_out=ms):
     '''
@@ -414,7 +411,8 @@ def count_HyProts(features):
     return HyProt_count
 
 
-############# MAIN ############################################################
+
+################################  MAIN  ########################################
 id_alninfo = get_mmseq_output()
 update_gff()
 update_faa()
