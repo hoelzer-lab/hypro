@@ -32,12 +32,6 @@ if (workflow.profile == 'standard') {
 if (!params.fasta) {
   exit 1, "input missing, use [--fasta]"}
 
-if (!nextflow.version.matches('20.+')) {
-  println "This workflow requires Nextflow version 20.X or greater -- You are running version $nextflow.version"
-  exit 1
-}
-
-
 
 /**************************
 * INPUT CHANNELS
