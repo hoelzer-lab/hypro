@@ -2,8 +2,8 @@
 nextflow.enable.dsl=2
 
 /*
-Nextflow -- Analysis Pipeline
-Author: someone@gmail.com
+Nextflow -- Analysis Pipeline to annotate hypothetical genes from PROKKA
+Authors: Kaffee-Max, Eva, Martin
 */
 
 
