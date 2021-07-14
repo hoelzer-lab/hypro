@@ -1,0 +1,8 @@
+name: mygene
+channels:
+  - bioconda
+  - conda-forge
+
+dependencies:
+  - mygene
+  - pandas
