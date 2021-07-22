@@ -15,17 +15,19 @@ process update_prokka {
   tuple file(mmseqs2_output), val(outdir)
 
   output:
-  file "prokka_updated/*"
+  file "${prokka_output.getSimpleName()}_updated/*"
   path ".update_prokka.out", emit:log
 
   script:
   """
   tar -xzf ${prokka_output}
+  mv prokka ${prokka_output.getSimpleName()}
+
   mkdir -p ${prokka_output.getSimpleName()}_updated
   mkdir -p ${outdir}
 
   echo "----------------   Update prokka hyprots with mmseqs2   ----------------"
-  update_prokka.py -ms ${mmseqs2_output} -hl ${hyprotloc_dict} -hc ${hyprotcontent_dict} -gffc ${gffcontent_dict} -i_ffn ${prokka_output.getSimpleName()}/${name}.ffn -i_faa ${prokka_output.getSimpleName()}/${name}.faa -i_gbk ${prokka_output.getSimpleName()}/${name}.gbk -m ${params.modus} -d ${params.database} -n ${name} -o prokka_updated
+  update_prokka.py -ms ${mmseqs2_output} -hl ${hyprotloc_dict} -hc ${hyprotcontent_dict} -gffc ${gffcontent_dict} -i_ffn ${prokka_output.getSimpleName()}/${name}.ffn -i_faa ${prokka_output.getSimpleName()}/${name}.faa -i_gbk ${prokka_output.getSimpleName()}/${name}.gbk -m ${params.modus} -d ${params.database} -n ${name} -o  ${prokka_output.getSimpleName()}_updated
 
   mv .command.log .update_prokka.out
 

@@ -13,6 +13,7 @@ process query_fasta {
   script:
   """
   tar -xzf ${prokka_out}
+  mv prokka ${prokka_out.getSimpleName()}
 
   echo "----------------   Read hypothetical proteins from prokka annotations   ----------------"
   query_fasta.py -gff ${prokka_out.getSimpleName()}/${name}.gff -ffn ${prokka_out.getSimpleName()}/${name}.ffn -m ${params.modus}

@@ -131,7 +131,8 @@ workflow mmseqs2_dbs {
 **************************/
 
 workflow {
-      // rename contig IDs
+
+      // rename contig IDs for prokka annotation
       rename(fasta_input_ch)
       renamed_contigs = rename.out.renamed_contigs
       rename_map = rename.out.contig_map
@@ -251,6 +252,8 @@ def helpMSG() {
                         [default: $params.minalnlen]
     --pident            List only matches above this sequence identity for clustering.
                         Enter a FLOAT between 0 and 1.0. [default: $params.pident]
+    --prokka            Control parameters for prokka,e.g. if running HyPro on a bacteria genome that
+                        does not follow the standard code.
 
     ${c_yellow}Options:${c_reset}
     --cores             max cores per process for local use [default: $params.cores]
