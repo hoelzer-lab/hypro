@@ -1,5 +1,5 @@
 process rename {
-  publishDir "${params.runinfo}/", mode: 'copy', pattern: ".command.log", saveAs: {filename -> "rename_ids.log"}
+  publishDir "${params.runinfo}/${name}", mode: 'copy', pattern: ".command.log", saveAs: {filename -> "rename_ids.log"}
 
   input:
     tuple val(name), path(fasta)
@@ -7,6 +7,7 @@ process rename {
   output:
     tuple val(name), path("${name}_renamed.fasta"), emit:renamed_contigs
     tuple val(name), path("${name}_map.tsv"), emit:contig_map
+    val name, emit:seq
     path ".command.log"
 
   script:

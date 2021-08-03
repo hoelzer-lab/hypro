@@ -1,10 +1,10 @@
 process summary{
-  publishDir "${params.output}/${outdir}/", mode:'copy', pattern: "hypro_summary.txt"
+  publishDir "${params.output}/${name}/${outdir}/", mode:'copy', pattern: "hypro_summary.txt"
 
   input:
-  path query_fasta_log
-  path update_prokka_log
-  tuple path(mmseqs2_output), val(outdir)
+  tuple val(name), path(query_fasta_log)
+  tuple val(name), path(update_prokka_log)
+  tuple val(name), path(mmseqs2_output), val(outdir)
 
   output:
   path "hypro_summary.txt"
@@ -14,7 +14,8 @@ process summary{
   touch hypro_summary.txt
   sed -n "2p" ${query_fasta_log} > hypro_summary.txt
   sed -n "5,6p" ${query_fasta_log} >> hypro_summary.txt
-  sed -n "2,4p" ${update_prokka_log} >> hypro_summary.txt
+  tail -n8 ${update_prokka_log} | head -n3 >> hypro_summary.txt
+  tail -n1 ${update_prokka_log} | head -n3 >> hypro_summary.txt
   """
 
 }

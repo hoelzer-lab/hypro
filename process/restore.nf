@@ -1,6 +1,6 @@
 process restore {
-  publishDir "${params.output}/", mode: 'copy', pattern: "${prokka_out.getSimpleName()}_restored.tar.gz", saveAs: {filename -> "prokka.tar.gz"}
-  publishDir "${params.runinfo}/", mode: 'copy', pattern: ".command.log", saveAs: {filename -> "restore_ids.log"}
+  publishDir "${params.output}/${name}", mode: 'copy', pattern: "${prokka_out.getSimpleName()}_restored.tar.gz", saveAs: {filename -> "prokka.tar.gz"}
+  publishDir "${params.runinfo}/${name}", mode: 'copy', pattern: ".command.log", saveAs: {filename -> "restore_ids.log"}
 
   input:
     tuple val(name), file(prokka_out), file(map)

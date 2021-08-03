@@ -46,7 +46,7 @@ def rename(args):
                     count += 1
                 else:
                     fasta_out.write(line)
-    print(f"Wrote {count} sequences to {args.output}.")
+    print(f"Wrote {count-1} sequences to {args.output}.")
 
 def main():
     """Multi fasta rename."""

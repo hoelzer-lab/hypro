@@ -1,12 +1,12 @@
 process prokka_annotation {
   label 'prokka'
-  publishDir "${params.runinfo}/", mode: 'copy', pattern: ".command.log", saveAs: {filename -> "prokka_annotation.log"}
+  publishDir "${params.runinfo}/${name}/", mode: 'copy', pattern: ".command.log", saveAs: {filename -> "prokka_annotation.log"}
 
   input:
   tuple val(name), path(fasta)
 
   output:
-  tuple val(name), path("prokka.tar.gz"), emit:output
+  tuple val(name), path("prokka.tar.gz") , emit:output
   path ".command.log"
 
   script:

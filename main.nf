@@ -61,7 +61,9 @@ include { prokka_annotation } from './process/prokka_annotation'
 include { restore } from './process/restore'
 include { query_fasta } from './process/query_fasta'
 include { download_db } from './process/download_db'
-include { create_query_db ; create_query_db as create_target_db } from './process/create_query_db'
+//include { create_query_db ; create_query_db as create_target_db } from './process/create_query_db'
+include { create_query_db } from './process/create_query_db'
+include { create_target_db } from './process/create_target_db'
 include { index_target_db } from './process/index_target_db'
 include { mmseqs2 } from './process/mmseqs2'
 include { update_prokka } from './process/update_prokka'
@@ -97,27 +99,34 @@ workflow get_db {
     db
 }
 
-workflow mmseqs2_dbs {
+workflow create_mmseqs2_targetdb {
   take:
     query_db
-    query_fasta
 
   main:
-    querydb_ch = file("${params.databases_indices}/query_db.tar.gz")
-    if ( !querydb_ch.exists() ) { create_query_db(query_fasta, "query_db"); querydb_ch = create_query_db.out.output }
     targetdb_ch = file("${params.databases_indices}/target_db.tar.gz")
-    if ( !targetdb_ch.exists() ) { create_target_db(query_db, "target_db"); targetdb_ch = create_target_db.out.output }
+    if ( !targetdb_ch.exists() ) { create_target_db(query_db, "target_db"); targetdb_ch = create_target_db.out.output}
     index = file("${params.databases_indices}/target_db_index.tar.gz")
     tmp = file("${params.databases_indices}/tmp.tar.gz")
     if ( !index.exists() || !tmp.exists() ) { index_target_db(targetdb_ch); targetdb_index_ch = index_target_db.out.output }
     else {targetdb_index_ch = channel.fromPath([index, tmp]).buffer( size:2 )}
 
   emit:
-    querydb_ch
     targetdb_ch
     targetdb_index_ch
 }
 
+workflow create_mmseqs2_querydb {
+  take:
+    query_fasta
+
+  main:
+    querydb_ch = file("${params.databases_indices}/${query_fasta.first()}_query_db.tar.gz")
+    if ( !querydb_ch.exists() ) { create_query_db(query_fasta, "query_db"); querydb_ch = create_query_db.out.output }
+
+  emit:
+    querydb_ch
+}
 
 
 /**************************
@@ -136,41 +145,58 @@ workflow {
       rename(fasta_input_ch)
       renamed_contigs = rename.out.renamed_contigs
       rename_map = rename.out.contig_map
+      seq_id = rename.out.seq
+      renamed_contigs.view()
+      rename_map.view()
 
       // run prokka annotation
       prokka_annotation(renamed_contigs)
       prokka_out_ch = prokka_annotation.out.output
+      prokka_out_ch.view()
 
       // restore original contig IDs
       restore(prokka_out_ch.join(rename_map))
       restored_prokka_contigs = restore.out.restored_contigs
+      restored_prokka_contigs.view()
 
       // create input fasta for mmseqs2
       query_fasta(restored_prokka_contigs)
       query_fasta_out_ch = query_fasta.out.queryfasta
       log1 = query_fasta.out.log
       hyprot_dicts_ch = query_fasta.out.hyprot_dicts
+      query_fasta_out_ch.view()
+      hyprot_dicts_ch.view()
+      log1.view()
 
       // download query database for mmseqs2
       get_db()
       query_db = get_db.out.db
+      query_db.view()
 
       // prepare databases for mmseqs2
-      mmseqs2_dbs(query_db, query_fasta_out_ch)
-      mmseqs2_querydb = mmseqs2_dbs.out.querydb_ch
-      mmseqs2_targetdb = mmseqs2_dbs.out.targetdb_ch
-      mmseqs2_targetdb_index = mmseqs2_dbs.out.targetdb_index_ch
+      create_mmseqs2_targetdb(query_db)
+      create_mmseqs2_querydb(query_fasta_out_ch)
+      mmseqs2_querydb = create_mmseqs2_querydb.out.querydb_ch
+      mmseqs2_targetdb = create_mmseqs2_targetdb.out.targetdb_ch
+      mmseqs2_targetdb_index = create_mmseqs2_targetdb.out.targetdb_index_ch
+      mmseqs2_querydb.view()
+      mmseqs2_targetdb.view()
+      mmseqs2_targetdb_index.view()
 
+      // NOTE: if input list, from here on, nextflow does not recognize multiple files
       // run mmseqs2
       mmseqs2(mmseqs2_querydb, mmseqs2_targetdb, mmseqs2_targetdb_index)
       id_alninfo = mmseqs2.out.output
+      id_alninfo.view()
 
       // update prokka annotations
-      update_prokka(restored_prokka_contigs, hyprot_dicts_ch, id_alninfo)
-      log2 = update_prokka.out.log
+      update_ch = restored_prokka_contigs.join(hyprot_dicts_ch).join(id_alninfo)
+      update_prokka(update_ch)
 
+      log2 = update_prokka.out.log
       // produce hypro summary
       summary(log1, log2, id_alninfo)
+
 
 }
 
@@ -179,17 +205,20 @@ workflow {
 /*************
 * OUTPUT
 *************/
-
+/*
 workflow.onComplete {
 
   summary = """"""
-  myFile = file("$params.output/mmseqs2_run_db${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}/hypro_summary.txt")
-  myReader = myFile.newReader()
-  String line
-  while( line = myReader.readLine() ) {
-    summary = summary + line + "\n"
+  myDir = file("$params.output/   /mmseqs2_run_db${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}/hypro_summary.txt")
+  myDir.eachFileMatch { item ->
+    myReader = item.newReader()
+    String line
+    while( line = myReader.readLine() ) {
+      summary = summary + line + "\n"
+    }
+    myReader.close()
   }
-  myReader.close()
+
 
   log.info """
   Execution status: ${ workflow.success ? 'OK' : 'failed' }
@@ -209,7 +238,7 @@ Please cite: https://github.com/hoelzer-lab/hypro
 """.stripIndent()
 
 }
-
+*/
 
 
 /*************
