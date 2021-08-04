@@ -5,10 +5,10 @@ process index_target_db {
   publishDir "${params.runinfo}/", mode: 'copy', pattern: '.command.log', saveAs: {filename -> "index_target_db.log"}
 
   input:
-  path targetdb
+  tuple val(db_type), path(targetdb)
 
   output:
-  tuple val(name), path("${targetdb.getSimpleName()}_index.tar.gz"), path("tmp.tar.gz"), emit: output
+  tuple val(db_type), path("${targetdb.getSimpleName()}_index.tar.gz"), path("tmp.tar.gz"), emit: output
   file ".command.log"
 
   script:

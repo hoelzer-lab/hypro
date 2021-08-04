@@ -43,7 +43,7 @@ if (params.fasta && params.list) { fasta_input_ch = Channel
   .splitCsv()
   .map { row -> [row[0], file("${row[1]}", checkIfExists: true)] }
   }
-  else if (params.fasta) { fasta_input_ch = Channel
+else if (params.fasta) { fasta_input_ch = Channel
     .fromPath( params.fasta, checkIfExists: true)
     .map { file -> tuple(file.baseName, file) }
 }
@@ -99,17 +99,19 @@ workflow get_db {
     db
 }
 
+
 workflow create_mmseqs2_targetdb {
   take:
     query_db
 
   main:
-    targetdb_ch = file("${params.databases_indices}/target_db.tar.gz")
-    if ( !targetdb_ch.exists() ) { create_target_db(query_db, "target_db"); targetdb_ch = create_target_db.out.output}
+    targetdb = file("${params.databases_indices}/target_db.tar.gz")
+    if ( !targetdb.exists() ) { create_target_db(query_db, "target_db"); targetdb_ch = create_target_db.out.output}
+    else { targetdb_ch = channel.of(["target_db", targetdb])}
     index = file("${params.databases_indices}/target_db_index.tar.gz")
     tmp = file("${params.databases_indices}/tmp.tar.gz")
     if ( !index.exists() || !tmp.exists() ) { index_target_db(targetdb_ch); targetdb_index_ch = index_target_db.out.output }
-    else {targetdb_index_ch = channel.fromPath([index, tmp]).buffer( size:2 )}
+    else {targetdb_index_ch = channel.of(["target_db", index, tmp])}
 
   emit:
     targetdb_ch
@@ -141,37 +143,39 @@ workflow create_mmseqs2_querydb {
 
 workflow {
 
+      //fasta_input_ch.view()
       // rename contig IDs for prokka annotation
       rename(fasta_input_ch)
       renamed_contigs = rename.out.renamed_contigs
       rename_map = rename.out.contig_map
       seq_id = rename.out.seq
-      renamed_contigs.view()
-      rename_map.view()
+      //renamed_contigs.view()
+      //rename_map.view()
 
       // run prokka annotation
       prokka_annotation(renamed_contigs)
       prokka_out_ch = prokka_annotation.out.output
-      prokka_out_ch.view()
+      //prokka_out_ch.view()
 
       // restore original contig IDs
       restore(prokka_out_ch.join(rename_map))
       restored_prokka_contigs = restore.out.restored_contigs
-      restored_prokka_contigs.view()
+      //restored_prokka_contigs.view()
 
       // create input fasta for mmseqs2
       query_fasta(restored_prokka_contigs)
       query_fasta_out_ch = query_fasta.out.queryfasta
-      log1 = query_fasta.out.log
+      //log1 = query_fasta.out.log
       hyprot_dicts_ch = query_fasta.out.hyprot_dicts
-      query_fasta_out_ch.view()
-      hyprot_dicts_ch.view()
-      log1.view()
+      //query_fasta_out_ch.view()
+      //hyprot_dicts_ch.view()
+      //log1.view()
 
       // download query database for mmseqs2
       get_db()
       query_db = get_db.out.db
-      query_db.view()
+      //query_db.view()
+
 
       // prepare databases for mmseqs2
       create_mmseqs2_targetdb(query_db)
@@ -179,23 +183,32 @@ workflow {
       mmseqs2_querydb = create_mmseqs2_querydb.out.querydb_ch
       mmseqs2_targetdb = create_mmseqs2_targetdb.out.targetdb_ch
       mmseqs2_targetdb_index = create_mmseqs2_targetdb.out.targetdb_index_ch
-      mmseqs2_querydb.view()
       mmseqs2_targetdb.view()
       mmseqs2_targetdb_index.view()
 
+
       // NOTE: if input list, from here on, nextflow does not recognize multiple files
       // run mmseqs2
-      mmseqs2(mmseqs2_querydb, mmseqs2_targetdb, mmseqs2_targetdb_index)
+      test = mmseqs2_targetdb.join(mmseqs2_targetdb_index)
+      test.view()
+      combination = mmseqs2_querydb.combine(test)
+      combination.view()
+
+
+      mmseqs2(combination)
       id_alninfo = mmseqs2.out.output
       id_alninfo.view()
+
 
       // update prokka annotations
       update_ch = restored_prokka_contigs.join(hyprot_dicts_ch).join(id_alninfo)
       update_prokka(update_ch)
 
+      /*
       log2 = update_prokka.out.log
       // produce hypro summary
       summary(log1, log2, id_alninfo)
+      */
 
 
 }

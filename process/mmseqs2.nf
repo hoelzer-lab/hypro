@@ -4,9 +4,7 @@ process mmseqs2 {
   publishDir "${params.runinfo}/${name}", mode: 'copy', pattern: '.command.log', saveAs: {filename -> "mmseqs2.log"}
 
   input:
-  tuple val(name), path(query)
-  path target
-  tuple path(target_index), path(tmp)
+  tuple val(name), path(query), val(db_type), path(target), path(target_index), path(tmp)
 
   output:
   path "mmseqs2_outs/*"

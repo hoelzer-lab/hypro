@@ -8,7 +8,7 @@ process create_target_db {
   val db_type
 
   output:
-  tuple val(name), path("*${db_type}.tar.gz"), emit: output
+  tuple val(db_type), path("*${db_type}.tar.gz"), emit: output
   path ".command.log"
 
   script:
