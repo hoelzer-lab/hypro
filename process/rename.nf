@@ -7,7 +7,6 @@ process rename {
   output:
     tuple val(name), path("${name}_renamed.fasta"), emit:renamed_contigs
     tuple val(name), path("${name}_map.tsv"), emit:contig_map
-    val name, emit:seq
     path ".command.log"
 
   script:

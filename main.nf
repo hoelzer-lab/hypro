@@ -143,39 +143,28 @@ workflow create_mmseqs2_querydb {
 
 workflow {
 
-      //fasta_input_ch.view()
       // rename contig IDs for prokka annotation
       rename(fasta_input_ch)
       renamed_contigs = rename.out.renamed_contigs
       rename_map = rename.out.contig_map
-      seq_id = rename.out.seq
-      //renamed_contigs.view()
-      //rename_map.view()
 
       // run prokka annotation
       prokka_annotation(renamed_contigs)
       prokka_out_ch = prokka_annotation.out.output
-      //prokka_out_ch.view()
 
       // restore original contig IDs
       restore(prokka_out_ch.join(rename_map))
       restored_prokka_contigs = restore.out.restored_contigs
-      //restored_prokka_contigs.view()
 
       // create input fasta for mmseqs2
       query_fasta(restored_prokka_contigs)
       query_fasta_out_ch = query_fasta.out.queryfasta
-      //log1 = query_fasta.out.log
+      log1 = query_fasta.out.log
       hyprot_dicts_ch = query_fasta.out.hyprot_dicts
-      //query_fasta_out_ch.view()
-      //hyprot_dicts_ch.view()
-      //log1.view()
 
       // download query database for mmseqs2
       get_db()
       query_db = get_db.out.db
-      //query_db.view()
-
 
       // prepare databases for mmseqs2
       create_mmseqs2_targetdb(query_db)
@@ -183,32 +172,22 @@ workflow {
       mmseqs2_querydb = create_mmseqs2_querydb.out.querydb_ch
       mmseqs2_targetdb = create_mmseqs2_targetdb.out.targetdb_ch
       mmseqs2_targetdb_index = create_mmseqs2_targetdb.out.targetdb_index_ch
-      mmseqs2_targetdb.view()
-      mmseqs2_targetdb_index.view()
 
-
-      // NOTE: if input list, from here on, nextflow does not recognize multiple files
       // run mmseqs2
-      test = mmseqs2_targetdb.join(mmseqs2_targetdb_index)
-      test.view()
-      combination = mmseqs2_querydb.combine(test)
-      combination.view()
-
-
-      mmseqs2(combination)
+      mmseqs2_targetdb_ch = mmseqs2_targetdb.join(mmseqs2_targetdb_index)
+      mmseqs2_in_ch = mmseqs2_querydb.combine(mmseqs2_targetdb_ch)
+      mmseqs2(mmseqs2_in_ch)
       id_alninfo = mmseqs2.out.output
-      id_alninfo.view()
-
 
       // update prokka annotations
       update_ch = restored_prokka_contigs.join(hyprot_dicts_ch).join(id_alninfo)
       update_prokka(update_ch)
-
-      /*
       log2 = update_prokka.out.log
+
       // produce hypro summary
       summary(log1, log2, id_alninfo)
-      */
+      summary_ch = summary.out
+      summary_ch.collectFile(name: "hypro_summary.txt", storeDir: "${params.output}")
 
 
 }
@@ -218,40 +197,34 @@ workflow {
 /*************
 * OUTPUT
 *************/
-/*
+
 workflow.onComplete {
-
   summary = """"""
-  myDir = file("$params.output/   /mmseqs2_run_db${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}/hypro_summary.txt")
-  myDir.eachFileMatch { item ->
-    myReader = item.newReader()
-    String line
-    while( line = myReader.readLine() ) {
-      summary = summary + line + "\n"
-    }
-    myReader.close()
-  }
 
+  myFile= file("$params.output/hypro_summary.txt")
+  myReader = myFile.newReader()
+  String line
+  while( line = myReader.readLine() ) {
+    if (line.startsWith('***')) { summary = summary + "\n" + line + "\n" }
+    else { summary = summary + line + "\n" }
+  }
+  myReader.close()
 
   log.info """
   Execution status: ${ workflow.success ? 'OK' : 'failed' }
-
 ______________________________________
-
 \u001B[36mExecution summary\033[0m
 ______________________________________
 $summary
-
-Summary report:         $params.output/mmseqs2_run_db${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}/hypro_summary.txt
+Summary report:               $params.output/hypro_summary.txt
+Updated annotation files:     $params.output/SAMPLE_ID/mmseqs2_run_db${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}/prokka_restored_updated/
 ______________________________________
-
 Thanks for using HYPRO!
 Please cite: https://github.com/hoelzer-lab/hypro
-
 """.stripIndent()
-
 }
-*/
+
+
 
 
 /*************
