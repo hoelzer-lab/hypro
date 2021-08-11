@@ -188,7 +188,7 @@ workflow {
       // produce hypro summary
       summary(log1, log2, id_alninfo)
       summary_ch = summary.out
-      summary_ch.collectFile(name: "hypro_summary_db${params.database_e${params.evalue}_a${params.minalnlen}_p${params.pident}.txt", storeDir: "${params.output}")
+      summary_ch.collectFile(name: "hypro_summary_db${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}.txt", storeDir: "${params.output}")
 
 
 }
@@ -202,7 +202,7 @@ workflow {
 workflow.onComplete {
   summary = """"""
 
-  myFile= file("$params.output/hypro_summary_db${params.database_e${params.evalue}_a${params.minalnlen}_p${params.pident}.txt")
+  myFile= file("${params.output}/hypro_summary_db${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}.txt")
   myReader = myFile.newReader()
   String line
   while( line = myReader.readLine() ) {
@@ -217,8 +217,8 @@ ______________________________________
 \u001B[36mExecution summary\033[0m
 ______________________________________
 $summary
-Summary report:               $params.output/hypro_summary_db${params.database_e${params.evalue}_a${params.minalnlen}_p${params.pident}.txt
-Updated annotation files:     $params.output/SAMPLE_ID/mmseqs2_run_db${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}/prokka_restored_updated/
+Summary report:               ${params.output}/hypro_summary_db${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}.txt
+Updated annotation files:     ${params.output}/SAMPLE_ID/mmseqs2_run_db${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}/prokka_restored_updated/
 ______________________________________
 Thanks for using HYPRO!
 Please cite: https://github.com/hoelzer-lab/hypro

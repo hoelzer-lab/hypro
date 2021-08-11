@@ -88,7 +88,7 @@ Note: HyPro will save the MMseqs outputs in blast-like format (tsv) with a uniqu
 
 A summary file containing the most relevant information on the latest HyPro run with the given MMseqs2 parameterization is also stored in **--output** ``PATH``.
 
-Additionally, the log files for each HyPro process and nextflow execution reports are saved in ``nextflow-run-infos/``.
+Additionally, the log files for each HyPro process and nextflow execution reports are saved in ``nextflow-run-infos/``. For processes that need to be run with every input sample, the log files are structured into folders named after the input fasta.
 
 
 ## DEPRECATED
