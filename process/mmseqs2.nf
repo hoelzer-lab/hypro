@@ -8,7 +8,7 @@ process mmseqs2 {
 
   output:
   path "mmseqs2_outs/*"
-  tuple val(name), path("mmseqs2_outs/mmseqs2_out_db_${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}_unique.tsv"), val("mmseqs2_run_db${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}"), emit: output
+  tuple val(name), path("mmseqs2_outs/mmseqs2_out_db${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}_unique.tsv"), val("mmseqs2_run_db${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}"), emit: output
   path ".command.log"
 
   script:
@@ -36,8 +36,8 @@ process mmseqs2 {
   echo "----------------   Prepare mmseqs2 output directories   ----------------"
   mkdir -p "results_db/"
   mkdir -p "mmseqs2_outs"
-  RESULTDB="results_db/db_${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}"
-  OUT="mmseqs2_outs/mmseqs2_out_db_${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}.tsv"
+  RESULTDB="results_db/db${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}"
+  OUT="mmseqs2_outs/mmseqs2_out_db${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}.tsv"
 
 
   echo "----------------   Run mmseqs2   ---------------------------------------"
@@ -48,9 +48,9 @@ process mmseqs2 {
   head \${OUT}
   echo "Generate unique table with highest bit scores from raw mmseq2 output..."
   # add header
-  echo "query	target	pident	alnlen	mismatch	gapopen	qlen	qstart	qend	tstart	tend	evalue	bits" > "mmseqs2_outs/mmseqs2_out_db_${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}_unique.tsv"
-  sort -u -k1,1 \${OUT} >> "mmseqs2_outs/mmseqs2_out_db_${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}_unique.tsv"
-  head "mmseqs2_outs/mmseqs2_out_db_${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}_unique.tsv"
+  echo "query	target	pident	alnlen	mismatch	gapopen	qlen	qstart	qend	tstart	tend	evalue	bits" > "mmseqs2_outs/mmseqs2_out_db${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}_unique.tsv"
+  sort -u -k1,1 \${OUT} >> "mmseqs2_outs/mmseqs2_out_db${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}_unique.tsv"
+  head "mmseqs2_outs/mmseqs2_out_db${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}_unique.tsv"
 
   #mv results_db mmseqs2_outs
 

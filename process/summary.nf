@@ -1,4 +1,4 @@
-process summary{
+process summary {
 
   input:
   tuple val(name), path(query_fasta_log)
