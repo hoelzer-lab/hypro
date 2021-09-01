@@ -51,6 +51,12 @@ When running HyPro multiple times, the tool will look for an existing DB of type
 nextflow run main.nf -profile local,conda --fasta test/data/GCF_000471025.2_ASM47102v2_genomic.fna --database uniprotokb --customdb some/path/to/uniprotkb
 ```
 
+
+It is also possible to run HyPro on more than one input genome by using the [--list parameter](#Program-Handling). Instead of passing a single fasta file to **--fasta**, you specify the path to a csv file with two colums per line (sample id, fasta file path) and set the **--list** flag to ``true``.
+```bash
+nextflow run main.nf -profile local,conda --fasta test/input.csv --list true --database uniprotokb --customdb some/path/to/uniprotkb
+```
+
 ### Program Handling
 
 |Parameter|Type|Description|
