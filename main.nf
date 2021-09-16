@@ -43,7 +43,7 @@ if (params.fasta && params.list) { fasta_input_ch = Channel
   .splitCsv()
   .map { row -> [row[0], file("${row[1]}", checkIfExists: true)] }
   }
-  else if (params.fasta) { fasta_input_ch = Channel
+else if (params.fasta) { fasta_input_ch = Channel
     .fromPath( params.fasta, checkIfExists: true)
     .map { file -> tuple(file.baseName, file) }
 }
@@ -61,7 +61,9 @@ include { prokka_annotation } from './process/prokka_annotation'
 include { restore } from './process/restore'
 include { query_fasta } from './process/query_fasta'
 include { download_db } from './process/download_db'
-include { create_query_db ; create_query_db as create_target_db } from './process/create_query_db'
+//include { create_query_db ; create_query_db as create_target_db } from './process/create_query_db'
+include { create_query_db } from './process/create_query_db'
+include { create_target_db } from './process/create_target_db'
 include { index_target_db } from './process/index_target_db'
 include { mmseqs2 } from './process/mmseqs2'
 include { update_prokka } from './process/update_prokka'
@@ -97,27 +99,36 @@ workflow get_db {
     db
 }
 
-workflow mmseqs2_dbs {
+
+workflow create_mmseqs2_targetdb {
   take:
     query_db
-    query_fasta
 
   main:
-    querydb_ch = file("${params.databases_indices}/query_db.tar.gz")
-    if ( !querydb_ch.exists() ) { create_query_db(query_fasta, "query_db"); querydb_ch = create_query_db.out.output }
-    targetdb_ch = file("${params.databases_indices}/target_db.tar.gz")
-    if ( !targetdb_ch.exists() ) { create_target_db(query_db, "target_db"); targetdb_ch = create_target_db.out.output }
+    targetdb = file("${params.databases_indices}/target_db.tar.gz")
+    if ( !targetdb.exists() ) { create_target_db(query_db, "target_db"); targetdb_ch = create_target_db.out.output}
+    else { targetdb_ch = channel.of(["target_db", targetdb])}
     index = file("${params.databases_indices}/target_db_index.tar.gz")
     tmp = file("${params.databases_indices}/tmp.tar.gz")
     if ( !index.exists() || !tmp.exists() ) { index_target_db(targetdb_ch); targetdb_index_ch = index_target_db.out.output }
-    else {targetdb_index_ch = channel.fromPath([index, tmp]).buffer( size:2 )}
+    else {targetdb_index_ch = channel.of(["target_db", index, tmp])}
 
   emit:
-    querydb_ch
     targetdb_ch
     targetdb_index_ch
 }
 
+workflow create_mmseqs2_querydb {
+  take:
+    query_fasta
+
+  main:
+    querydb_ch = file("${params.databases_indices}/${query_fasta.first()}_query_db.tar.gz")
+    if ( !querydb_ch.exists() ) { create_query_db(query_fasta, "query_db"); querydb_ch = create_query_db.out.output }
+
+  emit:
+    querydb_ch
+}
 
 
 /**************************
@@ -131,10 +142,12 @@ workflow mmseqs2_dbs {
 **************************/
 
 workflow {
-      // rename contig IDs
+
+      // rename contig IDs for prokka annotation
       rename(fasta_input_ch)
       renamed_contigs = rename.out.renamed_contigs
       rename_map = rename.out.contig_map
+      renamed_contigs.view()
 
       // run prokka annotation
       prokka_annotation(renamed_contigs)
@@ -155,21 +168,28 @@ workflow {
       query_db = get_db.out.db
 
       // prepare databases for mmseqs2
-      mmseqs2_dbs(query_db, query_fasta_out_ch)
-      mmseqs2_querydb = mmseqs2_dbs.out.querydb_ch
-      mmseqs2_targetdb = mmseqs2_dbs.out.targetdb_ch
-      mmseqs2_targetdb_index = mmseqs2_dbs.out.targetdb_index_ch
+      create_mmseqs2_targetdb(query_db)
+      create_mmseqs2_querydb(query_fasta_out_ch)
+      mmseqs2_querydb = create_mmseqs2_querydb.out.querydb_ch
+      mmseqs2_targetdb = create_mmseqs2_targetdb.out.targetdb_ch
+      mmseqs2_targetdb_index = create_mmseqs2_targetdb.out.targetdb_index_ch
 
       // run mmseqs2
-      mmseqs2(mmseqs2_querydb, mmseqs2_targetdb, mmseqs2_targetdb_index)
+      mmseqs2_targetdb_ch = mmseqs2_targetdb.join(mmseqs2_targetdb_index)
+      mmseqs2_in_ch = mmseqs2_querydb.combine(mmseqs2_targetdb_ch)
+      mmseqs2(mmseqs2_in_ch)
       id_alninfo = mmseqs2.out.output
 
       // update prokka annotations
-      update_prokka(restored_prokka_contigs, hyprot_dicts_ch, id_alninfo)
+      update_ch = restored_prokka_contigs.join(hyprot_dicts_ch).join(id_alninfo)
+      update_prokka(update_ch)
       log2 = update_prokka.out.log
 
       // produce hypro summary
       summary(log1, log2, id_alninfo)
+      summary_ch = summary.out
+      summary_ch.collectFile(name: "hypro_summary_db${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}.txt", storeDir: "${params.output}")
+
 
 }
 
@@ -180,34 +200,31 @@ workflow {
 *************/
 
 workflow.onComplete {
-
   summary = """"""
-  myFile = file("$params.output/mmseqs2_run_db${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}/hypro_summary.txt")
+
+  myFile= file("${params.output}/hypro_summary_db${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}.txt")
   myReader = myFile.newReader()
   String line
   while( line = myReader.readLine() ) {
-    summary = summary + line + "\n"
+    if (line.startsWith('***')) { summary = summary + "\n" + line + "\n" }
+    else { summary = summary + line + "\n" }
   }
   myReader.close()
 
   log.info """
   Execution status: ${ workflow.success ? 'OK' : 'failed' }
-
 ______________________________________
-
 \u001B[36mExecution summary\033[0m
 ______________________________________
 $summary
-
-Summary report:         $params.output/mmseqs2_run_db${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}/hypro_summary.txt
+Summary report:               ${params.output}/hypro_summary_db${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}.txt
+Updated annotation files:     ${params.output}/SAMPLE_ID/mmseqs2_run_db${params.database}_e${params.evalue}_a${params.minalnlen}_p${params.pident}/prokka_restored_updated/
 ______________________________________
-
 Thanks for using HYPRO!
 Please cite: https://github.com/hoelzer-lab/hypro
-
 """.stripIndent()
-
 }
+
 
 
 
@@ -251,6 +268,8 @@ def helpMSG() {
                         [default: $params.minalnlen]
     --pident            List only matches above this sequence identity for clustering.
                         Enter a FLOAT between 0 and 1.0. [default: $params.pident]
+    --prokka            Control parameters for prokka,e.g. if running HyPro on a bacteria genome that
+                        does not follow the standard code.
 
     ${c_yellow}Options:${c_reset}
     --cores             max cores per process for local use [default: $params.cores]

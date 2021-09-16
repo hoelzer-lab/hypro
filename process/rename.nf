@@ -1,5 +1,5 @@
 process rename {
-  publishDir "${params.runinfo}/", mode: 'copy', pattern: ".command.log", saveAs: {filename -> "rename_ids.log"}
+  publishDir "${params.runinfo}/${name}", mode: 'copy', pattern: ".command.log", saveAs: {filename -> "rename_ids.log"}
 
   input:
     tuple val(name), path(fasta)
