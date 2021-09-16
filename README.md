@@ -12,7 +12,7 @@ Protein-coding annotation extension using additional homology searches against l
 
 The HyPro tool extends common protein-coding annotations made with [Prokka](https://github.com/tseemann/prokka) using additional homology searches. The approach currently takes a gff input file, extracts the sequences of hypothetical proteins and searches against a selected database (available are [UniProtKB](ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/), [Uniref50](ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref50/), [Uniref90](ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref90/), [Unref100](ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref90/) and [Protein DB](ftp://ftp.wwpdb.org/pub/pdb/derived_data/)) to find homologs. For searching, [MMseqs2](https://github.com/soedinglab/MMseqs2) is utilized which offers a fast and accurate sequence comparison.
 
-The tool shas been tested on a conda (v4.10.1) and docker engine (v20.10.7)
+The tool has been tested on a conda (v4.10.1) and docker engine (v20.10.7)
 
 ## Tool Composition:
 
@@ -22,12 +22,17 @@ The tool shas been tested on a conda (v4.10.1) and docker engine (v20.10.7)
 - **update_prokka.nf**  : process for extending prokka annotation by annotatinos found during MMseqs2 process
 
 ## Requirements
-HyPro requires the provided list of software to function properly.
+In order to use HyPro the following software needs to be installed:
 
 |Program/Package|Version|Note|
 |---------------|-------|------|
 |nextflow|21.04.1|Might also work for other nextflow versions|
 |docker|20.10.7|Used for running HyPro on docker engine. Might also work for other docker versions|
+
+Below you find a summary of software and packages that HyPro is using:
+
+|Program/Package|Version|Note|
+|---------------|-------|------|
 |python|3.7|Might also work for other python3 versions|
 |pandas|0.25.2|Might also work for other versions|
 |mygene|3.1.0|Automatically installed when running HyPro on a conda or docker engine. Might also work for other versions.|
