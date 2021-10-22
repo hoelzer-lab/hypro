@@ -3,7 +3,7 @@
 ![Python](https://img.shields.io/badge/Language-Python3.7-green.svg)
 [![Twitter Follow](https://img.shields.io/twitter/follow/martinhoelzer.svg?style=social)](https://twitter.com/martinhoelzer)
 
-Authors: Martin H&ouml;lzer, Maximilian Arlt
+Authors: Martin H&ouml;lzer, Maximilian Arlt, Eva Aßmann
 
 # HyPro
 Protein-coding annotation extension using additional homology searches against larger databases.
@@ -22,29 +22,15 @@ The tool has been tested on a conda (v4.10.1) and docker engine (v20.10.7)
 - **update_prokka.nf**  : process for extending prokka annotation by annotatinos found during MMseqs2 process
 
 ## Requirements
-In order to use HyPro the following software needs to be installed:
-
-|Program/Package|Version|Note|
-|---------------|-------|------|
-|nextflow|21.04.1|Might also work for other nextflow versions|
-|docker|20.10.7|Used for running HyPro on docker engine. Might also work for other docker versions|
-
-Below you find a summary of software and packages that HyPro is using:
-
-|Program/Package|Version|Note|
-|---------------|-------|------|
-|python|3.7|Might also work for other python3 versions|
-|pandas|0.25.2|Might also work for other versions|
-|mygene|3.1.0|Automatically installed when running HyPro on a conda or docker engine. Might also work for other versions.|
-|mmseqs2|10.6d92c|Automatically installed when running HyPro on a conda or docker engine. <br>**DEPRECATED**: Install in conda environment|
-|prokka (recommended)|1.14.6|Used for _de novo_ annotation of test data of chlamydia. Automatically installed when running HyPro on a conda or docker engine.|
+To use HyPro you only need Nextflow and Conda or Docker/Singularity installed. 
 
 ## Script Usage
 
-After installing all dependencies and cloning this repository, you can run HyPro for a test genome on different nextflow configuration profiles:
+After installing for example Nextflow and Conda you can either clone this repository to run HyPro or just use Nextflows pull functionality. We also provide a test genome. You can use different Nextflow configuration profiles in order to run the pipeline on different system settings and configurations (e.g. switching from Conda to Docker as the backend software packaging engine):
 
 ```bash
-nextflow run main.nf -profile PROFILE --fasta test/data/GCF_000471025.2_ASM47102v2_genomic.fna --database DB_TYPE
+nextflow pull hoelzer-lab/hypro
+nextflow run hoelzer-lab/hypro -r 0.0.3 -profile local,conda --fasta ~/.nextflow/assets/hoelzer-lab/hypro/test/data/GCF_000471025.2_ASM47102v2_genomic.fna
 ```
 
 - **-profile local,conda**  : using conda environments for prokka, MMseqs2 and mygene (see configs/conda.config)
@@ -53,13 +39,13 @@ nextflow run main.nf -profile PROFILE --fasta test/data/GCF_000471025.2_ASM47102
 When running HyPro multiple times, the tool will look for an existing DB of type **--database** first. If nothing could be found, it will download/build the specified DB and store it in ``nextflow-autodownload-databases/``. Alternatively, you may give HyPro a path to an existing DB created sometime before. Simply hand it over to the [--customdb parameter](#Program-Handling). In this case, do not forget to specify the DB type that you use in **--database**!
 
 ```bash
-nextflow run main.nf -profile local,conda --fasta test/data/GCF_000471025.2_ASM47102v2_genomic.fna --database uniprotokb --customdb some/path/to/uniprotkb
+nextflow run hoelzer-lab/hypro -r 0.0.3 -profile local,conda --fasta ~/.nextflow/assets/hoelzer-lab/hypro/test/data/GCF_000471025.2_ASM47102v2_genomic. --database uniprotokb --customdb some/path/to/uniprotkb
 ```
 
 
 It is also possible to run HyPro on more than one input genome by using the [--list parameter](#Program-Handling). Instead of passing a single fasta file to **--fasta**, you specify the path to a csv file with two colums per line (sample id, fasta file path) and set the **--list** flag to ``true``.
 ```bash
-nextflow run main.nf -profile local,conda --fasta test/input.csv --list true --database uniprotokb --customdb some/path/to/uniprotkb
+nextflow run hoelzer-lab/hypro -r 0.0.3 -profile local,conda --fasta test/input.csv --list true --database uniprotokb --customdb some/path/to/uniprotkb
 ```
 
 ### Program Handling
@@ -102,94 +88,13 @@ A summary file containing the most relevant information on the latest HyPro run 
 Additionally, the log files for each HyPro process and nextflow execution reports are saved in ``nextflow-run-infos/``. For processes that need to be run with every input sample, the log files are structured into folders named after the input fasta.
 
 
-## DEPRECATED
+## Third-party tools
 
-### Summary
-The tool has been tested in a conda environment (v4.7.11).
+|Program/Package|Version|Note|
+|---------------|-------|------|
+|python|3.7|Might also work for other python3 versions|
+|pandas|0.25.2|Might also work for other versions|
+|mygene|3.1.0|Automatically installed when running HyPro on a conda or docker engine. Might also work for other versions.|
+|mmseqs2|10.6d92c|Automatically installed when running HyPro on a conda or docker engine. <br>**DEPRECATED**: Install in conda environment|
+|prokka (recommended)|1.14.6|Used for _de novo_ annotation of test data of chlamydia. Automatically installed when running HyPro on a conda or docker engine.|
 
-### Tool Composition
-- **hypro.py**     main script to be called by the user
-- **mmseqs2.sh**     bash script comprising all required MMseqs2 commands (createdb, createindex, search) and output formatting
-
-### Requirements
-It is recommended to clone this repository and use a conda environment for HyPro.
-
-
-```bash
-git clone https://github.com/hoelzer-lab/hypro.git
-cd hypro
-
-conda create -n hypro python=3.7 pandas=0.25.2 mmseqs2=10.6d92c prokka=1.14.6 mygene=3.1.0
-conda activate hypro
-```
-
-Or simply install HyPro from the bioconda repository:
-
-```
-conda create -n hypro python=3.7
-conda activate hypro
-conda install -c bioconda hypro
-```
-If the install from bioconda is not available, instead, try out the anaconda channel:
-
-```
-conda install -c marlt hypro
-
-```
-
-### Script Usage
-After installing all dependencies (see commands above) and cloning this repository we simply use Prokka on a test genome:
-
-```bash
-prokka --prefix testrun --outdir run/prokka test/data/GCF_000471025.2_ASM47102v2_genomic.fna
-```
-
-and then execute the scripts from this repository:
-
-```bash
-scripts/hypro.py -i run/prokka/testrun.gff -o run/hypro
-```
-assuming that your current working directory is the previously downloaded git repository of HyPro. The default of ``-f`` is ``./scripts/mmseqs2.sh``. Please adjust accordingly if running from another path.
-
-Or in case of conda package simply do:
-```bash
-hypro.py -f mmseqs2.sh -i run/prokka/testrun.gff -o run/hypro
-```
-No path for``mmseqs2.sh`` is required since conda installs it to your evironments ``bin``.
-
-When running HyPro to the same output folder multiple times, the tool will look for an existing DB of the type in ``-d`` first. If nothing could be found, it will download/build the specified DB. Alternatively, you may give HyPro a path to an existing DB created sometime before. Simply hand it over to the [-c parameter](#Program-Handling). In this case, do not forget to specify the DB type that you use in -d!
-
-```bash
-scripts/hypro.py -i run/prokka/testrun.gff -o run/hypro_reuse_db -d uniref50 -c run/hypro/db/uniref50
-```
-
-### Program Handling
-
-|Short|Long|Description|
-|-----|----|-----------|
-|**-h**|**--help** |Show this help message and exit.|
-|**-i**|**--input**|Path to input gff that shall be extended.|   
-|**-o**|**--output**|Specify PATH to a directory. HyPro will generate the output structure to PATH.|
-|**-d**|**--database**|Specify the target db to search for annotation extension. Current available options: uniprotkb, uniref50, uniref90, uniref100, pdb. Note, that searching on uniref DBs will significantly extend runtime of HyPro. [uniprotkb]|
-|**-f**|**--mmseq2**|Specify the path to the mmseqs2.sh. If using the conda package, 'mmseqs2.sh' is enough.|
-|**-m**|**--modus**|Choose the modus of HyPro to search all hypothetical proteins (full) or leave those out which gained partial annotation (restricted). The dinstinction of fully un-annotated and partial annotated hypothetical proteins was observed for uniprot annotations. Options: [full, restricted]|
-|**-c**|**--custom-db**|Specify a path to an existing DB. If no DB is found, HyPro will build it. Requires an according -d configuration.|
-|**-t**|**--threads**|Define the number of threads to use by mmseqs indexdb, search and convertalis. Default: 1|
-
-### Alignment Parameters
-
-|Short|Long|Description|
-|-----|----|-----------|
-|**-e**|**--evalue**|Include sequence matches with < e-value threshold into the profile. Requires a FLOAT >= 0.0. [0.1]|
-|**-a**|**--min-aln-len**| Specify the minimum alignment length as INT in range 0 to MAX aln length. [0]|
-|**-p**|**-pident**|List only matches above this sequence identity for clustering. Enter a FLOAT between 0 and 1.0. [0.0]|
-
-### Output
-
-HyPro loads all necessary data for the extension process automatically. It stores all needed information in the ``-o/--output PATH``. In ``PATH``, it creates the following directories:
-
-* ``db`` - stores the databases you have chosen, each in an own directory
-* ``mmseqs2_output`` - to store mmseqs2 output. The folder includes a subdirectory "final_outs" storing the ``mmseqs search`` results in tab-separated format (one is the mmseqs2 output while the other contains bit-score-filtered unique hits)
-* ``output`` - all extended files from prokka will be stored here (currently: gff, ffn, faa, gbk)
-
-Note: HyPro will save the mmseqs outputs in blast-like format (tsv) with a unique name composed of the DB you used and the chosen alignment parameters. For example: *mmseqs2_out_db_uniprotkb_e0.1_a0_p0.0.tsv* and *mmseqs2_out_db_uniprotkb_e0.1_a0_p0.0_unique.tsv*. This means the results of an mmseqs run on the UniProtKB DB with an e-value cut-off set to 0.1, minimum alignment length of 0 nt and percent identitiy equal to 0 % (those are the default alignment parameters).
