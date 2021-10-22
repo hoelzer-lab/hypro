@@ -1,9 +1,12 @@
-<!--[![Build Status](https://travis-ci.org/hoelzer/ribap.svg?branch=master)](https://travis-ci.org/hoelzer/ribap)-->
-[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-![Python](https://img.shields.io/badge/Language-Python3.7-green.svg)
-[![Twitter Follow](https://img.shields.io/twitter/follow/martinhoelzer.svg?style=social)](https://twitter.com/martinhoelzer)
+![](https://img.shields.io/github/v/release/hoelzer-lab/hypro)
+![](https://img.shields.io/badge/nextflow-20.10.0-brightgreen)
+![](https://img.shields.io/badge/uses-Docker-blue.svg)
+![](https://img.shields.io/badge/uses-Singularity-yellow.svg)
+![](https://img.shields.io/badge/uses-Conda-orange.svg)
+![](https://img.shields.io/badge/licence-GPL--3.0-lightgrey.svg)
 
 Authors: Martin H&ouml;lzer, Maximilian Arlt, Eva Aßmann
+[![Twitter Follow](https://img.shields.io/twitter/follow/martinhoelzer.svg?style=social)](https://twitter.com/martinhoelzer)
 
 # HyPro
 Protein-coding annotation extension using additional homology searches against larger databases.
@@ -30,7 +33,7 @@ After installing for example Nextflow and Conda you can either clone this reposi
 
 ```bash
 nextflow pull hoelzer-lab/hypro
-nextflow run hoelzer-lab/hypro -r 0.0.3 -profile local,conda --fasta ~/.nextflow/assets/hoelzer-lab/hypro/test/data/GCF_000471025.2_ASM47102v2_genomic.fna
+nextflow run hoelzer-lab/hypro -r 0.0.4 -profile local,conda --fasta ~/.nextflow/assets/hoelzer-lab/hypro/test/data/GCF_000471025.2_ASM47102v2_genomic.fna
 ```
 
 - **-profile local,conda**  : using conda environments for prokka, MMseqs2 and mygene (see configs/conda.config)
@@ -39,13 +42,13 @@ nextflow run hoelzer-lab/hypro -r 0.0.3 -profile local,conda --fasta ~/.nextflow
 When running HyPro multiple times, the tool will look for an existing DB of type **--database** first. If nothing could be found, it will download/build the specified DB and store it in ``nextflow-autodownload-databases/``. Alternatively, you may give HyPro a path to an existing DB created sometime before. Simply hand it over to the [--customdb parameter](#Program-Handling). In this case, do not forget to specify the DB type that you use in **--database**!
 
 ```bash
-nextflow run hoelzer-lab/hypro -r 0.0.3 -profile local,conda --fasta ~/.nextflow/assets/hoelzer-lab/hypro/test/data/GCF_000471025.2_ASM47102v2_genomic. --database uniprotokb --customdb some/path/to/uniprotkb
+nextflow run hoelzer-lab/hypro -r 0.0.4 -profile local,conda --fasta ~/.nextflow/assets/hoelzer-lab/hypro/test/data/GCF_000471025.2_ASM47102v2_genomic. --database uniprotokb --customdb some/path/to/uniprotkb
 ```
 
 
 It is also possible to run HyPro on more than one input genome by using the [--list parameter](#Program-Handling). Instead of passing a single fasta file to **--fasta**, you specify the path to a csv file with two colums per line (sample id, fasta file path) and set the **--list** flag to ``true``.
 ```bash
-nextflow run hoelzer-lab/hypro -r 0.0.3 -profile local,conda --fasta test/input.csv --list true --database uniprotokb --customdb some/path/to/uniprotkb
+nextflow run hoelzer-lab/hypro -r 0.0.4 -profile local,conda --fasta test/input.csv --list true --database uniprotokb --customdb some/path/to/uniprotkb
 ```
 
 ### Program Handling
